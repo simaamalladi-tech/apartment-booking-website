@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "home": "Home",
+    "apartments": "Apartments",
+    "bookings": "My Bookings",
+    "language": "Language",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "home": {
+    "title": "Find Your Perfect Apartment in Germany",
+    "subtitle": "Browse and book apartments with ease",
+    "searchPlaceholder": "Search by city...",
+    "search": "Search"
+  },
+  "apartments": {
+    "title": "Available Apartments",
+    "price": "Price per night",
+    "beds": "Bedrooms",
+    "baths": "Bathrooms",
+    "bookNow": "Book Now",
+    "noResults": "No apartments found"
+  },
+  "booking": {
+    "title": "Book Your Stay",
+    "checkIn": "Check-in Date",
+    "checkOut": "Check-out Date",
+    "guests": "Number of Guests",
+    "totalPrice": "Total Price",
+    "continueToPayment": "Continue to Payment",
+    "cancel": "Cancel"
+  },
+  "payment": {
+    "title": "Payment Information",
+    "cardDetails": "Card Details",
+    "email": "Email",
+    "name": "Full Name",
+    "address": "Address",
+    "city": "City",
+    "zipCode": "Zip Code",
+    "country": "Country",
+    "pay": "Pay",
+    "processing": "Processing...",
+    "success": "Payment Successful!",
+    "error": "Payment Error",
+    "bookingConfirmed": "Your booking is confirmed"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "cancel": "Cancel"
+  }
+}

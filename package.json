@@ -1,0 +1,24 @@
+{
+  "name": "apartment-booking-root",
+  "version": "1.0.0",
+  "description": "Full-stack apartment booking application for Germany",
+  "scripts": {
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\"",
+    "build": "cd frontend && npm run build && cd ../backend && echo 'Backend ready for production'",
+    "start": "cd backend && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "keywords": [
+    "apartment",
+    "booking",
+    "germany",
+    "stripe",
+    "react",
+    "node"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

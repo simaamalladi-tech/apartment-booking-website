@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "apartments": "Wohnungen",
+    "bookings": "Meine Buchungen",
+    "language": "Sprache",
+    "logout": "Abmelden",
+    "login": "Anmelden"
+  },
+  "home": {
+    "title": "Finden Sie Ihr perfektes Apartment in Deutschland",
+    "subtitle": "Durchsuchen und buchen Sie Apartments mit Leichtigkeit",
+    "searchPlaceholder": "Nach Stadt suchen...",
+    "search": "Suchen"
+  },
+  "apartments": {
+    "title": "Verfügbare Wohnungen",
+    "price": "Preis pro Nacht",
+    "beds": "Schlafzimmer",
+    "baths": "Badezimmer",
+    "bookNow": "Jetzt buchen",
+    "noResults": "Keine Wohnungen gefunden"
+  },
+  "booking": {
+    "title": "Buchen Sie Ihren Aufenthalt",
+    "checkIn": "Ankunftsdatum",
+    "checkOut": "Abreisedatum",
+    "guests": "Anzahl der Gäste",
+    "totalPrice": "Gesamtpreis",
+    "continueToPayment": "Zum Zahlungsverfahren",
+    "cancel": "Abbrechen"
+  },
+  "payment": {
+    "title": "Zahlungsinformation",
+    "cardDetails": "Kartendaten",
+    "email": "E-Mail",
+    "name": "Vollständiger Name",
+    "address": "Adresse",
+    "city": "Stadt",
+    "zipCode": "Postleitzahl",
+    "country": "Land",
+    "pay": "Zahlen",
+    "processing": "Wird verarbeitet...",
+    "success": "Zahlungsvorgang erfolgreich!",
+    "error": "Zahlungsfehler",
+    "bookingConfirmed": "Ihre Buchung ist bestätigt"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "error": "Ein Fehler ist aufgetreten",
+    "success": "Erfolg",
+    "cancel": "Abbrechen"
+  }
+}
