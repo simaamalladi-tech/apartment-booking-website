@@ -5,8 +5,8 @@
   "scripts": {
     "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\"",
-    "build": "cd frontend && npm run build && cd ../backend && echo 'Backend ready for production'",
-    "start": "cd backend && npm start"
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm install && npm start"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
