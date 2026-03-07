@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import useScrollAnimation from '../hooks/useScrollAnimation';
 import './ContactPage.css';
 
 function ContactPage() {
   const { t } = useTranslation();
-  useScrollAnimation();
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
