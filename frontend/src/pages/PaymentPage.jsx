@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import PaymentForm from '../components/PaymentForm';
 import './PaymentPage.css';
 
-const stripePromise = loadStripe('pk_test_51234567890abcdefghijklmnop'); // Replace with your Stripe key
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
   const { t } = useTranslation();
