@@ -5,7 +5,10 @@ import { useTranslation } from 'react-i18next';
 import PaymentForm from '../components/PaymentForm';
 import './PaymentPage.css';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+console.log('🔑 Stripe Publishable Key loaded:', stripeKey ? 'YES' : 'NO');
+
+const stripePromise = stripeKey ? loadStripe(stripeKey) : Promise.reject(new Error('Stripe key not found'));
 
 function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
   const { t } = useTranslation();

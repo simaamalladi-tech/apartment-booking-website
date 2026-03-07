@@ -61,7 +61,7 @@ function PaymentForm({ bookingData, onSuccess }) {
       }
 
       // Call backend to create payment intent
-      const response = await fetch('http://localhost:5000/api/payments/create-payment-intent', {
+      const response = await fetch('/api/payments/create-payment-intent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
