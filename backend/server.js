@@ -37,6 +37,13 @@ app.use('/api/apartments', apartmentRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 
+// Config endpoint - return Stripe publishable key
+app.get('/api/config', (req, res) => {
+  res.json({
+    stripePublishableKey: process.env.VITE_STRIPE_PUBLISHABLE_KEY || ''
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
