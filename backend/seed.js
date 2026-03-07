@@ -3,130 +3,69 @@ import mongoose from 'mongoose';
 // Seed sample apartments into database
 const sampleApartments = [
   {
-    title: 'Alt-Berliner Eckkneipe - Feuchte Ecke',
-    description: 'Historic bar and guesthouse in the heart of Berlin Kreuzberg. Authentic Berlin atmosphere with cozy rooms above the legendary pub. Perfect for travelers seeking the real Berlin experience. Walking distance to Checkpoint Charlie, Museum Island, and vibrant nightlife.',
+    title: 'Alt-Berliner Eckkneipe - "Feuchte Ecke"',
+    description: 'Spacious ground-floor apartment in a converted historic Berlin corner pub (Eckkneipe). This unique 90 m² two-bedroom apartment features original character with parquet floors, a private terrace with inner courtyard views, and an outdoor dining area. Fully equipped with a modern kitchen including dishwasher, oven, microwave, and coffee maker. Located in a quiet Berlin neighborhood with excellent tram connections — reach Museum Island and Alexanderplatz in about 30 minutes. Non-smoking property with free WiFi, air conditioning, and washing machine. Rated 9.3/10 "Superb" by guests.',
     city: 'Berlin',
-    address: 'Mehringdamm 34-38, 10961 Berlin-Kreuzberg',
+    address: '146A Gustav-Adolf-Straße, 13086 Berlin',
     price: 55,
-    beds: 1,
+    beds: 2,
     baths: 1,
-    maxGuests: 2,
-    amenities: ['WiFi', 'Shared Kitchen', 'Shared Bathroom', 'Bar Access', 'Central Location', 'Heating'],
+    maxGuests: 4,
+    size: 90,
+    amenities: [
+      'Free WiFi',
+      'Air Conditioning',
+      'Heating',
+      'Fully Equipped Kitchen',
+      'Dishwasher',
+      'Oven & Microwave',
+      'Coffee/Tea Maker',
+      'Washing Machine',
+      'Flat-Screen TV',
+      'Private Terrace',
+      'Inner Courtyard View',
+      'Outdoor Dining Area',
+      'Hair Dryer',
+      'Iron',
+      'Free Toiletries',
+      'Parquet Floors',
+      'Private Entrance',
+      'Non-Smoking',
+      'Pets Allowed',
+      'Luggage Storage'
+    ],
     available: true,
     images: [
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1631049307038-da0ec629540d?w=1200&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1570129477492-45a003537e1f?w=1200&h=600&fit=crop'
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15383/1538387/1538387731/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-1.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/14945/1494537/1494537313/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-2.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113876/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-3.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113879/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-4.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113882/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-5.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113897/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-6.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113900/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-7.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113924/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-8.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113927/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-9.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113930/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-10.JPEG'
     ]
-  },
-  {
-    title: 'Spacious 2BR in Munich',
-    description: 'Beautiful 2-bedroom apartment near the city center',
-    city: 'Munich',
-    address: 'Marienplatz 15, Munich',
-    price: 75,
-    beds: 2,
-    baths: 1,
-    maxGuests: 4,
-    amenities: ['WiFi', 'Kitchen', '2 Bathrooms', 'Balcony'],
-    available: true
-  },
-  {
-    title: 'Luxury Penthouse in Hamburg',
-    description: 'Stunning penthouse with panoramic city view',
-    city: 'Hamburg',
-    address: 'Binnenalster 1, Hamburg',
-    price: 120,
-    beds: 3,
-    baths: 2,
-    maxGuests: 6,
-    amenities: ['WiFi', 'Luxury Kitchen', '2 Bathrooms', 'Terrace', 'Gym'],
-    available: true
-  },
-  {
-    title: 'Cozy 1BR in Frankfurt',
-    description: 'Comfortable 1-bedroom in a peaceful neighborhood',
-    city: 'Frankfurt',
-    address: 'Main Street 99, Frankfurt',
-    price: 55,
-    beds: 1,
-    baths: 1,
-    maxGuests: 2,
-    amenities: ['WiFi', 'Kitchen', 'Bathroom', 'Quiet Area'],
-    available: true
-  },
-  {
-    title: 'Modern 2BR in Cologne',
-    description: 'Contemporary apartment with modern amenities',
-    city: 'Cologne',
-    address: 'Rhine View 28, Cologne',
-    price: 65,
-    beds: 2,
-    baths: 1,
-    maxGuests: 4,
-    amenities: ['WiFi', 'Kitchen', 'Riverside View', 'Parking'],
-    available: true
-  },
-  {
-    title: '3BR Family Home in Dresden',
-    description: 'Spacious family apartment with garden',
-    city: 'Dresden',
-    address: 'Altstadt 55, Dresden',
-    price: 85,
-    beds: 3,
-    baths: 2,
-    maxGuests: 6,
-    amenities: ['WiFi', 'Kitchen', 'Garden', 'Parking', 'Laundry'],
-    available: true
-  },
-  {
-    title: 'Cozy Flat in Stuttgart',
-    description: 'Charming apartment in the heart of Stuttgart',
-    city: 'Stuttgart',
-    address: 'Königstraße 25, Stuttgart',
-    price: 60,
-    beds: 1,
-    baths: 1,
-    maxGuests: 2,
-    amenities: ['WiFi', 'Kitchen', 'Central Location'],
-    available: true
-  },
-  {
-    title: 'Luxury Apt in Düsseldorf',
-    description: 'Premium apartment in the Rhine district',
-    city: 'Düsseldorf',
-    address: 'Rhine Promenade 10, Düsseldorf',
-    price: 95,
-    beds: 2,
-    baths: 2,
-    maxGuests: 4,
-    amenities: ['WiFi', 'Luxury Kitchen', 'River View', 'Gym Access'],
-    available: true
   }
 ];
 
 export async function seedApartments() {
   try {
     const Apartment = mongoose.model('Apartment');
-    const count = await Apartment.countDocuments();
-    
-    if (count === 0) {
-      await Apartment.insertMany(sampleApartments);
-      console.log('✓ Sample apartments added to database');
-    } else {
-      // Update the first apartment to ensure it has images
-      const first = await Apartment.findOne({ title: /Alt-Berliner/i });
-      if (first && (!first.images || first.images.length === 0)) {
-        first.images = sampleApartments[0].images;
-        first.description = sampleApartments[0].description;
-        first.amenities = sampleApartments[0].amenities;
-        await first.save();
-        console.log('✓ Updated Alt-Berliner apartment with images');
-      }
-      console.log(`✓ Database contains ${count} apartments`);
-    }
+
+    // Always upsert the main property with latest data
+    const data = sampleApartments[0];
+    await Apartment.findOneAndUpdate(
+      { title: /Alt-Berliner/i },
+      { $set: data },
+      { upsert: true, new: true }
+    );
+
+    // Remove any other sample apartments that are no longer needed
+    await Apartment.deleteMany({ title: { $not: /Alt-Berliner/i } });
+
+    console.log('✓ Alt-Berliner Eckkneipe property data synced');
   } catch (error) {
     console.error('Error seeding apartments:', error);
   }

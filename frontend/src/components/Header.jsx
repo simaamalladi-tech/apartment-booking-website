@@ -15,7 +15,7 @@ function Header({ currentPage, onPageChange }) {
     <header className="header">
       <div className="header-container">
         <div className="logo" onClick={() => onPageChange('home')} style={{ cursor: 'pointer' }}>
-          <h1>🏠 Alt-Berliner Eckkneipe</h1>
+          <img src="/logo.svg" alt="Alt-Berliner Eckkneipe" className="logo-img" />
         </div>
 
         <div className="header-right">

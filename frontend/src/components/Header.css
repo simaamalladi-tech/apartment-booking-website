@@ -28,6 +28,11 @@
   color: white;
 }
 
+.logo-img {
+  height: 42px;
+  width: auto;
+}
+
 .header-right {
   display: flex;
   align-items: center;

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none">
+  <!-- Background pill -->
+  <rect width="240" height="60" rx="8" fill="transparent"/>
+  <!-- Building icon -->
+  <g transform="translate(4, 6)">
+    <!-- Main building body -->
+    <rect x="6" y="14" width="32" height="34" rx="2" fill="#fff"/>
+    <!-- Roof -->
+    <polygon points="4,16 22,2 40,16" fill="#fff"/>
+    <!-- Door -->
+    <rect x="16" y="30" width="12" height="18" rx="1" fill="#667eea"/>
+    <!-- Door handle -->
+    <circle cx="26" cy="40" r="1.2" fill="#fff"/>
+    <!-- Windows row 1 -->
+    <rect x="10" y="18" width="6" height="6" rx="0.5" fill="#667eea" opacity="0.7"/>
+    <rect x="28" y="18" width="6" height="6" rx="0.5" fill="#667eea" opacity="0.7"/>
+    <!-- Windows row 2 -->
+    <rect x="10" y="28" width="6" height="5" rx="0.5" fill="#667eea" opacity="0.5"/>
+    <rect x="28" y="28" width="6" height="5" rx="0.5" fill="#667eea" opacity="0.5"/>
+    <!-- Chimney -->
+    <rect x="28" y="4" width="5" height="10" rx="1" fill="#fff" opacity="0.8"/>
+  </g>
+  <!-- Text: Alt-Berliner -->
+  <text x="52" y="26" font-family="Georgia, serif" font-size="17" font-weight="700" fill="#ffffff" letter-spacing="0.5">Alt-Berliner</text>
+  <!-- Text: Eckkneipe -->
+  <text x="52" y="46" font-family="Georgia, serif" font-size="15" font-weight="400" fill="rgba(255,255,255,0.85)" letter-spacing="1">Eckkneipe</text>
+</svg>

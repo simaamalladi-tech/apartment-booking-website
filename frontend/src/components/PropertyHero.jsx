@@ -16,9 +16,21 @@ function PropertyHero({ apartment, onBookNow }) {
         <div className="property-info-container">
           {/* Left: Details */}
           <div className="property-details">
+            {/* Rating & Address Bar */}
+            <div className="property-header-bar">
+              <div className="rating-badge">
+                <span className="rating-score">9.3</span>
+                <span className="rating-label">Superb</span>
+              </div>
+              <div className="address-info">
+                <span className="address-icon">📍</span>
+                <span>{apartment.address}</span>
+              </div>
+            </div>
+
             <div className="price-section">
               <h2 className="price">€{apartment.price}</h2>
-              <p className="price-label">per night</p>
+              <p className="price-label">{t('apartments.price')}</p>
             </div>
 
             {/* Quick Facts */}
@@ -26,14 +38,14 @@ function PropertyHero({ apartment, onBookNow }) {
               <div className="fact">
                 <span className="fact-icon">🛏️</span>
                 <div>
-                  <div className="fact-label">Bedrooms</div>
-                  <div className="fact-value">{apartment.beds + 1}</div>
+                  <div className="fact-label">{t('apartments.beds')}</div>
+                  <div className="fact-value">{apartment.beds}</div>
                 </div>
               </div>
               <div className="fact">
                 <span className="fact-icon">🚿</span>
                 <div>
-                  <div className="fact-label">Bathrooms</div>
+                  <div className="fact-label">{t('apartments.baths')}</div>
                   <div className="fact-value">{apartment.baths}</div>
                 </div>
               </div>
@@ -43,6 +55,27 @@ function PropertyHero({ apartment, onBookNow }) {
                   <div className="fact-label">Max Guests</div>
                   <div className="fact-value">{apartment.maxGuests}</div>
                 </div>
+              </div>
+              {apartment.size > 0 && (
+                <div className="fact">
+                  <span className="fact-icon">📐</span>
+                  <div>
+                    <div className="fact-label">Size</div>
+                    <div className="fact-value">{apartment.size} m²</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Check-in / Check-out */}
+            <div className="checkin-info">
+              <div className="checkin-item">
+                <span className="checkin-label">Check-in</span>
+                <span className="checkin-value">15:00 – 23:00</span>
+              </div>
+              <div className="checkin-item">
+                <span className="checkin-label">Check-out</span>
+                <span className="checkin-value">Until 10:00</span>
               </div>
             </div>
 

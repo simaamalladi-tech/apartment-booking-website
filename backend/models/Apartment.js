@@ -27,6 +27,10 @@ const apartmentSchema = new mongoose.Schema({
     type: Number,
     default: 4
   },
+  size: {
+    type: Number,
+    default: 0
+  },
   amenities: [String],
   image: String,
   images: {
