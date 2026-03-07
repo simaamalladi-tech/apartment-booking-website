@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-import { CardElement, Elements, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { useTranslation } from 'react-i18next';
 import PaymentForm from '../components/PaymentForm';
 import './PaymentPage.css';
@@ -13,15 +13,15 @@ const fetchStripeKey = async () => {
     const res = await fetch('/api/config');
     const data = await res.json();
     if (data.stripePublishableKey) {
-      console.log('🔑 Stripe key loaded from backend');
+      console.log('Stripe key loaded from backend');
       stripePromise = loadStripe(data.stripePublishableKey);
       return stripePromise;
     } else {
-      console.warn('⚠️ Stripe publishable key not configured');
+      console.warn('Stripe publishable key not configured');
       return null;
     }
   } catch (err) {
-    console.error('❌ Error fetching Stripe config:', err);
+    console.error('Error fetching Stripe config:', err);
     return null;
   }
 };
@@ -52,12 +52,14 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
   return (
     <div className="payment-page">
       <div className="payment-container">
-        <button className="back-btn" onClick={onCancel}>← {t('common.cancel')}</button>
+        <button className="back-btn" onClick={onCancel}>
+          ← {t('common.cancel')}
+        </button>
 
         <h1>{t('payment.title')}</h1>
 
         {error && (
-          <div className="error-banner" style={{ padding: '15px', background: '#fee', color: '#c00', borderRadius: '4px', marginBottom: '20px' }}>
+          <div className="error-banner">
             {error}
           </div>
         )}
@@ -71,50 +73,50 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
                   onSuccess={onPaymentSuccess}
                 />
               </Elements>
-          </div>
+            </div>
 
-          <div className="booking-summary-section">
-            <div className="summary-card">
-              <h3>Booking Summary</h3>
+            <div className="booking-summary-section">
+              <div className="summary-card">
+                <h3>Booking Summary</h3>
 
-              <div className="summary-item">
-                <span>{bookingData.apartment.title}</span>
-                <span>{bookingData.apartment.image}</span>
-              </div>
+                <div className="summary-item">
+                  <label>Property:</label>
+                  <span>{bookingData.apartment.title}</span>
+                </div>
 
-              <div className="summary-item">
-                <label>Check-in:</label>
-                <span>{bookingData.checkIn}</span>
-              </div>
+                <div className="summary-item">
+                  <label>Check-in:</label>
+                  <span>{bookingData.checkIn}</span>
+                </div>
 
-              <div className="summary-item">
-                <label>Check-out:</label>
-                <span>{bookingData.checkOut}</span>
-              </div>
+                <div className="summary-item">
+                  <label>Check-out:</label>
+                  <span>{bookingData.checkOut}</span>
+                </div>
 
-              <div className="summary-item">
-                <label>Nights:</label>
-                <span>{bookingData.nights}</span>
-              </div>
+                <div className="summary-item">
+                  <label>Nights:</label>
+                  <span>{bookingData.nights}</span>
+                </div>
 
-              <div className="summary-item">
-                <label>Guests:</label>
-                <span>{bookingData.guests}</span>
-              </div>
+                <div className="summary-item">
+                  <label>Guests:</label>
+                  <span>{bookingData.guests}</span>
+                </div>
 
-              <hr />
+                <hr />
 
-              <div className="summary-item total">
-                <label>Total Price:</label>
-                <span>€{bookingData.totalPrice}</span>
+                <div className="summary-item total">
+                  <label>Total Price:</label>
+                  <span>€{bookingData.totalPrice}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
         )}
 
         {!stripe && !error && (
-          <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+          <div className="loading-payment">
             Loading payment system...
           </div>
         )}

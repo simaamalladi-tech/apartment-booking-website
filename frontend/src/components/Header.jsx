@@ -14,31 +14,23 @@ function Header({ currentPage, onPageChange }) {
   return (
     <header className="header">
       <div className="header-container">
-        <div className="logo">
-          <h1 onClick={() => onPageChange('home')} style={{ cursor: 'pointer', margin: 0 }}>
-            🏠 Alt-Berliner Eckkneipe
-          </h1>
+        <div className="logo" onClick={() => onPageChange('home')} style={{ cursor: 'pointer' }}>
+          <h1>🏠 Alt-Berliner Eckkneipe</h1>
         </div>
 
-        <nav className="nav">
-          <ul className="nav-menu">
-            <li>
-              <button 
-                className={currentPage === 'home' ? 'active' : ''}
-                onClick={() => onPageChange('home')}
-              >
-                {t('nav.home')}
-              </button>
-            </li>
-            <li>
-              <a href="/admin" className="admin-link">
-                Admin Panel
-              </a>
-            </li>
-          </ul>
-        </nav>
+        <div className="header-right">
+          <nav className="nav">
+            <button 
+              className={`nav-btn ${currentPage === 'home' ? 'active' : ''}`}
+              onClick={() => onPageChange('home')}
+            >
+              {t('nav.home')}
+            </button>
+            <a href="/admin" className="admin-link">
+              Admin
+            </a>
+          </nav>
 
-        <div className="header-actions">
           <div className="language-selector">
             <button 
               className={i18n.language === 'en' ? 'active' : ''}

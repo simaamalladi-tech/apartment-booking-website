@@ -116,7 +116,16 @@ export async function seedApartments() {
       await Apartment.insertMany(sampleApartments);
       console.log('✓ Sample apartments added to database');
     } else {
-      console.log(`✓ Database already contains ${count} apartments`);
+      // Update the first apartment to ensure it has images
+      const first = await Apartment.findOne({ title: /Alt-Berliner/i });
+      if (first && (!first.images || first.images.length === 0)) {
+        first.images = sampleApartments[0].images;
+        first.description = sampleApartments[0].description;
+        first.amenities = sampleApartments[0].amenities;
+        await first.save();
+        console.log('✓ Updated Alt-Berliner apartment with images');
+      }
+      console.log(`✓ Database contains ${count} apartments`);
     }
   } catch (error) {
     console.error('Error seeding apartments:', error);
