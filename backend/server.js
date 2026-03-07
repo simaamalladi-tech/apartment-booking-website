@@ -19,6 +19,9 @@ dotenv.config();
 
 const app = express();
 
+// Trust proxy (Railway, Heroku, etc. run behind a reverse proxy)
+app.set('trust proxy', 1);
+
 // Get __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
