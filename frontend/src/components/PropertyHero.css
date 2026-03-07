@@ -179,6 +179,12 @@
 }
 
 /* Amenities */
+.amenities-section {
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #ddd;
+}
+
 .amenities-section h3 {
   font-size: 24px;
   font-weight: 600;
@@ -200,6 +206,28 @@
   color: #555;
   padding: 8px 0;
   border-bottom: 1px solid #f0f0f0;
+}
+
+/* Scores Section (left column) */
+.scores-section {
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #ddd;
+}
+
+.scores-section h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  color: #000;
+}
+
+/* Dining Section (left column) */
+.dining-section h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  color: #000;
 }
 
 /* Booking Card */
@@ -481,9 +509,9 @@
 }
 
 .score-label {
-  font-size: 12px;
+  font-size: 13px;
   color: #555;
-  width: 100px;
+  width: 130px;
   flex-shrink: 0;
 }
 
