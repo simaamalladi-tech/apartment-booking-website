@@ -1,21 +1,22 @@
 import nodemailer from 'nodemailer';
+import dns from 'dns';
 import dotenv from 'dotenv';
+
+// Force IPv4 DNS resolution - Railway containers don't support IPv6
+dns.setDefaultResultOrder('ipv4first');
 
 dotenv.config();
 
 // SMTP defaults
-const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
-const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
-const SMTP_SECURE = process.env.SMTP_SECURE === 'true';
 const SMTP_USER = process.env.SMTP_USER || 'lutz.richter@gmail.com';
 const SMTP_PASS = process.env.SMTP_PASS || 'undu oxts ralm xekh';
 
-// Create transporter
+// Create transporter - use Gmail SMTP with SSL on port 465
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_SECURE,
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: SMTP_USER,
       pass: SMTP_PASS
