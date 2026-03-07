@@ -301,6 +301,120 @@
   text-align: center;
 }
 
+/* ─── Sidebar Cards (below booking card) ─── */
+.sidebar-card {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8e8e8;
+  margin-top: 20px;
+}
+
+.sidebar-card h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Neighborhood Highlights */
+.neighborhood-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.neighborhood-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.neighborhood-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.poi-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.neighborhood-list li > div {
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+  gap: 8px;
+}
+
+.poi-name {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.poi-distance {
+  font-size: 13px;
+  color: #888;
+  white-space: nowrap;
+}
+
+/* House Rules */
+.rules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rules-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.rule-icon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Guest Reviews */
+.review {
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.review:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.review-text {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+  margin: 0 0 6px 0;
+  font-style: italic;
+}
+
+.review-author {
+  font-size: 13px;
+  color: #999;
+  font-weight: 500;
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .property-info-container {
@@ -382,6 +496,14 @@
 
   .booking-card {
     padding: 20px;
+  }
+
+  .sidebar-card {
+    padding: 18px;
+  }
+
+  .sidebar-card h3 {
+    font-size: 16px;
   }
 
   .booking-card h3 {

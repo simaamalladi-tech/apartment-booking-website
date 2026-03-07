@@ -130,6 +130,76 @@ function PropertyHero({ apartment, onBookNow }) {
                 📧 {t('property.emailConfirmation')}
               </p>
             </div>
+
+            {/* Neighborhood Highlights */}
+            <div className="sidebar-card neighborhood-card fade-in-up">
+              <h3>📍 {t('property.neighborhoodTitle')}</h3>
+              <ul className="neighborhood-list">
+                <li>
+                  <span className="poi-icon">🚇</span>
+                  <div>
+                    <span className="poi-name">{t('property.poi1Name')}</span>
+                    <span className="poi-distance">{t('property.poi1Dist')}</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="poi-icon">🏛️</span>
+                  <div>
+                    <span className="poi-name">{t('property.poi2Name')}</span>
+                    <span className="poi-distance">{t('property.poi2Dist')}</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="poi-icon">🛍️</span>
+                  <div>
+                    <span className="poi-name">{t('property.poi3Name')}</span>
+                    <span className="poi-distance">{t('property.poi3Dist')}</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="poi-icon">🌳</span>
+                  <div>
+                    <span className="poi-name">{t('property.poi4Name')}</span>
+                    <span className="poi-distance">{t('property.poi4Dist')}</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="poi-icon">✈️</span>
+                  <div>
+                    <span className="poi-name">{t('property.poi5Name')}</span>
+                    <span className="poi-distance">{t('property.poi5Dist')}</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            {/* House Rules */}
+            <div className="sidebar-card rules-card fade-in-up">
+              <h3>📋 {t('property.houseRulesTitle')}</h3>
+              <ul className="rules-list">
+                <li><span className="rule-icon">🚭</span> {t('property.rule1')}</li>
+                <li><span className="rule-icon">🐾</span> {t('property.rule2')}</li>
+                <li><span className="rule-icon">🎉</span> {t('property.rule3')}</li>
+                <li><span className="rule-icon">🤫</span> {t('property.rule4')}</li>
+              </ul>
+            </div>
+
+            {/* Guest Reviews */}
+            <div className="sidebar-card reviews-card fade-in-up">
+              <h3>⭐ {t('property.reviewsTitle')}</h3>
+              <div className="review">
+                <p className="review-text">"{t('property.review1Text')}"</p>
+                <p className="review-author">— {t('property.review1Author')}</p>
+              </div>
+              <div className="review">
+                <p className="review-text">"{t('property.review2Text')}"</p>
+                <p className="review-author">— {t('property.review2Author')}</p>
+              </div>
+              <div className="review">
+                <p className="review-text">"{t('property.review3Text')}"</p>
+                <p className="review-author">— {t('property.review3Author')}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
