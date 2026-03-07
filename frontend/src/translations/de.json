@@ -200,6 +200,7 @@
     "emailFailed": "E-Mail konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
   },
   "footer": {
+    "alsoAvailable": "Auch buchbar auf",
     "tagline": "Ihre einzigartige Berliner Wohnung in einer historischen Eckkneipe.",
     "quickLinks": "Schnelllinks",
     "home": "Startseite",

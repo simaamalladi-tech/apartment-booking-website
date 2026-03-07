@@ -10,6 +10,22 @@ function Footer({ onPageChange }) {
 
   return (
     <footer className="site-footer">
+      {/* Also Available On */}
+      <div className="also-available fade-in-up">
+        <p className="also-available-label">{t('footer.alsoAvailable')}</p>
+        <div className="platform-logos">
+          <a href="https://www.booking.com/hotel/de/alt-berliner-eckkneipe-feuchte-ecke.html" target="_blank" rel="noopener noreferrer" className="platform-link" aria-label="Booking.com">
+            <svg className="platform-logo" viewBox="0 0 300 48" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="48" rx="6" fill="#003580"/><text x="150" y="33" textAnchor="middle" fill="#fff" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">Booking.com</text></svg>
+          </a>
+          <a href="https://www.airbnb.com" target="_blank" rel="noopener noreferrer" className="platform-link" aria-label="Airbnb">
+            <svg className="platform-logo" viewBox="0 0 300 48" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="48" rx="6" fill="#FF5A5F"/><text x="150" y="33" textAnchor="middle" fill="#fff" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">Airbnb</text></svg>
+          </a>
+          <a href="https://www.google.com/travel/hotels" target="_blank" rel="noopener noreferrer" className="platform-link" aria-label="Google Hotels">
+            <svg className="platform-logo google-logo" viewBox="0 0 300 48" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="48" rx="6" fill="#fff" stroke="#ddd"/><text x="20" y="33" fill="#4285F4" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">G</text><text x="40" y="33" fill="#EA4335" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">o</text><text x="62" y="33" fill="#FBBC05" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">o</text><text x="84" y="33" fill="#4285F4" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">g</text><text x="106" y="33" fill="#34A853" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">l</text><text x="118" y="33" fill="#EA4335" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">e</text><text x="145" y="33" fill="#555" fontFamily="Arial,sans-serif" fontSize="20" fontWeight="400">Hotels</text></svg>
+          </a>
+        </div>
+      </div>
+
       <div className="footer-container">
         <div className="footer-grid stagger-children">
           {/* Brand */}

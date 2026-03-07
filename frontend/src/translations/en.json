@@ -200,6 +200,7 @@
     "emailFailed": "Failed to send email. Please try again."
   },
   "footer": {
+    "alsoAvailable": "Also available on",
     "tagline": "Your unique Berlin apartment in a historic corner pub.",
     "quickLinks": "Quick Links",
     "home": "Home",

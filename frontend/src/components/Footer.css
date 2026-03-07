@@ -1,13 +1,60 @@
 .site-footer {
   background: #1a1a2e;
   color: #ccc;
-  padding: 50px 20px 20px;
+  padding: 0 20px 20px;
   margin-top: auto;
+}
+
+/* Also Available On */
+.also-available {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 0;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.also-available-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #888;
+  margin: 0 0 18px 0;
+  font-weight: 600;
+}
+
+.platform-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.platform-link {
+  display: inline-flex;
+  opacity: 0.7;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.platform-link:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.platform-logo {
+  height: 36px;
+  width: auto;
+}
+
+.platform-logo.google-logo {
+  height: 36px;
 }
 
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding-top: 30px;
 }
 
 .footer-grid {
@@ -142,7 +189,7 @@
 
 @media (max-width: 600px) {
   .site-footer {
-    padding: 30px 15px 15px;
+    padding: 0 15px 15px;
   }
 
   .footer-grid {
@@ -154,5 +201,17 @@
     flex-direction: column;
     gap: 8px;
     text-align: center;
+  }
+
+  .also-available {
+    padding: 20px 0;
+  }
+
+  .platform-logos {
+    gap: 16px;
+  }
+
+  .platform-logo {
+    height: 28px;
   }
 }

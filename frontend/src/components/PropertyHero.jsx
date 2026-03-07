@@ -1,8 +1,76 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import ImageGallery from './ImageGallery';
 import useScrollAnimation from '../hooks/useScrollAnimation';
 import './PropertyHero.css';
+
+const TOTAL_REVIEWS = 6;
+const VISIBLE = 2;
+const PAGES = Math.ceil(TOTAL_REVIEWS / VISIBLE); // 3 pages
+
+function ReviewsCarousel({ t }) {
+  const [page, setPage] = useState(0);
+  const [fading, setFading] = useState(false);
+
+  const goTo = useCallback((next) => {
+    setFading(true);
+    setTimeout(() => {
+      setPage(next);
+      setFading(false);
+    }, 250);
+  }, []);
+
+  // Auto-advance every 6 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      goTo((page + 1) % PAGES);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [page, goTo]);
+
+  const start = page * VISIBLE;
+  const reviewNums = Array.from({ length: VISIBLE }, (_, i) => start + i + 1)
+    .filter(n => n <= TOTAL_REVIEWS);
+
+  return (
+    <div className="sidebar-card reviews-card fade-in-up">
+      <h3>⭐ {t('property.reviewsTitle')}</h3>
+      <div className={`reviews-carousel-inner ${fading ? 'fade-out' : 'fade-in'}`}>
+        {reviewNums.map(n => (
+          <div className="review" key={n}>
+            <div className="review-header">
+              <span className="review-rating-badge">{t(`property.review${n}Rating`)}</span>
+            </div>
+            <p className="review-text">"{t(`property.review${n}Text`)}"</p>
+            <p className="review-author">— {t(`property.review${n}Author`)}</p>
+          </div>
+        ))}
+      </div>
+      <div className="reviews-carousel-nav">
+        <button
+          className="carousel-arrow"
+          onClick={() => goTo((page - 1 + PAGES) % PAGES)}
+          aria-label="Previous reviews"
+        >‹</button>
+        <div className="carousel-dots">
+          {Array.from({ length: PAGES }, (_, i) => (
+            <button
+              key={i}
+              className={`carousel-dot ${i === page ? 'active' : ''}`}
+              onClick={() => goTo(i)}
+              aria-label={`Page ${i + 1}`}
+            />
+          ))}
+        </div>
+        <button
+          className="carousel-arrow"
+          onClick={() => goTo((page + 1) % PAGES)}
+          aria-label="Next reviews"
+        >›</button>
+      </div>
+    </div>
+  );
+}
 
 function PropertyHero({ apartment, onBookNow }) {
   const { t } = useTranslation();
@@ -212,19 +280,8 @@ function PropertyHero({ apartment, onBookNow }) {
               </div>
             </div>
 
-            {/* Guest Reviews */}
-            <div className="sidebar-card reviews-card fade-in-up">
-              <h3>⭐ {t('property.reviewsTitle')}</h3>
-              {[1, 2, 3, 4, 5, 6].map(n => (
-                <div className="review" key={n}>
-                  <div className="review-header">
-                    <span className="review-rating-badge">{t(`property.review${n}Rating`)}</span>
-                  </div>
-                  <p className="review-text">"{t(`property.review${n}Text`)}"</p>
-                  <p className="review-author">— {t(`property.review${n}Author`)}</p>
-                </div>
-              ))}
-            </div>
+            {/* Guest Reviews Carousel */}
+            <ReviewsCarousel t={t} />
 
             {/* Nearby Dining */}
             <div className="sidebar-card dining-card fade-in-up">
