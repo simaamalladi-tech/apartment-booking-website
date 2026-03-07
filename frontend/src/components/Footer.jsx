@@ -44,9 +44,9 @@ function Footer({ onPageChange }) {
           <div className="footer-links">
             <h4>{t('footer.legal')}</h4>
             <ul>
-              <li><a href="#impressum">{t('footer.impressum')}</a></li>
-              <li><a href="#privacy">{t('footer.privacy')}</a></li>
-              <li><a href="#terms">{t('footer.terms')}</a></li>
+              <li><button onClick={() => onPageChange('impressum')}>{t('footer.impressum')}</button></li>
+              <li><button onClick={() => onPageChange('privacy')}>{t('footer.privacy')}</button></li>
+              <li><button onClick={() => onPageChange('terms')}>{t('footer.terms')}</button></li>
             </ul>
           </div>
         </div>

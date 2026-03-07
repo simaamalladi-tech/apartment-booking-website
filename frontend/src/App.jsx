@@ -9,6 +9,7 @@ import PaymentPage from './pages/PaymentPage';
 import ContactPage from './pages/ContactPage';
 import AdminPanel from './pages/AdminPanel';
 import ConfirmationPage from './pages/ConfirmationPage';
+import LegalPage from './pages/LegalPage';
 import './App.css';
 
 function App() {
@@ -108,6 +109,10 @@ function App() {
 
         {currentPage === 'admin' && (
           <AdminPanel />
+        )}
+
+        {(currentPage === 'impressum' || currentPage === 'privacy' || currentPage === 'terms') && (
+          <LegalPage page={currentPage} onBack={() => setCurrentPage('home')} />
         )}
       </main>
 
