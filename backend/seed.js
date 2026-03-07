@@ -3,15 +3,15 @@ import mongoose from 'mongoose';
 // Seed sample apartments into database
 const sampleApartments = [
   {
-    title: 'Modern Studio in Berlin',
-    description: 'Cozy studio apartment in the heart of Berlin with modern amenities',
+    title: 'Alt-Berliner Eckkneipe - Feuchte Ecke',
+    description: 'Historic bar and guesthouse in the heart of Berlin Kreuzberg. Authentic Berlin atmosphere with cozy rooms above the legendary pub. Perfect for travelers seeking the real Berlin experience. Walking distance to Checkpoint Charlie, Museum Island, and vibrant nightlife.',
     city: 'Berlin',
-    address: 'Friedrichstraße 42, Berlin',
-    price: 45,
-    beds: 0,
+    address: 'Mehringdamm 34-38, 10961 Berlin-Kreuzberg',
+    price: 55,
+    beds: 1,
     baths: 1,
     maxGuests: 2,
-    amenities: ['WiFi', 'Kitchen', 'Bathroom', 'Heating'],
+    amenities: ['WiFi', 'Shared Kitchen', 'Shared Bathroom', 'Bar Access', 'Central Location', 'Heating'],
     available: true
   },
   {
