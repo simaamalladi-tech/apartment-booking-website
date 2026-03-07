@@ -230,6 +230,31 @@
   color: #000;
 }
 
+/* Location Section (merged neighborhood + dining in left column) */
+.location-section {
+  margin-bottom: 0;
+}
+
+.location-section h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  color: #000;
+}
+
+.location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.location-col h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+
 /* Booking Card */
 .booking-card-container {
   display: flex;
@@ -670,6 +695,11 @@
 
   .description-section p {
     font-size: 14px;
+  }
+
+  .location-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .amenities-section h3 {

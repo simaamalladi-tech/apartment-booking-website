@@ -192,34 +192,6 @@ function PropertyHero({ apartment, onBookNow }) {
                 ))}
               </div>
             </div>
-
-            {/* Nearby Dining (in left column) */}
-            <div className="dining-section fade-in-up">
-              <h3>🍽️ {t('property.nearbyTitle')}</h3>
-              <ul className="neighborhood-list">
-                <li>
-                  <span className="poi-icon">🍔</span>
-                  <div>
-                    <span className="poi-name">{t('property.restaurant1')}</span>
-                    <span className="poi-distance">{t('property.restaurant1Dist')}</span>
-                  </div>
-                </li>
-                <li>
-                  <span className="poi-icon">🍽️</span>
-                  <div>
-                    <span className="poi-name">{t('property.restaurant2')}</span>
-                    <span className="poi-distance">{t('property.restaurant2Dist')}</span>
-                  </div>
-                </li>
-                <li>
-                  <span className="poi-icon">☕</span>
-                  <div>
-                    <span className="poi-name">{t('property.restaurant3')}</span>
-                    <span className="poi-distance">{t('property.restaurant3Dist')}</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
           </div>
 
           {/* Right: Booking Card + Sidebar */}
@@ -294,6 +266,34 @@ function PropertyHero({ apartment, onBookNow }) {
                   <div>
                     <span className="poi-name">{t('property.poi5Name')}</span>
                     <span className="poi-distance">{t('property.poi5Dist')}</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            {/* Nearby Dining */}
+            <div className="sidebar-card dining-card fade-in-up">
+              <h3>🍽️ {t('property.nearbyTitle')}</h3>
+              <ul className="neighborhood-list">
+                <li>
+                  <span className="poi-icon">🍔</span>
+                  <div>
+                    <span className="poi-name">{t('property.restaurant1')}</span>
+                    <span className="poi-distance">{t('property.restaurant1Dist')}</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="poi-icon">🍽️</span>
+                  <div>
+                    <span className="poi-name">{t('property.restaurant2')}</span>
+                    <span className="poi-distance">{t('property.restaurant2Dist')}</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="poi-icon">☕</span>
+                  <div>
+                    <span className="poi-name">{t('property.restaurant3')}</span>
+                    <span className="poi-distance">{t('property.restaurant3Dist')}</span>
                   </div>
                 </li>
               </ul>
