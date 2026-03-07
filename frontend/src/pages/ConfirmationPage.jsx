@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import './ConfirmationPage.css';
 
 function ConfirmationPage({ bookingData, onGoHome }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('en-US', {
+    const locale = i18n.language === 'de' ? 'de-DE' : 'en-US';
+    return new Date(dateStr).toLocaleDateString(locale, {
       weekday: 'short', day: 'numeric', month: 'long', year: 'numeric'
     });
   };

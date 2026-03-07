@@ -90,6 +90,8 @@
     "sendButton": "Nachricht senden",
     "sending": "Wird gesendet...",
     "successMessage": "Vielen Dank! Ihre Nachricht wurde gesendet. Wir melden uns in Kürze.",
+    "errorMessage": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+    "sendAnother": "Weitere Nachricht senden",
     "findUs": "So finden Sie uns"
   },
   "admin": {
@@ -163,6 +165,8 @@
   },
   "common": {
     "loading": "Wird geladen...",
+    "loadError": "Unterkunft konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "retry": "Erneut versuchen",
     "error": "Ein Fehler ist aufgetreten",
     "success": "Erfolg",
     "cancel": "Abbrechen",

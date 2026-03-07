@@ -13,15 +13,19 @@ import LegalPage from './pages/LegalPage';
 import './App.css';
 
 function App() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedApartment, setSelectedApartment] = useState(null);
   const [bookingData, setBookingData] = useState(null);
   const [propertyData, setPropertyData] = useState(null);
+  const [propertyLoading, setPropertyLoading] = useState(true);
+  const [propertyError, setPropertyError] = useState(false);
 
   // Fetch the single property on mount
   useEffect(() => {
     const fetchProperty = async () => {
+      setPropertyLoading(true);
+      setPropertyError(false);
       try {
         const res = await fetch('/api/apartments');
         const apartments = await res.json();
@@ -30,7 +34,9 @@ function App() {
         }
       } catch (err) {
         console.error('Error fetching property:', err);
+        setPropertyError(true);
       }
+      setPropertyLoading(false);
     };
     fetchProperty();
   }, []);
@@ -73,7 +79,21 @@ function App() {
       <BerlinSkyline />
       
       <main className="main-content">
-        {currentPage === 'home' && propertyData && (
+        {currentPage === 'home' && propertyLoading && (
+          <div className="page-loading">
+            <div className="loading-spinner"></div>
+            <p>{t('common.loading', 'Loading...')}</p>
+          </div>
+        )}
+
+        {currentPage === 'home' && propertyError && !propertyLoading && (
+          <div className="page-error">
+            <p>{t('common.loadError', 'Unable to load property. Please try again.')}</p>
+            <button onClick={() => window.location.reload()} className="retry-btn">{t('common.retry', 'Retry')}</button>
+          </div>
+        )}
+
+        {currentPage === 'home' && propertyData && !propertyLoading && (
           <PropertyHero 
             apartment={propertyData}
             onBookNow={handleBookNow}
@@ -92,7 +112,7 @@ function App() {
           <PaymentPage 
             bookingData={bookingData}
             onPaymentSuccess={handlePaymentSuccess}
-            onCancel={() => setCurrentPage('home')}
+            onCancel={() => setCurrentPage('booking')}
           />
         )}
 

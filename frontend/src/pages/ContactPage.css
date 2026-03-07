@@ -186,6 +186,34 @@
   line-height: 1.6;
 }
 
+.send-another-btn {
+  margin-top: 20px;
+  padding: 10px 24px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.send-another-btn:hover {
+  background: #5a67d8;
+}
+
+/* Error message */
+.contact-error {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 /* Map */
 .map-section h2 {
   font-size: 1.4rem;

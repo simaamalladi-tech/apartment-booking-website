@@ -90,6 +90,8 @@
     "sendButton": "Send Message",
     "sending": "Sending...",
     "successMessage": "Thank you! Your message has been sent. We'll get back to you soon.",
+    "errorMessage": "Failed to send message. Please try again.",
+    "sendAnother": "Send Another Message",
     "findUs": "Find Us"
   },
   "admin": {
@@ -163,6 +165,8 @@
   },
   "common": {
     "loading": "Loading...",
+    "loadError": "Unable to load property. Please try again.",
+    "retry": "Retry",
     "error": "An error occurred",
     "success": "Success",
     "cancel": "Cancel",

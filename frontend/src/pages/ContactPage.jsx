@@ -7,7 +7,8 @@ function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
-  const [formTimestamp] = useState(Date.now());
+  const [sendError, setSendError] = useState('');
+  const [formTimestamp, setFormTimestamp] = useState(Date.now());
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,6 +17,7 @@ function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSending(true);
+    setSendError('');
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
@@ -26,11 +28,20 @@ function ContactPage() {
       if (data.success) {
         setSent(true);
         setForm({ name: '', email: '', subject: '', message: '', website: '' });
+      } else {
+        setSendError(data.message || t('contact.errorMessage', 'Failed to send message. Please try again.'));
       }
     } catch (err) {
       console.error('Contact form error:', err);
+      setSendError(t('contact.errorMessage', 'Failed to send message. Please try again.'));
     }
     setSending(false);
+  };
+
+  const handleSendAnother = () => {
+    setSent(false);
+    setSendError('');
+    setFormTimestamp(Date.now());
   };
 
   return (
@@ -77,6 +88,9 @@ function ContactPage() {
               <div className="contact-success">
                 <div className="success-icon">✓</div>
                 <p>{t('contact.successMessage')}</p>
+                <button className="send-another-btn" onClick={handleSendAnother}>
+                  {t('contact.sendAnother', 'Send Another Message')}
+                </button>
               </div>
             ) : (
               <form className="contact-form" onSubmit={handleSubmit}>
@@ -133,6 +147,12 @@ function ContactPage() {
                 <button type="submit" className="send-btn" disabled={sending}>
                   {sending ? t('contact.sending') : t('contact.sendButton')}
                 </button>
+
+                {sendError && (
+                  <div className="contact-error">
+                    <p>{sendError}</p>
+                  </div>
+                )}
               </form>
             )}
           </div>
