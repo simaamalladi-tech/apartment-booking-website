@@ -20,6 +20,12 @@ const createTransporter = () => {
     auth: {
       user: SMTP_USER,
       pass: SMTP_PASS
+    },
+    connectionTimeout: 10000,
+    socketTimeout: 15000,
+    tls: {
+      servername: 'smtp.gmail.com',
+      rejectUnauthorized: false
     }
   });
 };
