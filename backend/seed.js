@@ -36,11 +36,11 @@ const sampleApartments = [
     ],
     available: true,
     images: [
-      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15383/1538387/1538387731/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-1.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113882/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-5.JPEG',
       'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/14945/1494537/1494537313/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-2.JPEG',
       'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113876/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-3.JPEG',
       'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113879/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-4.JPEG',
-      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113882/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-5.JPEG',
+      'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15383/1538387/1538387731/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-1.JPEG',
       'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113897/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-6.JPEG',
       'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113900/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-7.JPEG',
       'https://aptaltberlinerecke.hotelberlino.net/data/Photos/OriginalPhoto/15081/1508113/1508113924/alt-berliner-eckkneipe-feuchte-ecke-berlin-photo-8.JPEG',
