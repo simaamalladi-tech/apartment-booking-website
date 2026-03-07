@@ -164,6 +164,15 @@ function PropertyHero({ apartment, onBookNow }) {
                 ))}
               </ul>
             </div>
+
+            {/* Long-term discount notice */}
+            <div className="longterm-notice fade-in-up">
+              <span className="longterm-icon">💰</span>
+              <div>
+                <p className="longterm-title">{t('property.longtermTitle')}</p>
+                <p className="longterm-text">{t('property.longtermText')}</p>
+              </div>
+            </div>
           </div>
 
           {/* Right: Booking Card + Sidebar */}

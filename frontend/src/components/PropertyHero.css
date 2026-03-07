@@ -208,6 +208,38 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
+/* Long-term discount notice */
+.longterm-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 24px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #f0f0ff 0%, #f8f0ff 100%);
+  border-radius: 10px;
+  border: 1px solid #e0d8f0;
+}
+
+.longterm-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.longterm-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 4px 0;
+}
+
+.longterm-text {
+  font-size: 14px;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Scores Section (left column) */
 .scores-section {
   margin-bottom: 30px;
