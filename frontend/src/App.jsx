@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import PropertyHero from './components/PropertyHero';
 import BookingPage from './pages/BookingPage';
 import PaymentPage from './pages/PaymentPage';
+import ContactPage from './pages/ContactPage';
+import AdminPanel from './pages/AdminPanel';
 import './App.css';
 
 function App() {
@@ -20,7 +23,7 @@ function App() {
         const res = await fetch('/api/apartments');
         const apartments = await res.json();
         if (apartments.length > 0) {
-          setPropertyData(apartments[0]); // Get the first property
+          setPropertyData(apartments[0]);
         }
       } catch (err) {
         console.error('Error fetching property:', err);
@@ -28,6 +31,11 @@ function App() {
     };
     fetchProperty();
   }, []);
+
+  // Scroll to top on page change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   const handleBookNow = () => {
     if (propertyData) {
@@ -74,7 +82,17 @@ function App() {
             onCancel={() => setCurrentPage('home')}
           />
         )}
+
+        {currentPage === 'contact' && (
+          <ContactPage />
+        )}
+
+        {currentPage === 'admin' && (
+          <AdminPanel />
+        )}
       </main>
+
+      <Footer onPageChange={setCurrentPage} />
     </div>
   );
 }

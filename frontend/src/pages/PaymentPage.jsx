@@ -44,7 +44,7 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
       if (stripeInstance) {
         setStripe(stripeInstance);
       } else {
-        setError('Payment system not available. Please try again later.');
+        setError(t('payment.systemUnavailable'));
       }
     });
   }, []);
@@ -53,7 +53,7 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
     <div className="payment-page">
       <div className="payment-container">
         <button className="back-btn" onClick={onCancel}>
-          ← {t('common.cancel')}
+          ← {t('common.back')}
         </button>
 
         <h1>{t('payment.title')}</h1>
@@ -77,37 +77,37 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
 
             <div className="booking-summary-section">
               <div className="summary-card">
-                <h3>Booking Summary</h3>
+                <h3>{t('payment.bookingSummary')}</h3>
 
                 <div className="summary-item">
-                  <label>Property:</label>
+                  <label>{t('payment.property')}:</label>
                   <span>{bookingData.apartment.title}</span>
                 </div>
 
                 <div className="summary-item">
-                  <label>Check-in:</label>
+                  <label>{t('booking.checkIn')}:</label>
                   <span>{bookingData.checkIn}</span>
                 </div>
 
                 <div className="summary-item">
-                  <label>Check-out:</label>
+                  <label>{t('booking.checkOut')}:</label>
                   <span>{bookingData.checkOut}</span>
                 </div>
 
                 <div className="summary-item">
-                  <label>Nights:</label>
+                  <label>{t('booking.nights')}:</label>
                   <span>{bookingData.nights}</span>
                 </div>
 
                 <div className="summary-item">
-                  <label>Guests:</label>
+                  <label>{t('payment.guestsLabel')}:</label>
                   <span>{bookingData.guests}</span>
                 </div>
 
                 <hr />
 
                 <div className="summary-item total">
-                  <label>Total Price:</label>
+                  <label>{t('payment.totalLabel')}:</label>
                   <span>€{bookingData.totalPrice}</span>
                 </div>
               </div>
@@ -117,7 +117,7 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
 
         {!stripe && !error && (
           <div className="loading-payment">
-            Loading payment system...
+            {t('payment.loadingSystem')}
           </div>
         )}
       </div>

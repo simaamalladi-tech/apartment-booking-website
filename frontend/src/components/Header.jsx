@@ -4,7 +4,6 @@ import './Header.css';
 
 function Header({ currentPage, onPageChange }) {
   const { t, i18n } = useTranslation();
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -26,9 +25,18 @@ function Header({ currentPage, onPageChange }) {
             >
               {t('nav.home')}
             </button>
-            <a href="/admin" className="admin-link">
-              Admin
-            </a>
+            <button 
+              className={`nav-btn ${currentPage === 'contact' ? 'active' : ''}`}
+              onClick={() => onPageChange('contact')}
+            >
+              {t('nav.contact')}
+            </button>
+            <button
+              className={`nav-btn admin-btn ${currentPage === 'admin' ? 'active' : ''}`}
+              onClick={() => onPageChange('admin')}
+            >
+              {t('nav.admin')}
+            </button>
           </nav>
 
           <div className="language-selector">

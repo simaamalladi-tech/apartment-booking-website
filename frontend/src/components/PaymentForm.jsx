@@ -104,7 +104,7 @@ function PaymentForm({ bookingData, onSuccess }) {
   return (
     <form onSubmit={handleSubmit} className="payment-form">
       <div className="form-section">
-        <h3>{t('payment.cardDetails')}</h3>
+        <h3>{t('payment.cardInfo')}</h3>
 
         <div className="form-group">
           <label>{t('payment.email')}</label>
@@ -129,7 +129,7 @@ function PaymentForm({ bookingData, onSuccess }) {
         </div>
 
         <div className="form-group">
-          <label>Card Information</label>
+          <label>{t('payment.cardInfo')}</label>
           <CardElement
             options={{
               style: {
@@ -150,7 +150,7 @@ function PaymentForm({ bookingData, onSuccess }) {
       </div>
 
       <div className="form-section">
-        <h3>Billing Address</h3>
+        <h3>{t('payment.billingAddress')}</h3>
 
         <div className="form-group">
           <label>{t('payment.address')}</label>

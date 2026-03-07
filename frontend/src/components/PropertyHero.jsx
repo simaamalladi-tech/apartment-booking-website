@@ -20,7 +20,7 @@ function PropertyHero({ apartment, onBookNow }) {
             <div className="property-header-bar">
               <div className="rating-badge">
                 <span className="rating-score">9.3</span>
-                <span className="rating-label">Superb</span>
+                <span className="rating-label">{t('property.superb')}</span>
               </div>
               <div className="address-info">
                 <span className="address-icon">📍</span>
@@ -52,7 +52,7 @@ function PropertyHero({ apartment, onBookNow }) {
               <div className="fact">
                 <span className="fact-icon">👥</span>
                 <div>
-                  <div className="fact-label">Max Guests</div>
+                  <div className="fact-label">{t('property.maxGuests')}</div>
                   <div className="fact-value">{apartment.maxGuests}</div>
                 </div>
               </div>
@@ -60,7 +60,7 @@ function PropertyHero({ apartment, onBookNow }) {
                 <div className="fact">
                   <span className="fact-icon">📐</span>
                   <div>
-                    <div className="fact-label">Size</div>
+                    <div className="fact-label">{t('property.size')}</div>
                     <div className="fact-value">{apartment.size} m²</div>
                   </div>
                 </div>
@@ -70,24 +70,24 @@ function PropertyHero({ apartment, onBookNow }) {
             {/* Check-in / Check-out */}
             <div className="checkin-info">
               <div className="checkin-item">
-                <span className="checkin-label">Check-in</span>
+                <span className="checkin-label">{t('property.checkIn')}</span>
                 <span className="checkin-value">15:00 – 23:00</span>
               </div>
               <div className="checkin-item">
-                <span className="checkin-label">Check-out</span>
-                <span className="checkin-value">Until 10:00</span>
+                <span className="checkin-label">{t('property.checkOut')}</span>
+                <span className="checkin-value">{t('property.until')} 10:00</span>
               </div>
             </div>
 
             {/* Description */}
             <div className="description-section">
-              <h3>About this property</h3>
+              <h3>{t('property.aboutTitle')}</h3>
               <p>{apartment.description}</p>
             </div>
 
             {/* Amenities */}
             <div className="amenities-section">
-              <h3>Amenities</h3>
+              <h3>{t('property.amenitiesTitle')}</h3>
               <ul className="amenities-list">
                 {apartment.amenities.map((amenity, idx) => (
                   <li key={idx}>✓ {amenity}</li>
@@ -99,32 +99,32 @@ function PropertyHero({ apartment, onBookNow }) {
           {/* Right: Booking Card */}
           <div className="booking-card-container">
             <div className="booking-card">
-              <h3>Ready to book?</h3>
-              <p className="booking-description">Select your dates and book this amazing property</p>
+              <h3>{t('property.readyToBook')}</h3>
+              <p className="booking-description">{t('property.bookingCta')}</p>
               
               <div className="booking-highlights">
                 <div className="highlight">
                   <span>✓</span>
-                  <span>Instant Confirmation</span>
+                  <span>{t('property.instantConfirmation')}</span>
                 </div>
                 <div className="highlight">
                   <span>✓</span>
-                  <span>Free Cancellation</span>
+                  <span>{t('property.freeCancellation')}</span>
                 </div>
                 <div className="highlight">
                   <span>✓</span>
-                  <span>24/7 Support</span>
+                  <span>{t('property.support247')}</span>
                 </div>
               </div>
 
               <button className="book-btn" onClick={onBookNow}>
-                Book Now
+                {t('apartments.bookNow')}
               </button>
 
               <p className="booking-info">
-                💳 Secure payment<br/>
-                🔒 Safe & Protected<br/>
-                📧 Confirmation via email
+                💳 {t('property.securePayment')}<br/>
+                🔒 {t('property.safeProtected')}<br/>
+                📧 {t('property.emailConfirmation')}
               </p>
             </div>
           </div>
