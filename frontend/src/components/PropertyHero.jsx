@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import ImageGallery from './ImageGallery';
 import './PropertyHero.css';
 
 function PropertyHero({ apartment, onBookNow }) {
@@ -7,18 +8,8 @@ function PropertyHero({ apartment, onBookNow }) {
 
   return (
     <div className="property-hero">
-      {/* Hero Image */}
-      <div className="hero-image-container">
-        <img 
-          src="https://images.unsplash.com/photo-1570129477492-45a003537e1f?w=1200&h=600&fit=crop" 
-          alt={apartment.title}
-          className="hero-image"
-        />
-        <div className="hero-overlay">
-          <h1 className="hero-title">{apartment.title}</h1>
-          <p className="hero-location">📍 {apartment.address}</p>
-        </div>
-      </div>
+      {/* Hero Image Gallery */}
+      <ImageGallery images={apartment.images} />
 
       {/* Property Info Section */}
       <div className="property-info-section">

@@ -1,0 +1,75 @@
+import React, { useState } from 'react';
+import './ImageGallery.css';
+
+function ImageGallery({ images = [] }) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Default images if none provided
+  const galleryImages = images.length > 0 ? images : [
+    'https://images.unsplash.com/photo-1570129477492-45a003537e1f?w=1200&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1631049307038-da0ec629540d?w=1200&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&h=600&fit=crop'
+  ];
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  };
+
+  const goToImage = (index) => {
+    setCurrentImageIndex(index);
+  };
+
+  return (
+    <div className="image-gallery">
+      {/* Main Image */}
+      <div className="main-image-container">
+        <img 
+          src={galleryImages[currentImageIndex]}
+          alt={`Property image ${currentImageIndex + 1}`}
+          className="main-image"
+        />
+        
+        {/* Navigation Arrows */}
+        {galleryImages.length > 1 && (
+          <>
+            <button className="gallery-nav prev" onClick={prevImage} title="Previous image">
+              ‹
+            </button>
+            <button className="gallery-nav next" onClick={nextImage} title="Next image">
+              ›
+            </button>
+          </>
+        )}
+
+        {/* Image Counter */}
+        <div className="image-counter">
+          {currentImageIndex + 1} / {galleryImages.length}
+        </div>
+      </div>
+
+      {/* Thumbnail Strip */}
+      {galleryImages.length > 1 && (
+        <div className="thumbnails">
+          {galleryImages.map((image, index) => (
+            <button
+              key={index}
+              className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+              onClick={() => goToImage(index)}
+              title={`Go to image ${index + 1}`}
+            >
+              <img src={image} alt={`Thumbnail ${index + 1}`} />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ImageGallery;
