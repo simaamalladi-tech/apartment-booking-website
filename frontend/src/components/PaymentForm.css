@@ -30,7 +30,8 @@
   font-size: 0.9rem;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   padding: 0.8rem;
   border: 2px solid #ddd;
   border-radius: 6px;
@@ -39,10 +40,17 @@
   transition: border-color 0.3s ease;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+}
+
+.form-group select {
+  background-color: #fff;
+  cursor: pointer;
+  appearance: auto;
 }
 
 .form-group input:disabled {

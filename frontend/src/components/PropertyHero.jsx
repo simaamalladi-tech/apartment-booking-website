@@ -111,6 +111,7 @@ function PropertyHero({ apartment, onBookNow }) {
                   <span>✓</span>
                   <span>{t('property.freeCancellation')}</span>
                 </div>
+                <p className="highlight-sub">{t('property.freeCancellationNote')}</p>
                 <div className="highlight">
                   <span>✓</span>
                   <span>{t('property.support247')}</span>
