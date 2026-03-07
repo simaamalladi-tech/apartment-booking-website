@@ -2,6 +2,7 @@ import express from 'express';
 import Stripe from 'stripe';
 import Payment from '../models/Payment.js';
 import Booking from '../models/Booking.js';
+import { sendBookingConfirmation, sendAdminNotification } from '../utils/emailService.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -65,6 +66,10 @@ router.post('/create-payment-intent', async (req, res) => {
       });
 
       await payment.save();
+
+      // Send confirmation email (non-blocking)
+      sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
+      sendAdminNotification(booking, 'new').catch(err => console.error('Admin email error:', err));
 
       return res.json({
         success: true,

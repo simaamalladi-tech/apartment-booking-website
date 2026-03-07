@@ -11,8 +11,8 @@ function PaymentForm({ bookingData, onSuccess }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    name: '',
+    email: bookingData?.user?.email || '',
+    name: bookingData?.user?.name || '',
     address: '',
     city: '',
     zipCode: '',
