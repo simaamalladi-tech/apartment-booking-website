@@ -35,8 +35,8 @@ function Footer({ onPageChange }) {
             <h4>{t('footer.contactUs')}</h4>
             <ul className="footer-contact-list">
               <li>📍 146A Gustav-Adolf-Straße, 13086 Berlin</li>
-              <li>📞 +49 30 1234567</li>
-              <li>✉️ info@alt-berliner-eckkneipe.de</li>
+              <li>📞 +49 178 348 5970</li>
+              <li>✉️ lutz.richter@gmail.com</li>
             </ul>
           </div>
 

@@ -16,10 +16,10 @@ const createTransporter = () => {
   });
 };
 
-const FROM_EMAIL = process.env.SMTP_FROM || 'info@alt-berliner-eckkneipe.de';
+const FROM_EMAIL = process.env.SMTP_FROM || 'lutz.richter@gmail.com';
 const PROPERTY_NAME = 'Alt-Berliner Eckkneipe';
 const PROPERTY_ADDRESS = '146A Gustav-Adolf-Straße, 13086 Berlin';
-const PROPERTY_PHONE = '+49 30 1234 5678';
+const PROPERTY_PHONE = '+49 178 348 5970';
 
 // Format date nicely
 const formatDate = (dateStr) => {

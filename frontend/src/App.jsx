@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Header from './components/Header';
+import BerlinSkyline from './components/BerlinSkyline';
 import Footer from './components/Footer';
 import PropertyHero from './components/PropertyHero';
 import BookingPage from './pages/BookingPage';
@@ -58,6 +59,7 @@ function App() {
   return (
     <div className="app">
       <Header currentPage={currentPage} onPageChange={setCurrentPage} />
+      <BerlinSkyline />
       
       <main className="main-content">
         {currentPage === 'home' && propertyData && (

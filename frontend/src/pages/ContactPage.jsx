@@ -42,13 +42,13 @@ function ContactPage() {
             <div className="info-card">
               <div className="info-icon">📞</div>
               <h3>{t('contact.phoneLabel')}</h3>
-              <p><a href="tel:+493012345678">+49 30 1234 5678</a></p>
+              <p><a href="tel:+491783485970">+49 178 348 5970</a></p>
             </div>
 
             <div className="info-card">
               <div className="info-icon">✉️</div>
               <h3>{t('contact.emailLabel')}</h3>
-              <p><a href="mailto:info@alt-berliner-eckkneipe.de">info@alt-berliner-eckkneipe.de</a></p>
+              <p><a href="mailto:lutz.richter@gmail.com">lutz.richter@gmail.com</a></p>
             </div>
 
             <div className="info-card">
