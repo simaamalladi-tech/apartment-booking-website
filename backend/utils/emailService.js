@@ -219,9 +219,40 @@ const sendEmail = async (to, subject, html) => {
   }
 };
 
+// Send contact form message to admin
+export const sendContactMessage = async ({ name, email, subject, message }) => {
+  const adminEmail = process.env.ADMIN_EMAIL || 'lutz.richter@gmail.com';
+
+  const html = emailWrapper(`
+    <h2>New Contact Message</h2>
+    <div class="info-box">
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+        <tr>
+          <td style="padding:8px 0;color:#888;font-size:14px;">From</td>
+          <td style="padding:8px 0;font-weight:600;font-size:14px;text-align:right;">${name}</td>
+        </tr>
+        <tr style="border-top:1px solid #eee;">
+          <td style="padding:8px 0;color:#888;font-size:14px;">Email</td>
+          <td style="padding:8px 0;font-weight:600;font-size:14px;text-align:right;"><a href="mailto:${email}" style="color:#667eea;">${email}</a></td>
+        </tr>
+        <tr style="border-top:1px solid #eee;">
+          <td style="padding:8px 0;color:#888;font-size:14px;">Subject</td>
+          <td style="padding:8px 0;font-weight:600;font-size:14px;text-align:right;">${subject}</td>
+        </tr>
+      </table>
+    </div>
+    <h3 style="margin-top:20px;font-size:16px;color:#1a1a2e;">Message</h3>
+    <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin:10px 0;border-left:4px solid #764ba2;white-space:pre-wrap;font-size:14px;line-height:1.7;color:#333;">${message}</div>
+    <p style="margin-top:20px;"><a href="mailto:${email}" class="btn">Reply to ${name}</a></p>
+  `);
+
+  return sendEmail(adminEmail, `[Contact] ${subject} – ${PROPERTY_NAME}`, html);
+};
+
 export default {
   sendBookingConfirmation,
   sendBookingCancellation,
   sendBookingPending,
-  sendAdminNotification
+  sendAdminNotification,
+  sendContactMessage
 };

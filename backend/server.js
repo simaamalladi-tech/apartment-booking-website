@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import apartmentRoutes from './routes/apartments.js';
 import bookingRoutes from './routes/bookings.js';
 import paymentRoutes from './routes/payments.js';
+import { sendContactMessage } from './utils/emailService.js';
 import seedApartments from './seed.js';
 
 dotenv.config();
@@ -36,6 +37,21 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment
 app.use('/api/apartments', apartmentRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
+
+// Contact form endpoint
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ success: false, message: 'Name, email, and message are required' });
+    }
+    const result = await sendContactMessage({ name, email, subject: subject || 'General Inquiry', message });
+    res.json({ success: result.success, message: result.success ? 'Message sent successfully' : result.message });
+  } catch (error) {
+    console.error('Contact form error:', error);
+    res.status(500).json({ success: false, message: 'Failed to send message' });
+  }
+});
 
 // Config endpoint - return Stripe publishable key
 app.get('/api/config', (req, res) => {

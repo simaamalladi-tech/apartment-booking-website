@@ -15,11 +15,21 @@ function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSending(true);
-    // Simulate sending (replace with real endpoint later)
-    await new Promise((r) => setTimeout(r, 1200));
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSent(true);
+        setForm({ name: '', email: '', subject: '', message: '' });
+      }
+    } catch (err) {
+      console.error('Contact form error:', err);
+    }
     setSending(false);
-    setSent(true);
-    setForm({ name: '', email: '', subject: '', message: '' });
   };
 
   return (
