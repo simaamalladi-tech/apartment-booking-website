@@ -201,11 +201,26 @@ console.log('📁 Frontend dist exists:', fs.existsSync(frontendPath));
 try {
   const distFiles = fs.readdirSync(frontendPath);
   console.log('📁 Files in dist:', distFiles);
+  if (fs.existsSync(path.join(frontendPath, 'assets'))) {
+    console.log('📁 Assets:', fs.readdirSync(path.join(frontendPath, 'assets')));
+  }
 } catch(err) {
   console.log('❌ Error reading dist folder:', err.message);
 }
 
-app.use(express.static(frontendPath));
+// Hashed assets (JS/CSS) can be cached forever; index.html must not be cached
+app.use('/assets', express.static(path.join(frontendPath, 'assets'), {
+  maxAge: '1y',
+  immutable: true
+}));
+app.use(express.static(frontendPath, {
+  maxAge: 0,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 // Serve React app for all other routes (SPA fallback)
 app.get('*', (req, res) => {
@@ -214,7 +229,7 @@ app.get('*', (req, res) => {
     return res.status(404).json({ message: 'API endpoint not found' });
   }
   const indexPath = path.join(frontendPath, 'index.html');
-  console.log('🌐 Serving index.html from:', indexPath);
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile(indexPath);
 });
 
