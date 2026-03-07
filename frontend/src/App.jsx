@@ -20,7 +20,6 @@ function App() {
   const [propertyData, setPropertyData] = useState(null);
   const [propertyLoading, setPropertyLoading] = useState(true);
   const [propertyError, setPropertyError] = useState(false);
-  const [pageTransition, setPageTransition] = useState(false);
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [headerHidden, setHeaderHidden] = useState(false);
   const lastScrollY = useRef(0);
@@ -61,15 +60,11 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Animated page change
+  // Page navigation with scroll to top
   const navigateTo = (page) => {
     if (page === currentPage) return;
-    setPageTransition(true);
-    setTimeout(() => {
-      setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      setTimeout(() => setPageTransition(false), 50);
-    }, 250);
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const handleBookNow = () => {
@@ -109,7 +104,7 @@ function App() {
       />
       <BerlinSkyline />
       
-      <main className={`main-content ${pageTransition ? 'page-exit' : 'page-enter'}`}>
+      <main className="main-content">
         {currentPage === 'home' && propertyLoading && (
           <div className="page-loading">
             <div className="loading-spinner"></div>
