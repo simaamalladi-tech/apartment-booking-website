@@ -132,3 +132,19 @@
     padding: 1rem;
   }
 }
+
+@media (max-width: 480px) {
+  .payment-page {
+    padding: 0.75rem;
+  }
+
+  .payment-page h1 {
+    font-size: 1.3rem;
+  }
+
+  .payment-form-section,
+  .summary-card {
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+}

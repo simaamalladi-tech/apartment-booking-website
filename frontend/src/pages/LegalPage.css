@@ -107,6 +107,16 @@
   text-decoration: underline;
 }
 
+@media (max-width: 768px) {
+  .legal-page {
+    padding: 30px 16px 50px;
+  }
+
+  .legal-content {
+    padding: 28px 22px;
+  }
+}
+
 @media (max-width: 600px) {
   .legal-page {
     padding: 24px 16px 40px;

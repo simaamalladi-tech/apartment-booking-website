@@ -246,11 +246,16 @@
   }
 
   .detail-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 
   .detail-value.mono {
     max-width: 140px;
+  }
+
+  .home-btn {
+    padding: 12px 24px;
+    font-size: 0.9rem;
   }
 }

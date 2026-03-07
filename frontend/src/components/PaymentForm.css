@@ -130,3 +130,26 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 480px) {
+  .payment-form {
+    gap: 1rem;
+  }
+
+  .form-section {
+    padding: 16px;
+  }
+
+  .form-section h3 {
+    font-size: 1rem;
+  }
+
+  .pay-btn {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+
+  .payment-success {
+    padding: 1.5rem;
+  }
+}

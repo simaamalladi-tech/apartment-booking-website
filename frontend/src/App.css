@@ -161,3 +161,11 @@ input, button, textarea, select {
 .retry-btn:hover {
   background: #5a67d8;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-loading,
+  .page-error {
+    padding: 50px 16px;
+  }
+}
