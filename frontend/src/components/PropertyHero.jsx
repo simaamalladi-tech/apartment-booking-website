@@ -164,34 +164,6 @@ function PropertyHero({ apartment, onBookNow }) {
                 ))}
               </ul>
             </div>
-
-            {/* Guest Scores (in left column) */}
-            <div className="scores-section fade-in-up">
-              <h3>📊 {t('property.scoreTitle')}</h3>
-              <div className="score-overall">
-                <span className="score-badge">9.3</span>
-                <span className="score-overall-label">{t('property.superb')}</span>
-              </div>
-              <div className="score-bars">
-                {[
-                  { key: 'scoreStaff', val: 9.7 },
-                  { key: 'scoreComfort', val: 9.3 },
-                  { key: 'scoreLocation', val: 8.9 },
-                  { key: 'scoreFacilities', val: 9.4 },
-                  { key: 'scoreCleanliness', val: 9.1 },
-                  { key: 'scoreValue', val: 9.3 },
-                  { key: 'scoreWifi', val: 10.0 },
-                ].map(({ key, val }) => (
-                  <div className="score-row" key={key}>
-                    <span className="score-label">{t(`property.${key}`)}</span>
-                    <div className="score-bar-track">
-                      <div className="score-bar-fill" style={{ width: `${val * 10}%` }}></div>
-                    </div>
-                    <span className="score-val">{val}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Right: Booking Card + Sidebar */}

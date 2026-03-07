@@ -180,9 +180,9 @@
 
 /* Amenities */
 .amenities-section {
-  margin-bottom: 30px;
-  padding-bottom: 30px;
-  border-bottom: 1px solid #ddd;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .amenities-section h3 {
