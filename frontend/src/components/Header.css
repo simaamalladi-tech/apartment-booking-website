@@ -13,7 +13,7 @@
 }
 
 .logo h1 { font-size: 1.5rem; font-weight: 800; margin: 0; white-space: nowrap; color: white; letter-spacing: -0.5px; }
-.logo-img { height: 42px; width: auto; }
+.logo-img { height: 48px; width: auto; }
 
 .header-right { display: flex; align-items: center; gap: 1rem; }
 .nav { display: flex; align-items: center; gap: 0.5rem; }

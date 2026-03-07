@@ -1,27 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none">
-  <!-- Background pill -->
-  <rect width="240" height="60" rx="8" fill="transparent"/>
-  <!-- Building icon -->
-  <g transform="translate(4, 6)">
-    <!-- Main building body -->
-    <rect x="6" y="14" width="32" height="34" rx="2" fill="#fff"/>
-    <!-- Roof -->
-    <polygon points="4,16 22,2 40,16" fill="#fff"/>
-    <!-- Door -->
-    <rect x="16" y="30" width="12" height="18" rx="1" fill="#667eea"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 56" fill="none">
+  <!-- Decorative icon: stylized arch/doorway -->
+  <g transform="translate(6, 4)">
+    <!-- Outer arch -->
+    <path d="M24 48 L24 20 Q24 4 12 4 Q0 4 0 20 L0 48" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M36 48 L36 20 Q36 0 18 0 Q0 0 0 20" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- Inner door -->
+    <rect x="8" y="24" width="20" height="24" rx="10" fill="rgba(255,255,255,0.15)" stroke="#fff" stroke-width="1.5"/>
     <!-- Door handle -->
-    <circle cx="26" cy="40" r="1.2" fill="#fff"/>
-    <!-- Windows row 1 -->
-    <rect x="10" y="18" width="6" height="6" rx="0.5" fill="#667eea" opacity="0.7"/>
-    <rect x="28" y="18" width="6" height="6" rx="0.5" fill="#667eea" opacity="0.7"/>
-    <!-- Windows row 2 -->
-    <rect x="10" y="28" width="6" height="5" rx="0.5" fill="#667eea" opacity="0.5"/>
-    <rect x="28" y="28" width="6" height="5" rx="0.5" fill="#667eea" opacity="0.5"/>
-    <!-- Chimney -->
-    <rect x="28" y="4" width="5" height="10" rx="1" fill="#fff" opacity="0.8"/>
+    <circle cx="22" cy="38" r="1.8" fill="#fff"/>
+    <!-- Keystone accent -->
+    <circle cx="18" cy="6" r="2" fill="#fff" opacity="0.6"/>
+    <!-- Window above door -->
+    <path d="M12 20 Q18 14 24 20" stroke="#fff" stroke-width="1.2" fill="none" opacity="0.5"/>
   </g>
   <!-- Text: Alt-Berliner -->
-  <text x="52" y="26" font-family="Georgia, serif" font-size="17" font-weight="700" fill="#ffffff" letter-spacing="0.5">Alt-Berliner</text>
+  <text x="52" y="24" font-family="'Playfair Display', 'DM Serif Display', Georgia, serif" font-size="19" font-weight="700" fill="#ffffff" letter-spacing="1.5">ALT-BERLINER</text>
   <!-- Text: Eckkneipe -->
-  <text x="52" y="46" font-family="Georgia, serif" font-size="15" font-weight="400" fill="rgba(255,255,255,0.85)" letter-spacing="1">Eckkneipe</text>
+  <text x="52" y="46" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="400" fill="rgba(255,255,255,0.8)" letter-spacing="4">ECKKNEIPE</text>
+  <!-- Thin decorative line between texts -->
+  <line x1="52" y1="30" x2="115" y2="30" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
 </svg>
