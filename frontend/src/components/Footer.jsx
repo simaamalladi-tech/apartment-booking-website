@@ -1,9 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import useScrollAnimation from '../hooks/useScrollAnimation';
 import './Footer.css';
 
 function Footer({ onPageChange }) {
   const { t } = useTranslation();
+  useScrollAnimation();
   const year = new Date().getFullYear();
 
   return (

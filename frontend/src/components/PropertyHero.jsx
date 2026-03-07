@@ -1,10 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ImageGallery from './ImageGallery';
+import useScrollAnimation from '../hooks/useScrollAnimation';
 import './PropertyHero.css';
 
 function PropertyHero({ apartment, onBookNow }) {
   const { t } = useTranslation();
+  useScrollAnimation();
 
   return (
     <div className="property-hero">
