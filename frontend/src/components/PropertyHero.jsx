@@ -166,9 +166,10 @@ function PropertyHero({ apartment, onBookNow }) {
             </div>
           </div>
 
-          {/* Right: Booking Card */}
+          {/* Right: Booking Card + Sidebar */}
           <div className="booking-card-container fade-in-right">
-            <div className="booking-card">
+            <div className="booking-card-sticky">
+              <div className="booking-card">
               <h3>{t('property.readyToBook')}</h3>
               <p className="booking-description">{t('property.bookingCta')}</p>
               
@@ -198,6 +199,7 @@ function PropertyHero({ apartment, onBookNow }) {
                 📧 {t('property.emailConfirmation')}
               </p>
             </div>
+            </div>{/* end booking-card-sticky */}
 
             {/* Neighborhood Highlights */}
             <div className="sidebar-card neighborhood-card fade-in-up">

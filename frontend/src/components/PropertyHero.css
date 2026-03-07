@@ -5,7 +5,7 @@
 /* Property Info Section */
 .property-info-section {
   background: #f5f5f5;
-  padding: 50px 20px;
+  padding: 40px 20px;
   width: 100%;
 }
 
@@ -15,6 +15,7 @@
   display: grid;
   grid-template-columns: 1fr 380px;
   gap: 40px;
+  align-items: start;
 }
 
 /* Property Header Bar */
@@ -203,14 +204,20 @@
 
 /* Booking Card */
 .booking-card-container {
-  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.booking-card-sticky {
   position: sticky;
   top: 20px;
+  z-index: 10;
 }
 
 .booking-card {
   background: white;
-  padding: 30px;
+  padding: 24px;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid #ddd;
@@ -304,19 +311,19 @@
 /* ─── Sidebar Cards (below booking card) ─── */
 .sidebar-card {
   background: white;
-  padding: 24px;
+  padding: 18px;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   border: 1px solid #e8e8e8;
-  margin-top: 20px;
+  margin-top: 14px;
 }
 
 .sidebar-card h3 {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
   color: #1a1a1a;
-  margin: 0 0 16px 0;
-  padding-bottom: 12px;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -330,8 +337,8 @@
 .neighborhood-list li {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 0;
+  gap: 10px;
+  padding: 7px 0;
   border-bottom: 1px solid #f5f5f5;
 }
 
@@ -341,8 +348,8 @@
 }
 
 .poi-icon {
-  font-size: 20px;
-  width: 28px;
+  font-size: 18px;
+  width: 24px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -376,9 +383,9 @@
 .rules-list li {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  font-size: 14px;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 13px;
   color: #444;
 }
 
@@ -391,7 +398,7 @@
 
 /* Guest Reviews */
 .review {
-  padding: 12px 0;
+  padding: 8px 0;
   border-bottom: 1px solid #f5f5f5;
 }
 
@@ -404,7 +411,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .review-rating-badge {
@@ -420,15 +427,15 @@
 }
 
 .review-text {
-  font-size: 14px;
+  font-size: 13px;
   color: #555;
-  line-height: 1.5;
-  margin: 0 0 6px 0;
+  line-height: 1.45;
+  margin: 0 0 4px 0;
   font-style: italic;
 }
 
 .review-author {
-  font-size: 13px;
+  font-size: 12px;
   color: #999;
   font-weight: 500;
   margin: 0;
@@ -438,8 +445,8 @@
 .score-overall {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .score-badge {
@@ -449,10 +456,10 @@
   background: #003b95;
   color: white;
   font-weight: 700;
-  font-size: 18px;
-  width: 44px;
-  height: 44px;
-  border-radius: 10px 10px 10px 0;
+  font-size: 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px 8px 8px 0;
 }
 
 .score-overall-label {
@@ -464,19 +471,19 @@
 .score-bars {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
 .score-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .score-label {
-  font-size: 13px;
+  font-size: 12px;
   color: #555;
-  width: 110px;
+  width: 100px;
   flex-shrink: 0;
 }
 
@@ -507,7 +514,7 @@
 /* Reviews Carousel */
 .reviews-carousel-inner {
   transition: opacity 0.25s ease;
-  min-height: 160px;
+  min-height: 130px;
 }
 
 .reviews-carousel-inner.fade-out {
@@ -522,9 +529,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-top: 12px;
-  padding-top: 10px;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid #f0f0f0;
 }
 
@@ -575,17 +582,16 @@
 /* Responsive */
 @media (max-width: 1024px) {
   .property-info-container {
-    grid-template-columns: 1fr 340px;
-    gap: 30px;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
   }
 
   .quick-facts {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .booking-card-container {
-    position: sticky;
-    top: 100px;
+  .sidebar-card {
+    padding: 16px;
   }
 }
 
@@ -651,16 +657,24 @@
     position: static;
   }
 
+  /* On mobile, arrange sidebar cards in 2-col grid */
+  .sidebar-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
   .booking-card {
     padding: 20px;
   }
 
   .sidebar-card {
-    padding: 18px;
+    padding: 14px;
+    margin-top: 12px;
   }
 
   .sidebar-card h3 {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .booking-card h3 {
@@ -670,6 +684,11 @@
   .book-btn {
     padding: 12px;
     font-size: 14px;
+  }
+
+  .score-label {
+    width: 80px;
+    font-size: 11px;
   }
 }
 
@@ -737,6 +756,30 @@
     padding: 11px;
     font-size: 13px;
     margin-bottom: 12px;
+  }
+
+  .sidebar-card {
+    padding: 12px;
+    margin-top: 10px;
+  }
+
+  .sidebar-card h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+  }
+
+  .reviews-carousel-inner {
+    min-height: 110px;
+  }
+
+  .score-label {
+    width: 70px;
+    font-size: 11px;
+  }
+
+  .score-val {
+    font-size: 12px;
   }
 
   .booking-info {
