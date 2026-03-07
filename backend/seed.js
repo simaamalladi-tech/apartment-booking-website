@@ -14,11 +14,11 @@ const sampleApartments = [
     amenities: ['WiFi', 'Shared Kitchen', 'Shared Bathroom', 'Bar Access', 'Central Location', 'Heating'],
     available: true,
     images: [
-      'https://images.unsplash.com/photo-1570129477492-45a003537e1f?w=1200&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1631049307038-da0ec629540d?w=1200&h=600&fit=crop',
       'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&h=600&fit=crop',
       'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&h=600&fit=crop'
+      'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1631049307038-da0ec629540d?w=1200&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1570129477492-45a003537e1f?w=1200&h=600&fit=crop'
     ]
   },
   {

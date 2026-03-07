@@ -210,28 +210,166 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 32px;
+@media (max-width: 1024px) {
+  .property-info-container {
+    grid-template-columns: 1fr 340px;
+    gap: 30px;
   }
 
-  .hero-overlay {
-    padding: 20px;
+  .quick-facts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .booking-card-container {
+    position: sticky;
+    top: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .property-info-section {
+    padding: 30px 15px;
   }
 
   .property-info-container {
     grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .property-details {
+    padding: 20px 15px;
+  }
+
+  .price-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+  }
+
+  .price {
+    font-size: 32px;
   }
 
   .quick-facts {
-    grid-template-columns: 3fr;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+  }
+
+  .fact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .description-section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+  }
+
+  .description-section h3 {
+    font-size: 20px;
+  }
+
+  .description-section p {
+    font-size: 14px;
+  }
+
+  .amenities-section h3 {
+    font-size: 20px;
   }
 
   .amenities-list {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .booking-card-container {
     position: static;
+  }
+
+  .booking-card {
+    padding: 20px;
+  }
+
+  .booking-card h3 {
+    font-size: 18px;
+  }
+
+  .book-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .property-info-section {
+    padding: 20px 10px;
+  }
+
+  .property-details {
+    padding: 15px 10px;
+  }
+
+  .price {
+    font-size: 28px;
+  }
+
+  .fact-icon {
+    font-size: 24px;
+  }
+
+  .fact-label {
+    font-size: 11px;
+  }
+
+  .fact-value {
+    font-size: 16px;
+  }
+
+  .description-section h3,
+  .amenities-section h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .description-section p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .booking-card {
+    padding: 15px;
+  }
+
+  .booking-card h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .booking-description {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
+
+  .booking-highlights {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .highlight {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .book-btn {
+    padding: 11px;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .booking-info {
+    font-size: 11px;
+    line-height: 1.5;
   }
 }
