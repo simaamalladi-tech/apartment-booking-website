@@ -3,15 +3,22 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Create transporter - uses environment variables for SMTP config
+// SMTP defaults
+const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
+const SMTP_SECURE = process.env.SMTP_SECURE === 'true';
+const SMTP_USER = process.env.SMTP_USER || 'lutz.richter@gmail.com';
+const SMTP_PASS = process.env.SMTP_PASS || 'undu oxts ralm xekh';
+
+// Create transporter
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_SECURE,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
+      user: SMTP_USER,
+      pass: SMTP_PASS
     }
   });
 };
@@ -181,7 +188,7 @@ export const sendBookingPending = async (booking) => {
 
 // Send admin notification
 export const sendAdminNotification = async (booking, action) => {
-  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminEmail = process.env.ADMIN_EMAIL || 'lutz.richter@gmail.com';
   if (!adminEmail) return { success: false, message: 'No admin email configured' };
 
   const actionLabel = action === 'new' ? 'New Booking' : action === 'cancelled' ? 'Booking Cancelled' : 'Booking Updated';
@@ -200,7 +207,7 @@ export const sendAdminNotification = async (booking, action) => {
 // Core send function
 const sendEmail = async (to, subject, html) => {
   // If SMTP not configured, log and skip
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (!SMTP_USER || !SMTP_PASS) {
     console.log(`📧 [Email skipped - SMTP not configured] To: ${to}, Subject: ${subject}`);
     return { success: true, message: 'Email skipped (SMTP not configured)', skipped: true };
   }
