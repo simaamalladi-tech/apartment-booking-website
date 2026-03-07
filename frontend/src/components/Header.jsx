@@ -15,7 +15,9 @@ function Header({ currentPage, onPageChange }) {
     <header className="header">
       <div className="header-container">
         <div className="logo">
-          <h1>🏠 ApartmentHub</h1>
+          <h1 onClick={() => onPageChange('home')} style={{ cursor: 'pointer', margin: 0 }}>
+            🏠 Alt-Berliner Eckkneipe
+          </h1>
         </div>
 
         <nav className="nav">
@@ -29,20 +31,9 @@ function Header({ currentPage, onPageChange }) {
               </button>
             </li>
             <li>
-              <button 
-                className={currentPage === 'apartments' ? 'active' : ''}
-                onClick={() => onPageChange('apartments')}
-              >
-                {t('nav.apartments')}
-              </button>
-            </li>
-            <li>
-              <button 
-                className={currentPage === 'bookings' ? 'active' : ''}
-                onClick={() => onPageChange('bookings')}
-              >
-                {t('nav.bookings')}
-              </button>
+              <a href="/admin" className="admin-link">
+                Admin Panel
+              </a>
             </li>
           </ul>
         </nav>
