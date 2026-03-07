@@ -184,21 +184,74 @@ function PropertyHero({ apartment, onBookNow }) {
               </ul>
             </div>
 
+            {/* Guest Scores */}
+            <div className="sidebar-card scores-card fade-in-up">
+              <h3>📊 {t('property.scoreTitle')}</h3>
+              <div className="score-overall">
+                <span className="score-badge">9.3</span>
+                <span className="score-overall-label">{t('property.superb')}</span>
+              </div>
+              <div className="score-bars">
+                {[
+                  { key: 'scoreStaff', val: 9.7 },
+                  { key: 'scoreComfort', val: 9.3 },
+                  { key: 'scoreLocation', val: 8.9 },
+                  { key: 'scoreFacilities', val: 9.4 },
+                  { key: 'scoreCleanliness', val: 9.1 },
+                  { key: 'scoreValue', val: 9.3 },
+                  { key: 'scoreWifi', val: 10.0 },
+                ].map(({ key, val }) => (
+                  <div className="score-row" key={key}>
+                    <span className="score-label">{t(`property.${key}`)}</span>
+                    <div className="score-bar-track">
+                      <div className="score-bar-fill" style={{ width: `${val * 10}%` }}></div>
+                    </div>
+                    <span className="score-val">{val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Guest Reviews */}
             <div className="sidebar-card reviews-card fade-in-up">
               <h3>⭐ {t('property.reviewsTitle')}</h3>
-              <div className="review">
-                <p className="review-text">"{t('property.review1Text')}"</p>
-                <p className="review-author">— {t('property.review1Author')}</p>
-              </div>
-              <div className="review">
-                <p className="review-text">"{t('property.review2Text')}"</p>
-                <p className="review-author">— {t('property.review2Author')}</p>
-              </div>
-              <div className="review">
-                <p className="review-text">"{t('property.review3Text')}"</p>
-                <p className="review-author">— {t('property.review3Author')}</p>
-              </div>
+              {[1, 2, 3, 4, 5, 6].map(n => (
+                <div className="review" key={n}>
+                  <div className="review-header">
+                    <span className="review-rating-badge">{t(`property.review${n}Rating`)}</span>
+                  </div>
+                  <p className="review-text">"{t(`property.review${n}Text`)}"</p>
+                  <p className="review-author">— {t(`property.review${n}Author`)}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Nearby Dining */}
+            <div className="sidebar-card dining-card fade-in-up">
+              <h3>🍽️ {t('property.nearbyTitle')}</h3>
+              <ul className="neighborhood-list">
+                <li>
+                  <span className="poi-icon">🍔</span>
+                  <div>
+                    <span className="poi-name">{t('property.restaurant1')}</span>
+                    <span className="poi-distance">{t('property.restaurant1Dist')}</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="poi-icon">🍽️</span>
+                  <div>
+                    <span className="poi-name">{t('property.restaurant2')}</span>
+                    <span className="poi-distance">{t('property.restaurant2Dist')}</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="poi-icon">☕</span>
+                  <div>
+                    <span className="poi-name">{t('property.restaurant3')}</span>
+                    <span className="poi-distance">{t('property.restaurant3Dist')}</span>
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
