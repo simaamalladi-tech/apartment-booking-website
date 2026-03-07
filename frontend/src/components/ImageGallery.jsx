@@ -30,6 +30,7 @@ function ImageGallery({ images = [] }) {
       {/* Main Image */}
       <div className="main-image-container">
         <img 
+          key={currentImageIndex}
           src={galleryImages[currentImageIndex]}
           alt={`Property image ${currentImageIndex + 1}`}
           className="main-image"

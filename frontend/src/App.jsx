@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Header from './components/Header';
 import BerlinSkyline from './components/BerlinSkyline';
@@ -20,6 +20,10 @@ function App() {
   const [propertyData, setPropertyData] = useState(null);
   const [propertyLoading, setPropertyLoading] = useState(true);
   const [propertyError, setPropertyError] = useState(false);
+  const [pageTransition, setPageTransition] = useState(false);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const lastScrollY = useRef(0);
 
   // Fetch the single property on mount
   useEffect(() => {
@@ -41,21 +45,43 @@ function App() {
     fetchProperty();
   }, []);
 
-  // Scroll to top on page change
+  // Header show/hide on scroll
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentPage]);
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setHeaderScrolled(currentScrollY > 50);
+      if (currentScrollY > 200) {
+        setHeaderHidden(currentScrollY > lastScrollY.current && currentScrollY > 300);
+      } else {
+        setHeaderHidden(false);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Animated page change
+  const navigateTo = (page) => {
+    if (page === currentPage) return;
+    setPageTransition(true);
+    setTimeout(() => {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      setTimeout(() => setPageTransition(false), 50);
+    }, 250);
+  };
 
   const handleBookNow = () => {
     if (propertyData) {
       setSelectedApartment(propertyData);
-      setCurrentPage('booking');
+      navigateTo('booking');
     }
   };
 
   const handleBookingComplete = (data) => {
     setBookingData(data);
-    setCurrentPage('payment');
+    navigateTo('payment');
   };
 
   const handlePaymentSuccess = (paymentResult) => {
@@ -64,21 +90,26 @@ function App() {
       bookingId: paymentResult?.bookingId,
       paymentId: paymentResult?.paymentId
     }));
-    setCurrentPage('confirmation');
+    navigateTo('confirmation');
   };
 
   const handleGoHome = () => {
-    setCurrentPage('home');
+    navigateTo('home');
     setSelectedApartment(null);
     setBookingData(null);
   };
 
   return (
     <div className="app">
-      <Header currentPage={currentPage} onPageChange={setCurrentPage} />
+      <Header
+        currentPage={currentPage}
+        onPageChange={navigateTo}
+        scrolled={headerScrolled}
+        hidden={headerHidden}
+      />
       <BerlinSkyline />
       
-      <main className="main-content">
+      <main className={`main-content ${pageTransition ? 'page-exit' : 'page-enter'}`}>
         {currentPage === 'home' && propertyLoading && (
           <div className="page-loading">
             <div className="loading-spinner"></div>
@@ -104,7 +135,7 @@ function App() {
           <BookingPage 
             apartment={selectedApartment}
             onBookingComplete={handleBookingComplete}
-            onCancel={() => setCurrentPage('home')}
+            onCancel={() => navigateTo('home')}
           />
         )}
         
@@ -112,7 +143,7 @@ function App() {
           <PaymentPage 
             bookingData={bookingData}
             onPaymentSuccess={handlePaymentSuccess}
-            onCancel={() => setCurrentPage('booking')}
+            onCancel={() => navigateTo('booking')}
           />
         )}
 
@@ -132,11 +163,11 @@ function App() {
         )}
 
         {(currentPage === 'impressum' || currentPage === 'privacy' || currentPage === 'terms') && (
-          <LegalPage page={currentPage} onBack={() => setCurrentPage('home')} />
+          <LegalPage page={currentPage} onBack={() => navigateTo('home')} />
         )}
       </main>
 
-      <Footer onPageChange={setCurrentPage} />
+      <Footer onPageChange={navigateTo} />
     </div>
   );
 }

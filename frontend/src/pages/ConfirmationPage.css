@@ -70,6 +70,12 @@
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   margin-bottom: 24px;
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 .card-section {

@@ -4,6 +4,23 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   position: sticky; top: 0; z-index: 100; width: 100%;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s ease,
+              box-shadow 0.3s ease,
+              background 0.3s ease;
+}
+
+.header-scrolled {
+  padding: 0.5rem 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.header-scrolled .logo-img {
+  height: 40px;
+}
+
+.header-hidden {
+  transform: translateY(-100%);
 }
 
 .header-container {
@@ -13,7 +30,7 @@
 }
 
 .logo h1 { font-size: 1.5rem; font-weight: 800; margin: 0; white-space: nowrap; color: white; letter-spacing: -0.5px; }
-.logo-img { height: 48px; width: auto; }
+.logo-img { height: 48px; width: auto; transition: height 0.3s ease; }
 
 .header-right { display: flex; align-items: center; gap: 1rem; }
 .nav { display: flex; align-items: center; gap: 0.5rem; }
@@ -22,9 +39,24 @@
   background: none; border: none; color: white; font-size: 0.95rem; cursor: pointer;
   padding: 0.4rem 0.8rem; border-radius: 6px; transition: all 0.3s ease;
   font-family: 'Inter', system-ui, sans-serif; font-weight: 500;
+  position: relative;
+}
+.nav-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+  border-radius: 1px;
 }
 .nav-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
+.nav-btn:hover::after { width: 60%; }
 .nav-btn.active { background-color: rgba(255, 255, 255, 0.3); font-weight: 700; }
+.nav-btn.active::after { width: 60%; }
 
 .admin-btn {
   background-color: rgba(255, 255, 255, 0.15) !important;

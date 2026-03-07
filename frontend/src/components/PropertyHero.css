@@ -214,6 +214,12 @@
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid #ddd;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.booking-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .booking-card h3 {
@@ -274,16 +280,17 @@
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 15px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
 }
 
 .book-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.45);
 }
 
 .book-btn:active {
-  transform: translateY(0);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .booking-info {

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import useScrollAnimation from '../hooks/useScrollAnimation';
 import './ContactPage.css';
 
 function ContactPage() {
   const { t } = useTranslation();
+  useScrollAnimation();
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -54,7 +56,7 @@ function ContactPage() {
       <div className="contact-container">
         <div className="contact-grid">
           {/* Contact Info Cards */}
-          <div className="contact-info">
+          <div className="contact-info stagger-children">
             <div className="info-card">
               <div className="info-icon">📍</div>
               <h3>{t('contact.addressLabel')}</h3>
@@ -81,7 +83,7 @@ function ContactPage() {
           </div>
 
           {/* Contact Form */}
-          <div className="contact-form-wrapper">
+          <div className="contact-form-wrapper fade-in-right">
             <h2>{t('contact.formTitle')}</h2>
 
             {sent ? (
@@ -159,7 +161,7 @@ function ContactPage() {
         </div>
 
         {/* Google Maps Embed */}
-        <div className="map-section">
+        <div className="map-section fade-in-up">
           <h2>{t('contact.findUs')}</h2>
           <div className="map-wrapper">
             <iframe

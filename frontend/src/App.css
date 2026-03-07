@@ -9,12 +9,14 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
 }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: #333;
   line-height: 1.5;
+  overflow-x: hidden;
 }
 
 input, button, textarea, select {
@@ -26,6 +28,7 @@ input, button, textarea, select {
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .main-content {
@@ -33,7 +36,79 @@ input, button, textarea, select {
   width: 100%;
   display: flex;
   flex-direction: column;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
+
+/* ─── Page Transitions ─── */
+.page-enter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-exit {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
+/* ─── Scroll-triggered Fade-in Animations ─── */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-in-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.fade-in-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.fade-in-scale {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.fade-in-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Stagger children */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.stagger-children.visible > *:nth-child(1) { transition-delay: 0.05s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(2) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(3) { transition-delay: 0.15s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(4) { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(5) { transition-delay: 0.25s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(6) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
 
 /* Loading state */
 .page-loading {

@@ -31,6 +31,11 @@
 .booking-form-section {
   background: white; border-radius: 12px; padding: 28px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: box-shadow 0.3s ease;
+}
+
+.booking-form-section:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
 /* Property summary */
@@ -66,10 +71,10 @@
 .form-group label { font-weight: 600; margin-bottom: 6px; color: #333; font-size: 0.9rem; }
 .form-group input, .form-group select {
   padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 8px;
-  font-size: 0.95rem; transition: border-color 0.2s; font-family: inherit;
+  font-size: 0.95rem; transition: border-color 0.3s ease, box-shadow 0.3s ease; font-family: inherit;
 }
 .form-group input:focus {
-  outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+  outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.12);
 }
 .field-hint { font-size: 0.8rem; color: #999; margin-top: 4px; }
 
@@ -80,6 +85,12 @@
 .booking-summary-card {
   background: white; border-radius: 12px; padding: 24px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid #eee;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.booking-summary-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
 }
 .booking-summary-card h3 {
   margin: 0 0 20px; font-size: 1.1rem; font-weight: 700; color: #1a1a2e;
@@ -109,10 +120,13 @@
   width: 100%; padding: 14px; margin-top: 12px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white; border: none; border-radius: 10px; cursor: pointer;
-  font-size: 1rem; font-weight: 700; transition: all 0.2s; font-family: inherit;
+  font-size: 1rem; font-weight: 700; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-family: inherit;
 }
 .continue-btn:hover:not(:disabled) {
-  transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+  transform: translateY(-3px); box-shadow: 0 10px 25px rgba(102,126,234,0.45);
+}
+.continue-btn:active:not(:disabled) {
+  transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.3);
 }
 .continue-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 

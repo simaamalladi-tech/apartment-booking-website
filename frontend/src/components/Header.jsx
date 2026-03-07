@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import './Header.css';
 
-function Header({ currentPage, onPageChange }) {
+function Header({ currentPage, onPageChange, scrolled, hidden }) {
   const { t, i18n } = useTranslation();
 
   const changeLanguage = (lng) => {
@@ -11,7 +11,7 @@ function Header({ currentPage, onPageChange }) {
   };
 
   return (
-    <header className="header">
+    <header className={`header ${scrolled ? 'header-scrolled' : ''} ${hidden ? 'header-hidden' : ''}`}>
       <div className="header-container">
         <div className="logo" onClick={() => onPageChange('home')} style={{ cursor: 'pointer' }}>
           <img src="/logo.svg" alt="Alt-Berliner Eckkneipe" className="logo-img" />

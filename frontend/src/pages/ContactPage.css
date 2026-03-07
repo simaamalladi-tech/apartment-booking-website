@@ -51,11 +51,12 @@
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .info-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .info-icon {
@@ -133,7 +134,7 @@
   border: 2px solid #e0e0e0;
   border-radius: 6px;
   font-size: 0.95rem;
-  transition: border-color 0.2s;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   font-family: inherit;
   resize: vertical;
 }
@@ -142,7 +143,7 @@
 .contact-form .form-group textarea:focus {
   outline: none;
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12);
 }
 
 .send-btn {
@@ -154,13 +155,18 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
   align-self: flex-start;
 }
 
 .send-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.45);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .send-btn:disabled {

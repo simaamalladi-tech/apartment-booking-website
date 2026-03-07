@@ -1,10 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ImageGallery from './ImageGallery';
+import useScrollAnimation from '../hooks/useScrollAnimation';
 import './PropertyHero.css';
 
 function PropertyHero({ apartment, onBookNow }) {
   const { t } = useTranslation();
+  useScrollAnimation();
 
   return (
     <div className="property-hero">
@@ -17,7 +19,7 @@ function PropertyHero({ apartment, onBookNow }) {
           {/* Left: Details */}
           <div className="property-details">
             {/* Rating & Address Bar */}
-            <div className="property-header-bar">
+            <div className="property-header-bar fade-in-up">
               <div className="rating-badge">
                 <span className="rating-score">9.3</span>
                 <span className="rating-label">{t('property.superb')}</span>
@@ -28,13 +30,13 @@ function PropertyHero({ apartment, onBookNow }) {
               </div>
             </div>
 
-            <div className="price-section">
+            <div className="price-section fade-in-up">
               <h2 className="price">€{apartment.price}</h2>
               <p className="price-label">{t('apartments.price')}</p>
             </div>
 
             {/* Quick Facts */}
-            <div className="quick-facts">
+            <div className="quick-facts stagger-children">
               <div className="fact">
                 <span className="fact-icon">🛏️</span>
                 <div>
@@ -68,7 +70,7 @@ function PropertyHero({ apartment, onBookNow }) {
             </div>
 
             {/* Check-in / Check-out */}
-            <div className="checkin-info">
+            <div className="checkin-info fade-in-up">
               <div className="checkin-item">
                 <span className="checkin-label">{t('property.checkIn')}</span>
                 <span className="checkin-value">15:00 – 23:00</span>
@@ -80,13 +82,13 @@ function PropertyHero({ apartment, onBookNow }) {
             </div>
 
             {/* Description */}
-            <div className="description-section">
+            <div className="description-section fade-in-up">
               <h3>{t('property.aboutTitle')}</h3>
               <p>{apartment.description}</p>
             </div>
 
             {/* Amenities */}
-            <div className="amenities-section">
+            <div className="amenities-section fade-in-up">
               <h3>{t('property.amenitiesTitle')}</h3>
               <ul className="amenities-list">
                 {apartment.amenities.map((amenity, idx) => (
@@ -97,7 +99,7 @@ function PropertyHero({ apartment, onBookNow }) {
           </div>
 
           {/* Right: Booking Card */}
-          <div className="booking-card-container">
+          <div className="booking-card-container fade-in-right">
             <div className="booking-card">
               <h3>{t('property.readyToBook')}</h3>
               <p className="booking-description">{t('property.bookingCta')}</p>
