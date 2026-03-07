@@ -7,8 +7,8 @@ dotenv.config();
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_T4vXrvxK_KuLsnCbZ9NUhQyohBz8z9pwa';
 const resend = new Resend(RESEND_API_KEY);
 
-// Use Resend's free tier default sender (no domain verification needed)
-const FROM_EMAIL = 'onboarding@resend.dev';
+// Use verified domain for sending
+const FROM_EMAIL = 'booking@alt-berliner-eckkneipe.de';
 const REPLY_TO = 'lutz.richter@gmail.com';
 const PROPERTY_NAME = 'Alt-Berliner Eckkneipe';
 const PROPERTY_ADDRESS = '146A Gustav-Adolf-Straße, 13086 Berlin';
