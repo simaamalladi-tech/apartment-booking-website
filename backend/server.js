@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import apartmentRoutes from './routes/apartments.js';
 import bookingRoutes from './routes/bookings.js';
@@ -61,6 +62,17 @@ app.get('/api', (req, res) => {
 
 // Serve static files from React build (frontend/dist folder)
 const frontendPath = path.join(__dirname, '../frontend/dist');
+console.log('📁 Frontend path:', frontendPath);
+console.log('📁 Frontend dist exists:', fs.existsSync(frontendPath));
+
+// List files in dist folder for debugging
+try {
+  const distFiles = fs.readdirSync(frontendPath);
+  console.log('📁 Files in dist:', distFiles);
+} catch(err) {
+  console.log('❌ Error reading dist folder:', err.message);
+}
+
 app.use(express.static(frontendPath));
 
 // Serve React app for all other routes (SPA fallback)
@@ -69,7 +81,9 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ message: 'API endpoint not found' });
   }
-  res.sendFile(path.join(frontendPath, 'index.html'));
+  const indexPath = path.join(frontendPath, 'index.html');
+  console.log('🌐 Serving index.html from:', indexPath);
+  res.sendFile(indexPath);
 });
 
 // Error handling middleware
