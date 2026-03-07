@@ -1,29 +1,9 @@
 import express from 'express';
-import net from 'net';
 import Booking from '../models/Booking.js';
 import Apartment from '../models/Apartment.js';
 import { sendBookingConfirmation, sendBookingCancellation, sendBookingPending, sendAdminNotification } from '../utils/emailService.js';
 
 const router = express.Router();
-
-// Diagnostic: test SMTP port connectivity
-router.get('/test-smtp', async (req, res) => {
-  const results = {};
-  const ports = [25, 465, 587, 2525];
-  
-  for (const port of ports) {
-    results[port] = await new Promise((resolve) => {
-      const socket = new net.Socket();
-      socket.setTimeout(5000);
-      socket.on('connect', () => { socket.destroy(); resolve('open'); });
-      socket.on('timeout', () => { socket.destroy(); resolve('timeout'); });
-      socket.on('error', (e) => { socket.destroy(); resolve(`error: ${e.message}`); });
-      socket.connect(port, 'smtp.gmail.com');
-    });
-  }
-  
-  res.json({ smtpConnectivity: results, nodeVersion: process.version });
-});
 // Get booked dates for an apartment (used by calendar to block dates)
 router.get('/booked-dates/:apartmentId', async (req, res) => {
   try {

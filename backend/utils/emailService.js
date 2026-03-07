@@ -1,36 +1,15 @@
-import nodemailer from 'nodemailer';
-import dns from 'dns';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
-
-// Force IPv4 DNS resolution - Railway containers don't support IPv6
-dns.setDefaultResultOrder('ipv4first');
 
 dotenv.config();
 
-// SMTP defaults
-const SMTP_USER = process.env.SMTP_USER || 'lutz.richter@gmail.com';
-const SMTP_PASS = process.env.SMTP_PASS || 'undu oxts ralm xekh';
+// Resend API (HTTP-based — works on Railway which blocks SMTP ports)
+const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_T4vXrvxK_KuLsnCbZ9NUhQyohBz8z9pwa';
+const resend = new Resend(RESEND_API_KEY);
 
-// Create transporter - use Gmail SMTP with SSL on port 465
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS
-    },
-    connectionTimeout: 10000,
-    socketTimeout: 15000,
-    tls: {
-      servername: 'smtp.gmail.com',
-      rejectUnauthorized: false
-    }
-  });
-};
-
-const FROM_EMAIL = process.env.SMTP_FROM || 'lutz.richter@gmail.com';
+// Use Resend's free tier default sender (no domain verification needed)
+const FROM_EMAIL = 'onboarding@resend.dev';
+const REPLY_TO = 'lutz.richter@gmail.com';
 const PROPERTY_NAME = 'Alt-Berliner Eckkneipe';
 const PROPERTY_ADDRESS = '146A Gustav-Adolf-Straße, 13086 Berlin';
 const PROPERTY_PHONE = '+49 178 348 5970';
@@ -211,24 +190,29 @@ export const sendAdminNotification = async (booking, action) => {
   return sendEmail(adminEmail, `[Admin] ${actionLabel} – ${PROPERTY_NAME}`, html);
 };
 
-// Core send function
+// Core send function using Resend HTTP API
 const sendEmail = async (to, subject, html) => {
-  // If SMTP not configured, log and skip
-  if (!SMTP_USER || !SMTP_PASS) {
-    console.log(`📧 [Email skipped - SMTP not configured] To: ${to}, Subject: ${subject}`);
-    return { success: true, message: 'Email skipped (SMTP not configured)', skipped: true };
+  if (!RESEND_API_KEY) {
+    console.log(`📧 [Email skipped - No Resend API key] To: ${to}, Subject: ${subject}`);
+    return { success: true, message: 'Email skipped (no API key)', skipped: true };
   }
 
   try {
-    const transporter = createTransporter();
-    const info = await transporter.sendMail({
-      from: `"${PROPERTY_NAME}" <${FROM_EMAIL}>`,
-      to,
+    const { data, error } = await resend.emails.send({
+      from: `${PROPERTY_NAME} <${FROM_EMAIL}>`,
+      replyTo: REPLY_TO,
+      to: [to],
       subject,
       html
     });
-    console.log(`📧 Email sent to ${to}: ${info.messageId}`);
-    return { success: true, messageId: info.messageId };
+
+    if (error) {
+      console.error(`📧 Email error to ${to}:`, error.message);
+      return { success: false, message: error.message };
+    }
+
+    console.log(`📧 Email sent to ${to}: ${data.id}`);
+    return { success: true, messageId: data.id };
   } catch (error) {
     console.error(`📧 Email error to ${to}:`, error.message);
     return { success: false, message: error.message };
