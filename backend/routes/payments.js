@@ -28,10 +28,7 @@ router.post('/create-payment-intent', async (req, res) => {
       currency: 'eur',
       payment_method: paymentMethodId,
       confirm: true,
-      automatic_payment_methods: {
-        enabled: false,
-        allow_redirects: 'never'
-      }
+      payment_method_types: ['card']
     });
 
     // Check if payment succeeded
