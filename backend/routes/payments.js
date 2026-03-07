@@ -2,6 +2,7 @@ import express from 'express';
 import Stripe from 'stripe';
 import Payment from '../models/Payment.js';
 import Booking from '../models/Booking.js';
+import Apartment from '../models/Apartment.js';
 import { sendBookingConfirmation, sendAdminNotification } from '../utils/emailService.js';
 import dotenv from 'dotenv';
 
@@ -13,18 +14,40 @@ const router = express.Router();
 // Create payment intent
 router.post('/create-payment-intent', async (req, res) => {
   try {
-    const { amount, bookingData, paymentMethodId, email } = req.body;
+    const { bookingData, paymentMethodId, email } = req.body;
 
-    if (!amount || !paymentMethodId || !email) {
+    if (!bookingData || !paymentMethodId || !email) {
       return res.status(400).json({ 
         success: false, 
         message: 'Missing required fields' 
       });
     }
 
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: 'Invalid email address' });
+    }
+
+    // Server-side price calculation — never trust the client
+    const apartment = await Apartment.findById(bookingData.apartment?._id || bookingData.apartment?.id);
+    if (!apartment) {
+      return res.status(404).json({ success: false, message: 'Apartment not found' });
+    }
+
+    const checkIn = new Date(bookingData.checkIn);
+    const checkOut = new Date(bookingData.checkOut);
+    if (isNaN(checkIn) || isNaN(checkOut) || checkOut <= checkIn) {
+      return res.status(400).json({ success: false, message: 'Invalid dates' });
+    }
+
+    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+    const calculatedPrice = nights * apartment.price;
+    const amountInCents = Math.round(calculatedPrice * 100);
+
     // Create Payment Intent with the payment method
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount), // Amount in cents
+      amount: amountInCents,
       currency: 'eur',
       payment_method: paymentMethodId,
       confirm: true,
@@ -33,18 +56,18 @@ router.post('/create-payment-intent', async (req, res) => {
 
     // Check if payment succeeded
     if (paymentIntent.status === 'succeeded') {
-      // Create booking
+      // Create booking with server-calculated price
       const booking = new Booking({
-        apartment: bookingData.apartment._id || bookingData.apartment.id,
+        apartment: apartment._id,
         user: {
-          email: email,
-          name: bookingData.user?.name || 'Guest'
+          email: email.substring(0, 200),
+          name: (bookingData.user?.name || 'Guest').substring(0, 100)
         },
-        checkInDate: bookingData.checkIn,
-        checkOutDate: bookingData.checkOut,
-        numberOfGuests: bookingData.guests,
-        numberOfNights: bookingData.nights,
-        totalPrice: bookingData.totalPrice,
+        checkInDate: checkIn,
+        checkOutDate: checkOut,
+        numberOfGuests: Math.min(bookingData.guests || 1, apartment.maxGuests),
+        numberOfNights: nights,
+        totalPrice: calculatedPrice,
         status: 'confirmed',
         paymentId: paymentIntent.id,
         paymentStatus: 'completed'
@@ -57,7 +80,7 @@ router.post('/create-payment-intent', async (req, res) => {
         booking: booking._id,
         stripePaymentId: paymentIntent.id,
         stripePaymentMethodId: paymentMethodId,
-        amount: amount,
+        amount: amountInCents,
         email: email,
         status: 'succeeded'
       });
@@ -86,8 +109,7 @@ router.post('/create-payment-intent', async (req, res) => {
     console.error('Payment error:', error);
     res.status(500).json({
       success: false,
-      message: 'Payment processing error',
-      error: error.message
+      message: 'Payment processing error'
     });
   }
 });
@@ -105,7 +127,7 @@ router.post('/confirm', async (req, res) => {
       res.json({ success: false, message: 'Payment not completed' });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error confirming payment', error: error.message });
+    res.status(500).json({ success: false, message: 'Error confirming payment' });
   }
 });
 

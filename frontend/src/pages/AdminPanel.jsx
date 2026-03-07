@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import './AdminPanel.css';
 
-const ADMIN_PASSWORD = 'admin123';
-
 function AdminPanel() {
   const { t } = useTranslation();
   const [authenticated, setAuthenticated] = useState(false);
+  const [adminToken, setAdminToken] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [bookings, setBookings] = useState([]);
@@ -20,8 +19,11 @@ function AdminPanel() {
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
-    const session = sessionStorage.getItem('admin_auth');
-    if (session === 'true') setAuthenticated(true);
+    const token = sessionStorage.getItem('admin_token');
+    if (token) {
+      setAdminToken(token);
+      setAuthenticated(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -37,20 +39,38 @@ function AdminPanel() {
 
   const showToast = (message, type = 'success') => setToast({ message, type });
 
-  const handleLogin = (e) => {
+  // Helper to get auth headers
+  const authHeaders = () => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${adminToken}`
+  });
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setAuthenticated(true);
-      sessionStorage.setItem('admin_auth', 'true');
-      setLoginError('');
-    } else {
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json();
+      if (data.success && data.token) {
+        setAdminToken(data.token);
+        setAuthenticated(true);
+        sessionStorage.setItem('admin_token', data.token);
+        setLoginError('');
+      } else {
+        setLoginError(t('admin.loginError'));
+      }
+    } catch (err) {
       setLoginError(t('admin.loginError'));
     }
   };
 
   const handleLogout = () => {
     setAuthenticated(false);
-    sessionStorage.removeItem('admin_auth');
+    setAdminToken('');
+    sessionStorage.removeItem('admin_token');
     setPassword('');
   };
 
@@ -58,7 +78,13 @@ function AdminPanel() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/bookings');
+      const res = await fetch('/api/bookings', {
+        headers: authHeaders()
+      });
+      if (res.status === 401) {
+        handleLogout();
+        return;
+      }
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setBookings(data);
@@ -73,7 +99,7 @@ function AdminPanel() {
     try {
       const res = await fetch(`/api/bookings/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ status })
       });
       if (res.ok) {
@@ -91,7 +117,10 @@ function AdminPanel() {
   const cancelBooking = async (id) => {
     setActionLoading(id);
     try {
-      const res = await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/bookings/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
       if (res.ok) {
         setBookings(prev => prev.map(b => b._id === id ? { ...b, status: 'cancelled' } : b));
         showToast(t('admin.cancelSuccess'));
@@ -107,7 +136,10 @@ function AdminPanel() {
   const resendEmail = async (id) => {
     setActionLoading(id);
     try {
-      const res = await fetch(`/api/bookings/${id}/send-email`, { method: 'POST' });
+      const res = await fetch(`/api/bookings/${id}/send-email`, {
+        method: 'POST',
+        headers: authHeaders()
+      });
       const data = await res.json();
       showToast(data.success ? t('admin.emailSent') : t('admin.emailFailed'), data.success ? 'success' : 'error');
     } catch (err) {

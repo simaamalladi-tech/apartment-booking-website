@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import xss from 'xss';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,6 +14,9 @@ const REPLY_TO = 'lutz.richter@gmail.com';
 const PROPERTY_NAME = 'Alt-Berliner Eckkneipe';
 const PROPERTY_ADDRESS = '146A Gustav-Adolf-Straße, 13086 Berlin';
 const PROPERTY_PHONE = '+49 178 348 5970';
+
+// Sanitize user input before inserting into HTML emails
+const sanitize = (str) => xss(String(str || ''));
 
 // Format date nicely
 const formatDate = (dateStr) => {
@@ -111,8 +115,8 @@ const bookingDetailsBlock = (booking) => `
 // ─── EMAIL TEMPLATES ───
 
 export const sendBookingConfirmation = async (booking) => {
-  const guestName = booking.user?.name || 'Guest';
-  const guestEmail = booking.user?.email;
+  const guestName = sanitize(booking.user?.name || 'Guest');
+  const guestEmail = sanitize(booking.user?.email);
   if (!guestEmail) return { success: false, message: 'No guest email' };
 
   const html = emailWrapper(`
@@ -135,8 +139,8 @@ export const sendBookingConfirmation = async (booking) => {
 };
 
 export const sendBookingCancellation = async (booking) => {
-  const guestName = booking.user?.name || 'Guest';
-  const guestEmail = booking.user?.email;
+  const guestName = sanitize(booking.user?.name || 'Guest');
+  const guestEmail = sanitize(booking.user?.email);
   if (!guestEmail) return { success: false, message: 'No guest email' };
 
   const html = emailWrapper(`
@@ -156,8 +160,8 @@ export const sendBookingCancellation = async (booking) => {
 };
 
 export const sendBookingPending = async (booking) => {
-  const guestName = booking.user?.name || 'Guest';
-  const guestEmail = booking.user?.email;
+  const guestName = sanitize(booking.user?.name || 'Guest');
+  const guestEmail = sanitize(booking.user?.email);
   if (!guestEmail) return { success: false, message: 'No guest email' };
 
   const html = emailWrapper(`
@@ -182,7 +186,7 @@ export const sendAdminNotification = async (booking, action) => {
   const html = emailWrapper(`
     <h2>${actionLabel}</h2>
     <p>A booking has been ${action === 'new' ? 'created' : action}.</p>
-    <p><strong>Guest:</strong> ${booking.user?.name || 'Unknown'} (${booking.user?.email || 'No email'})</p>
+    <p><strong>Guest:</strong> ${sanitize(booking.user?.name || 'Unknown')} (${sanitize(booking.user?.email || 'No email')})</p>
     ${bookingDetailsBlock(booking)}
     <p><strong>Status:</strong> <span class="status-badge status-${booking.status}">${booking.status}</span></p>
   `);
@@ -222,6 +226,10 @@ const sendEmail = async (to, subject, html) => {
 // Send contact form message to admin
 export const sendContactMessage = async ({ name, email, subject, message }) => {
   const adminEmail = process.env.ADMIN_EMAIL || 'lutz.richter@gmail.com';
+  const safeName = sanitize(name);
+  const safeEmail = sanitize(email);
+  const safeSubject = sanitize(subject);
+  const safeMessage = sanitize(message);
 
   const html = emailWrapper(`
     <h2>New Contact Message</h2>
@@ -229,21 +237,21 @@ export const sendContactMessage = async ({ name, email, subject, message }) => {
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
           <td style="padding:8px 0;color:#888;font-size:14px;">From</td>
-          <td style="padding:8px 0;font-weight:600;font-size:14px;text-align:right;">${name}</td>
+          <td style="padding:8px 0;font-weight:600;font-size:14px;text-align:right;">${safeName}</td>
         </tr>
         <tr style="border-top:1px solid #eee;">
           <td style="padding:8px 0;color:#888;font-size:14px;">Email</td>
-          <td style="padding:8px 0;font-weight:600;font-size:14px;text-align:right;"><a href="mailto:${email}" style="color:#667eea;">${email}</a></td>
+          <td style="padding:8px 0;font-weight:600;font-size:14px;text-align:right;"><a href="mailto:${safeEmail}" style="color:#667eea;">${safeEmail}</a></td>
         </tr>
         <tr style="border-top:1px solid #eee;">
           <td style="padding:8px 0;color:#888;font-size:14px;">Subject</td>
-          <td style="padding:8px 0;font-weight:600;font-size:14px;text-align:right;">${subject}</td>
+          <td style="padding:8px 0;font-weight:600;font-size:14px;text-align:right;">${safeSubject}</td>
         </tr>
       </table>
     </div>
     <h3 style="margin-top:20px;font-size:16px;color:#1a1a2e;">Message</h3>
-    <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin:10px 0;border-left:4px solid #764ba2;white-space:pre-wrap;font-size:14px;line-height:1.7;color:#333;">${message}</div>
-    <p style="margin-top:20px;"><a href="mailto:${email}" class="btn">Reply to ${name}</a></p>
+    <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin:10px 0;border-left:4px solid #764ba2;white-space:pre-wrap;font-size:14px;line-height:1.7;color:#333;">${safeMessage}</div>
+    <p style="margin-top:20px;"><a href="mailto:${safeEmail}" class="btn">Reply to ${safeName}</a></p>
   `);
 
   return sendEmail(adminEmail, `[Contact] ${subject} – ${PROPERTY_NAME}`, html);

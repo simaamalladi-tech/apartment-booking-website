@@ -4,9 +4,10 @@ import './ContactPage.css';
 
 function ContactPage() {
   const { t } = useTranslation();
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [formTimestamp] = useState(Date.now());
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,12 +20,12 @@ function ContactPage() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+        body: JSON.stringify({ ...form, _timestamp: formTimestamp })
       });
       const data = await res.json();
       if (data.success) {
         setSent(true);
-        setForm({ name: '', email: '', subject: '', message: '' });
+        setForm({ name: '', email: '', subject: '', message: '', website: '' });
       }
     } catch (err) {
       console.error('Contact form error:', err);
@@ -79,6 +80,11 @@ function ContactPage() {
               </div>
             ) : (
               <form className="contact-form" onSubmit={handleSubmit}>
+                {/* Honeypot field - hidden from users, bots will fill it */}
+                <div style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+                  <label htmlFor="website">Website</label>
+                  <input type="text" name="website" id="website" value={form.website} onChange={handleChange} tabIndex={-1} autoComplete="off" />
+                </div>
                 <div className="form-row">
                   <div className="form-group">
                     <label>{t('contact.nameField')}</label>

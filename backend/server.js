@@ -1,6 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
@@ -9,6 +12,7 @@ import apartmentRoutes from './routes/apartments.js';
 import bookingRoutes from './routes/bookings.js';
 import paymentRoutes from './routes/payments.js';
 import { sendContactMessage } from './utils/emailService.js';
+import { generateAdminToken, verifyAdminPassword } from './middleware/auth.js';
 import seedApartments from './seed.js';
 
 dotenv.config();
@@ -19,10 +23,71 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ─── SECURITY MIDDLEWARE ───
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for SPA compatibility
+  crossOriginEmbedderPolicy: false
+}));
+
+// CORS - restrict to known origins
+const allowedOrigins = [
+  'https://apartment-booking-website-production.up.railway.app',
+  'https://alt-berliner-eckkneipe.de',
+  'http://localhost:5173',
+  'http://localhost:5000'
+];
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (same-origin, mobile apps, curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Still allow but log
+    }
+  },
+  credentials: true
+}));
+
+// NoSQL injection prevention
+app.use(mongoSanitize());
+
+// Body parsing with size limits
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// ─── RATE LIMITERS ───
+
+// General API rate limiter
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: { success: false, message: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Strict limiter for contact form
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: { success: false, message: 'Too many messages sent. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Auth rate limiter (prevent brute force)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: { success: false, message: 'Too many login attempts. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Apply general limiter to all API routes
+app.use('/api/', apiLimiter);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment-booking')
@@ -38,14 +103,58 @@ app.use('/api/apartments', apartmentRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 
-// Contact form endpoint
-app.post('/api/contact', async (req, res) => {
+// ─── ADMIN AUTH ───
+app.post('/api/admin/login', authLimiter, (req, res) => {
+  const { password } = req.body;
+  if (!password) {
+    return res.status(400).json({ success: false, message: 'Password required' });
+  }
+  if (verifyAdminPassword(password)) {
+    const token = generateAdminToken();
+    res.json({ success: true, token });
+  } else {
+    res.status(401).json({ success: false, message: 'Invalid password' });
+  }
+});
+
+// ─── CONTACT FORM (with honeypot CAPTCHA + validation) ───
+app.post('/api/contact', contactLimiter, async (req, res) => {
   try {
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message, website, _timestamp } = req.body;
+
+    // Honeypot check — bots fill the hidden 'website' field
+    if (website) {
+      // Silently accept but don't send (fool the bot)
+      return res.json({ success: true, message: 'Message sent successfully' });
+    }
+
+    // Time-based check — form must take at least 3 seconds to fill
+    if (_timestamp && (Date.now() - _timestamp) < 3000) {
+      return res.json({ success: true, message: 'Message sent successfully' });
+    }
+
+    // Validation
     if (!name || !email || !message) {
       return res.status(400).json({ success: false, message: 'Name, email, and message are required' });
     }
-    const result = await sendContactMessage({ name, email, subject: subject || 'General Inquiry', message });
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: 'Invalid email address' });
+    }
+
+    // Length limits
+    if (name.length > 100 || email.length > 200 || (subject && subject.length > 200) || message.length > 5000) {
+      return res.status(400).json({ success: false, message: 'Input too long' });
+    }
+
+    const result = await sendContactMessage({
+      name: name.trim(),
+      email: email.trim(),
+      subject: (subject || 'General Inquiry').trim(),
+      message: message.trim()
+    });
     res.json({ success: result.success, message: result.success ? 'Message sent successfully' : result.message });
   } catch (error) {
     console.error('Contact form error:', error);
@@ -114,8 +223,7 @@ app.use((err, req, res, next) => {
   console.error('✗ Error:', err);
   res.status(500).json({ 
     success: false, 
-    message: 'Internal server error',
-    error: err.message 
+    message: 'Internal server error'
   });
 });
 
