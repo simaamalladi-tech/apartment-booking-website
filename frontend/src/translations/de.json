@@ -166,5 +166,18 @@
     "success": "Erfolg",
     "cancel": "Abbrechen",
     "back": "Zurück"
+  },
+  "confirmation": {
+    "title": "Buchung bestätigt!",
+    "subtitle": "Vielen Dank für Ihre Reservierung. Wir freuen uns, Sie begrüßen zu dürfen.",
+    "bookingRef": "Buchungsreferenz",
+    "propertyDetails": "Unterkunft",
+    "address": "Adresse",
+    "stayDetails": "Aufenthaltsdetails",
+    "guestDetails": "Gastinformationen",
+    "paymentSummary": "Zahlungsübersicht",
+    "transactionId": "Transaktions-ID",
+    "emailNotice": "Eine Bestätigungs-E-Mail mit allen Buchungsdetails wurde an Ihre E-Mail-Adresse gesendet. Bitte überprüfen Sie Ihren Posteingang.",
+    "backToHome": "Zurück zur Startseite"
   }
 }

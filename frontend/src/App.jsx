@@ -8,6 +8,7 @@ import BookingPage from './pages/BookingPage';
 import PaymentPage from './pages/PaymentPage';
 import ContactPage from './pages/ContactPage';
 import AdminPanel from './pages/AdminPanel';
+import ConfirmationPage from './pages/ConfirmationPage';
 import './App.css';
 
 function App() {
@@ -50,7 +51,16 @@ function App() {
     setCurrentPage('payment');
   };
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = (paymentResult) => {
+    setBookingData(prev => ({
+      ...prev,
+      bookingId: paymentResult?.bookingId,
+      paymentId: paymentResult?.paymentId
+    }));
+    setCurrentPage('confirmation');
+  };
+
+  const handleGoHome = () => {
     setCurrentPage('home');
     setSelectedApartment(null);
     setBookingData(null);
@@ -87,6 +97,13 @@ function App() {
 
         {currentPage === 'contact' && (
           <ContactPage />
+        )}
+
+        {currentPage === 'confirmation' && bookingData && (
+          <ConfirmationPage
+            bookingData={bookingData}
+            onGoHome={handleGoHome}
+          />
         )}
 
         {currentPage === 'admin' && (

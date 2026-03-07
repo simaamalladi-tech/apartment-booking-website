@@ -1,0 +1,250 @@
+.confirmation-page {
+  min-height: 80vh;
+  padding: 40px 20px 60px;
+  background: #f8f9fa;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.confirmation-container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Header */
+.confirmation-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.success-checkmark {
+  margin-bottom: 16px;
+  animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.confirmation-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 8px;
+}
+
+.confirmation-subtitle {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.booking-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px 16px;
+  background: #f0f0ff;
+  border-radius: 8px;
+  border: 1px solid #e0e0ff;
+}
+
+.ref-label {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.ref-value {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #667eea;
+  letter-spacing: 0.5px;
+}
+
+/* Card */
+.confirmation-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.card-section {
+  padding: 24px;
+}
+
+.card-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-section h3 svg {
+  color: #667eea;
+}
+
+.card-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 0 24px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.detail-row + .detail-row {
+  border-top: 1px solid #f5f5f5;
+}
+
+.detail-label {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  text-align: right;
+}
+
+.detail-value.highlight {
+  color: #667eea;
+}
+
+.detail-value.mono {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: #999;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.total-row {
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 2px solid #f0f0f0 !important;
+}
+
+.total-price {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+/* Detail grid for dates */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.detail-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-block .detail-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-block .detail-value {
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+/* Email notice */
+.email-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #f0f0ff;
+  border-radius: 12px;
+  border: 1px solid #e0e0ff;
+  margin-bottom: 32px;
+}
+
+.email-notice svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.email-notice p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Actions */
+.confirmation-actions {
+  text-align: center;
+}
+
+.home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .confirmation-page {
+    padding: 24px 16px 40px;
+  }
+
+  .confirmation-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .card-section {
+    padding: 20px 16px;
+  }
+
+  .card-divider {
+    margin: 0 16px;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .detail-value.mono {
+    max-width: 140px;
+  }
+}

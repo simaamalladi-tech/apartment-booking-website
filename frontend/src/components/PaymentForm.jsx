@@ -79,8 +79,11 @@ function PaymentForm({ bookingData, onSuccess }) {
       if (paymentData.success) {
         setSuccess(true);
         setTimeout(() => {
-          onSuccess();
-        }, 2000);
+          onSuccess({
+            bookingId: paymentData.bookingId,
+            paymentId: paymentData.paymentId
+          });
+        }, 1500);
       } else {
         setError(paymentData.message || 'Payment failed');
       }
