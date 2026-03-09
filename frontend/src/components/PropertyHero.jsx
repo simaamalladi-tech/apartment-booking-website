@@ -160,7 +160,7 @@ function PropertyHero({ apartment, onBookNow }) {
               <h3>{t('property.amenitiesTitle')}</h3>
               <ul className="amenities-list">
                 {apartment.amenities.map((amenity, idx) => (
-                  <li key={idx}>✓ {amenity}</li>
+                  <li key={idx}>✓ {t(`property.amenity_${amenity}`, amenity)}</li>
                 ))}
               </ul>
             </div>
