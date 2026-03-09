@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Header from './components/Header';
-import BerlinSkyline from './components/BerlinSkyline';
 import Footer from './components/Footer';
 import PropertyHero from './components/PropertyHero';
 import BookingPage from './pages/BookingPage';
@@ -121,7 +120,6 @@ function App() {
         scrolled={headerScrolled}
         hidden={headerHidden}
       />
-      <BerlinSkyline />
       
       <main className={`main-content ${pageTransition ? 'page-exit' : 'page-enter'}`}>
         {currentPage === 'home' && propertyLoading && (
