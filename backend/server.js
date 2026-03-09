@@ -214,6 +214,29 @@ try {
   console.log('❌ Error reading dist folder:', err.message);
 }
 
+// Debug endpoint to check filesystem
+app.get('/api/debug-dist', (req, res) => {
+  const info = {
+    frontendPath,
+    exists: fs.existsSync(frontendPath),
+    cwd: process.cwd(),
+    dirname: __dirname,
+    distFiles: [],
+    assetFiles: [],
+    indexHtmlExists: fs.existsSync(path.join(frontendPath, 'index.html'))
+  };
+  try {
+    info.distFiles = fs.readdirSync(frontendPath);
+    const assetsPath = path.join(frontendPath, 'assets');
+    if (fs.existsSync(assetsPath)) {
+      info.assetFiles = fs.readdirSync(assetsPath);
+    }
+  } catch(err) {
+    info.error = err.message;
+  }
+  res.json(info);
+});
+
 // Hashed assets (JS/CSS) can be cached forever; index.html must not be cached
 app.use('/assets', express.static(path.join(frontendPath, 'assets'), {
   maxAge: '1y',
@@ -230,9 +253,13 @@ app.use(express.static(frontendPath, {
 
 // Serve React app for all other routes (SPA fallback)
 app.get('*', (req, res) => {
-  // Don't serve index.html for API routes
+  // Don't serve index.html for API or asset routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ message: 'API endpoint not found' });
+  }
+  // If the request is for a specific file (has extension), return 404 instead of index.html
+  if (req.path.startsWith('/assets/')) {
+    return res.status(404).json({ message: 'Asset not found', path: req.path });
   }
   const indexPath = path.join(frontendPath, 'index.html');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
