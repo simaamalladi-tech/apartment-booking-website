@@ -17,8 +17,8 @@ function BerlinSkyline() {
         {/* Sky glow behind Fernsehturm */}
         <defs>
           <radialGradient id="towerglow" cx="50%" cy="30%" r="35%">
-            <stop offset="0%" stopColor="rgba(102,126,234,0.15)" />
-            <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+            <stop offset="0%" stopColor="#667eea" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#000000" stopOpacity="0" />
           </radialGradient>
         </defs>
         <rect x="0" y="0" width="1440" height="200" fill="url(#towerglow)" />
@@ -97,22 +97,22 @@ function BerlinSkyline() {
         <rect x="0" y="170" width="1440" height="30" fill="#000" />
 
         {/* Tiny stars / window lights */}
-        <circle cx="225" cy="115" r="1" fill="rgba(255,220,100,0.6)" />
-        <circle cx="355" cy="110" r="1" fill="rgba(255,220,100,0.5)" />
-        <circle cx="505" cy="95" r="1" fill="rgba(255,220,100,0.6)" />
-        <circle cx="445" cy="105" r="1" fill="rgba(255,220,100,0.4)" />
-        <circle cx="655" cy="110" r="1" fill="rgba(255,220,100,0.5)" />
-        <circle cx="765" cy="95" r="1" fill="rgba(255,220,100,0.6)" />
-        <circle cx="825" cy="90" r="1" fill="rgba(255,220,100,0.4)" />
-        <circle cx="945" cy="95" r="1" fill="rgba(255,220,100,0.5)" />
-        <circle cx="1115" cy="105" r="1" fill="rgba(255,220,100,0.6)" />
-        <circle cx="1215" cy="110" r="1" fill="rgba(255,220,100,0.4)" />
-        <circle cx="1335" cy="105" r="1" fill="rgba(255,220,100,0.5)" />
-        <circle cx="135" cy="125" r="1" fill="rgba(255,220,100,0.5)" />
-        <circle cx="1105" cy="115" r="1" fill="rgba(255,220,100,0.6)" />
+        <circle cx="225" cy="115" r="1" fill="#ffdc64" fillOpacity="0.6" />
+        <circle cx="355" cy="110" r="1" fill="#ffdc64" fillOpacity="0.5" />
+        <circle cx="505" cy="95" r="1" fill="#ffdc64" fillOpacity="0.6" />
+        <circle cx="445" cy="105" r="1" fill="#ffdc64" fillOpacity="0.4" />
+        <circle cx="655" cy="110" r="1" fill="#ffdc64" fillOpacity="0.5" />
+        <circle cx="765" cy="95" r="1" fill="#ffdc64" fillOpacity="0.6" />
+        <circle cx="825" cy="90" r="1" fill="#ffdc64" fillOpacity="0.4" />
+        <circle cx="945" cy="95" r="1" fill="#ffdc64" fillOpacity="0.5" />
+        <circle cx="1115" cy="105" r="1" fill="#ffdc64" fillOpacity="0.6" />
+        <circle cx="1215" cy="110" r="1" fill="#ffdc64" fillOpacity="0.4" />
+        <circle cx="1335" cy="105" r="1" fill="#ffdc64" fillOpacity="0.5" />
+        <circle cx="135" cy="125" r="1" fill="#ffdc64" fillOpacity="0.5" />
+        <circle cx="1105" cy="115" r="1" fill="#ffdc64" fillOpacity="0.6" />
 
         {/* Fernsehturm light at top */}
-        <circle cx="718" cy="8" r="2.5" fill="rgba(255,50,50,0.8)" />
+        <circle cx="718" cy="8" r="2.5" fill="#ff3232" fillOpacity="0.8" />
       </svg>
     </div>
   );
