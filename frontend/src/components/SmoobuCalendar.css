@@ -1,0 +1,31 @@
+/* ===== Smoobu Calendar Widget Card ===== */
+.smoobu-calendar-card {
+  overflow: hidden;
+}
+
+.smoobu-calendar-card h3 {
+  margin-bottom: 0.8rem;
+}
+
+.smoobu-calendar-wrapper {
+  width: 100%;
+  min-height: 320px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Override Smoobu widget styles to match our theme */
+.smoobu-calendar-wrapper .calendarContent {
+  width: 100% !important;
+}
+
+.smoobu-calendar-wrapper table {
+  width: 100% !important;
+}
+
+/* Ensure the widget is responsive */
+@media (max-width: 768px) {
+  .smoobu-calendar-wrapper {
+    min-height: 280px;
+  }
+}

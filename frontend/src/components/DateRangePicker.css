@@ -48,11 +48,18 @@
   display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
 }
 .cal-day {
-  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
   border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
   cursor: pointer; transition: all 0.15s; background: none; color: #333;
-  font-family: inherit; position: relative;
+  font-family: inherit; position: relative; padding: 2px;
 }
+.cal-day-num { line-height: 1.2; }
+.cal-day-price {
+  font-size: 0.55rem; color: #667eea; font-weight: 600; line-height: 1;
+  opacity: 0.85; margin-top: 1px;
+}
+.cal-selected .cal-day-price { color: rgba(255,255,255,0.8); }
+.cal-in-range .cal-day-price { color: #667eea; }
 .cal-empty { cursor: default; }
 .cal-past { color: #ccc; cursor: not-allowed; }
 .cal-booked {
@@ -61,7 +68,7 @@
 }
 .cal-today { font-weight: 700; color: #667eea; }
 .cal-today::after {
-  content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
   width: 4px; height: 4px; border-radius: 50%; background: #667eea;
 }
 .cal-available:hover { background: #f0f4ff; color: #667eea; }
@@ -88,8 +95,23 @@
 @media (max-width: 480px) {
   .cal-container { padding: 14px; }
   .cal-day { font-size: 0.8rem; }
+  .cal-day-price { font-size: 0.5rem; }
   .cal-month-label { font-size: 0.95rem; }
   .drp-labels { flex-direction: column; gap: 8px; }
   .drp-arrow { transform: rotate(90deg); }
   .cal-legend { flex-wrap: wrap; gap: 12px; }
+}
+
+/* Loading overlay */
+.cal-loading {
+  text-align: center;
+  padding: 8px;
+  font-size: 0.8rem;
+  color: #888;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }

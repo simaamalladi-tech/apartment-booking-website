@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import DateRangePicker from '../components/DateRangePicker';
 import './BookingPage.css';
@@ -12,6 +12,11 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
+  const [smoobuRates, setSmoobuRates] = useState({});
+
+  const handleRatesLoaded = useCallback((rates) => {
+    setSmoobuRates(rates);
+  }, []);
 
   const calculateNights = () => {
     if (checkIn && checkOut) {
@@ -23,7 +28,31 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
     return 0;
   };
 
-  const totalPrice = apartment.price * calculateNights();
+  // Calculate total price from Smoobu daily rates
+  const calculateDynamicPrice = () => {
+    if (!checkIn || !checkOut) return 0;
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    let total = 0;
+    let daysWithPrice = 0;
+    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      const rate = smoobuRates[dateStr];
+      if (rate && rate.price) {
+        total += rate.price;
+        daysWithPrice++;
+      } else {
+        // Fallback to apartment base price for days without Smoobu pricing
+        total += apartment.price;
+      }
+    }
+    return total;
+  };
+
+  // Average nightly price for display
+  const nights = calculateNights();
+  const totalPrice = calculateDynamicPrice();
+  const avgPrice = nights > 0 ? Math.round(totalPrice / nights) : apartment.price;
 
   const handleDateChange = (newCheckIn, newCheckOut) => {
     setCheckIn(newCheckIn);
@@ -41,8 +70,15 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
       setError(t('booking.emailRequired'));
       return;
     }
-    if (!checkIn || !checkOut || calculateNights() <= 0) {
+    if (!checkIn || !checkOut || nights <= 0) {
       setError(t('booking.invalidDates'));
+      return;
+    }
+    // Enforce minimum stay from Smoobu
+    const checkInRate = smoobuRates[checkIn];
+    const minStay = checkInRate?.minStay || 1;
+    if (nights < minStay) {
+      setError(t('booking.minStayError', { min: minStay }));
       return;
     }
     if (guests > apartment.maxGuests) {
@@ -51,15 +87,13 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
     }
     onBookingComplete({
       apartment, checkIn, checkOut, guests,
-      nights: calculateNights(), totalPrice,
+      nights, totalPrice,
       user: { name: name.trim(), email: email.trim(), phone: phone.trim() }
     });
   };
 
   const heroImage = apartment.images && apartment.images.length > 0
     ? apartment.images[0] : null;
-
-  const nights = calculateNights();
 
   return (
     <div className="booking-page">
@@ -90,7 +124,7 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
                   {apartment.address || apartment.city}
                 </p>
                 <p className="price-info">
-                  <strong>€{apartment.price}</strong> {t('apartments.price')}
+                  <strong>€{avgPrice}</strong> {t('apartments.price')}
                 </p>
               </div>
             </div>
@@ -102,6 +136,7 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
               checkIn={checkIn}
               checkOut={checkOut}
               onChange={handleDateChange}
+              onRatesLoaded={handleRatesLoaded}
             />
 
             {/* Guest info */}
@@ -157,11 +192,11 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
 
               <div className="summary-detail">
                 <span>{t('booking.pricePerNight')}</span>
-                <strong>€{apartment.price}</strong>
+                <strong>€{avgPrice}</strong>
               </div>
               {nights > 0 && (
                 <div className="summary-detail summary-calc">
-                  <span>€{apartment.price} × {nights} {t('booking.nights').toLowerCase()}</span>
+                  <span>~€{avgPrice} × {nights} {t('booking.nights').toLowerCase()}</span>
                   <strong>€{totalPrice}</strong>
                 </div>
               )}

@@ -2,32 +2,61 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import './DateRangePicker.css';
 
-function DateRangePicker({ apartmentId, checkIn, checkOut, onChange }) {
+function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoaded }) {
   const { t, i18n } = useTranslation();
+  const [smoobuRates, setSmoobuRates] = useState({});
   const [bookedDates, setBookedDates] = useState(new Set());
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
-  const [selecting, setSelecting] = useState('checkIn'); // 'checkIn' or 'checkOut'
+  const [selecting, setSelecting] = useState('checkIn');
   const [hoverDate, setHoverDate] = useState(null);
+  const [loadingRates, setLoadingRates] = useState(true);
 
-  // Fetch booked dates
+  // Fetch Smoobu rates (primary source of truth for availability + pricing)
   useEffect(() => {
-    if (!apartmentId) return;
-    const fetchBooked = async () => {
+    const fetchRates = async () => {
+      setLoadingRates(true);
       try {
-        const res = await fetch(`/api/bookings/booked-dates/${apartmentId}`);
+        const res = await fetch('/api/smoobu/rates');
         if (res.ok) {
-          const dates = await res.json();
-          setBookedDates(new Set(dates));
+          const data = await res.json();
+          setSmoobuRates(data.rates || {});
+          // Build booked dates set from Smoobu availability data
+          const blocked = new Set();
+          for (const [date, info] of Object.entries(data.rates || {})) {
+            if (!info.available) {
+              blocked.add(date);
+            }
+          }
+          setBookedDates(blocked);
+          // Notify parent about rates for dynamic pricing
+          if (onRatesLoaded) onRatesLoaded(data.rates || {});
         }
       } catch (err) {
-        console.error('Error fetching booked dates:', err);
+        console.error('Error fetching Smoobu rates:', err);
       }
+      // Also fetch local booked dates as fallback
+      if (apartmentId) {
+        try {
+          const res = await fetch(`/api/bookings/booked-dates/${apartmentId}`);
+          if (res.ok) {
+            const dates = await res.json();
+            setBookedDates(prev => {
+              const merged = new Set(prev);
+              dates.forEach(d => merged.add(d));
+              return merged;
+            });
+          }
+        } catch (err) {
+          // silently ignore fallback failures
+        }
+      }
+      setLoadingRates(false);
     };
-    fetchBooked();
-  }, [apartmentId]);
+    fetchRates();
+  }, [apartmentId, onRatesLoaded]);
 
   const today = useMemo(() => {
     const d = new Date();
@@ -73,6 +102,7 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange }) {
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const date = new Date(year, month, d);
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const rateInfo = smoobuRates[dateStr];
       days.push({
         day: d,
         date,
@@ -80,11 +110,13 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange }) {
         isPast: date < today,
         isBooked: bookedDates.has(dateStr),
         isToday: dateStr === todayStr,
+        price: rateInfo?.price || null,
+        minStay: rateInfo?.minStay || null,
       });
     }
 
     return days;
-  }, [currentMonth, bookedDates, today, todayStr]);
+  }, [currentMonth, bookedDates, smoobuRates, today, todayStr]);
 
   const prevMonth = () => {
     setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -199,12 +231,25 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange }) {
               onMouseEnter={() => day && !day.isPast && !day.isBooked && setHoverDate(day.dateStr)}
               onMouseLeave={() => setHoverDate(null)}
               disabled={!day || day.isPast || day.isBooked}
-              title={day?.isBooked ? t('booking.dateBooked') : ''}
+              title={day?.isBooked ? t('booking.dateBooked') : day?.price ? `€${day.price}` : ''}
             >
-              {day ? day.day : ''}
+              {day ? (
+                <>
+                  <span className="cal-day-num">{day.day}</span>
+                  {day.price && !day.isPast && !day.isBooked && (
+                    <span className="cal-day-price">€{day.price}</span>
+                  )}
+                </>
+              ) : ''}
             </button>
           ))}
         </div>
+
+        {loadingRates && (
+          <div className="cal-loading">
+            <span>{t('common.loading', 'Loading...')}</span>
+          </div>
+        )}
 
         <div className="cal-legend">
           <div className="cal-legend-item">

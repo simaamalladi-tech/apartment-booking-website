@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import apartmentRoutes from './routes/apartments.js';
 import bookingRoutes from './routes/bookings.js';
 import paymentRoutes from './routes/payments.js';
+import smoobuRoutes from './routes/smoobu.js';
 import { sendContactMessage } from './utils/emailService.js';
 import { generateAdminToken, verifyAdminPassword } from './middleware/auth.js';
 import seedApartments from './seed.js';
@@ -108,6 +109,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment
 app.use('/api/apartments', apartmentRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/smoobu', smoobuRoutes);
 
 // ─── ADMIN AUTH ───
 app.post('/api/admin/login', authLimiter, (req, res) => {

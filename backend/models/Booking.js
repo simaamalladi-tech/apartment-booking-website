@@ -45,6 +45,7 @@ const bookingSchema = new mongoose.Schema({
     enum: ['pending', 'completed', 'failed'],
     default: 'pending'
   },
+  smoobuBookingId: Number,
   createdAt: {
     type: Date,
     default: Date.now

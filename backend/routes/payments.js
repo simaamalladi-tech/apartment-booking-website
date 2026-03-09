@@ -11,6 +11,61 @@ dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const router = express.Router();
 
+// Helper: Sync booking to Smoobu after successful payment
+async function syncBookingToSmoobu(bookingData, savedBooking, email, totalPrice) {
+  const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
+  const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+  const SMOOBU_CHANNEL_ID = process.env.SMOOBU_CHANNEL_ID || '2745722';
+
+  if (!SMOOBU_API_KEY) {
+    console.warn('SMOOBU_API_KEY not set, skipping Smoobu sync');
+    return;
+  }
+
+  // Split name into first/last
+  const fullName = bookingData.user?.name || 'Guest';
+  const nameParts = fullName.trim().split(/\s+/);
+  const firstName = nameParts[0] || 'Guest';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
+  const smoobuBody = {
+    arrivalDate: bookingData.checkIn,
+    departureDate: bookingData.checkOut,
+    apartmentId: parseInt(SMOOBU_APARTMENT_ID),
+    channelId: parseInt(SMOOBU_CHANNEL_ID),
+    firstName,
+    lastName,
+    email: email || bookingData.user?.email || '',
+    phone: bookingData.user?.phone || '',
+    adults: bookingData.guests || 1,
+    price: totalPrice,
+    priceStatus: 1,
+    notice: `Website booking #${savedBooking._id}`,
+    language: 'de',
+  };
+
+  const res = await fetch('https://login.smoobu.com/api/reservations', {
+    method: 'POST',
+    headers: {
+      'Api-Key': SMOOBU_API_KEY,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+    },
+    body: JSON.stringify(smoobuBody),
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+    console.log('✓ Booking synced to Smoobu, ID:', data.id);
+    // Save Smoobu booking ID to our record
+    savedBooking.smoobuBookingId = data.id;
+    await savedBooking.save();
+  } else {
+    const errText = await res.text();
+    console.error('✗ Smoobu sync failed:', res.status, errText);
+  }
+}
+
 // Create payment intent
 router.post('/create-payment-intent', async (req, res) => {
   try {
@@ -29,7 +84,7 @@ router.post('/create-payment-intent', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid email address' });
     }
 
-    // Server-side price calculation — never trust the client
+    // Server-side price calculation — fetch dynamic rates from Smoobu
     const apartment = await Apartment.findById(bookingData.apartment?._id || bookingData.apartment?.id);
     if (!apartment) {
       return res.status(404).json({ success: false, message: 'Apartment not found' });
@@ -42,7 +97,44 @@ router.post('/create-payment-intent', async (req, res) => {
     }
 
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-    const calculatedPrice = nights * apartment.price;
+
+    // Fetch Smoobu rates for accurate pricing (server-side verification)
+    let calculatedPrice = nights * apartment.price; // fallback
+    const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
+    const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+    if (SMOOBU_API_KEY) {
+      try {
+        const startStr = bookingData.checkIn;
+        const endStr = bookingData.checkOut;
+        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${startStr}&end_date=${endStr}`;
+        const ratesRes = await fetch(ratesUrl, {
+          headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+        });
+        if (ratesRes.ok) {
+          const ratesData = await ratesRes.json();
+          const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
+          let smoobuTotal = 0;
+          let daysWithRate = 0;
+          for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
+            const dateStr = d.toISOString().split('T')[0];
+            const rate = apartmentRates[dateStr];
+            if (rate && rate.price) {
+              smoobuTotal += rate.price;
+              daysWithRate++;
+            } else {
+              smoobuTotal += apartment.price;
+            }
+          }
+          if (daysWithRate > 0) {
+            calculatedPrice = smoobuTotal;
+            console.log(`Smoobu pricing: ${daysWithRate}/${nights} days with rate, total: €${calculatedPrice}`);
+          }
+        }
+      } catch (err) {
+        console.error('Smoobu rate fetch for payment failed, using base price:', err.message);
+      }
+    }
+
     const amountInCents = Math.round(calculatedPrice * 100);
 
     // Create Payment Intent with the payment method
@@ -90,6 +182,10 @@ router.post('/create-payment-intent', async (req, res) => {
       // Send confirmation email (non-blocking)
       sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
       sendAdminNotification(booking, 'new').catch(err => console.error('Admin email error:', err));
+
+      // Sync booking to Smoobu (non-blocking)
+      syncBookingToSmoobu(bookingData, booking, email, calculatedPrice)
+        .catch(err => console.error('Smoobu sync error:', err));
 
       return res.json({
         success: true,
