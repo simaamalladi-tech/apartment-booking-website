@@ -13,6 +13,7 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
   const [selecting, setSelecting] = useState('checkIn');
   const [hoverDate, setHoverDate] = useState(null);
   const [loadingRates, setLoadingRates] = useState(true);
+  const [minStayWarning, setMinStayWarning] = useState('');
 
   // Fetch Smoobu rates (primary source of truth for availability + pricing)
   useEffect(() => {
@@ -143,8 +144,21 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
     return false;
   };
 
+  // Get the minimum stay for the current check-in date
+  const getMinStay = (dateStr) => {
+    const rate = smoobuRates[dateStr];
+    return rate?.minStay || 2; // default 2 nights
+  };
+
+  // Calculate nights between two date strings
+  const calcNights = (start, end) => {
+    if (!start || !end) return 0;
+    return Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24));
+  };
+
   const handleDayClick = (day) => {
     if (!day || day.isPast || day.isBooked) return;
+    setMinStayWarning('');
 
     if (selecting === 'checkIn') {
       onChange(day.dateStr, '');
@@ -159,10 +173,16 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
       }
       // Check no booked dates in range
       if (hasBookedInRange(checkIn, day.dateStr)) {
-        // Invalid range, reset
         onChange(day.dateStr, '');
         setSelecting('checkOut');
         return;
+      }
+      // Enforce minimum stay
+      const nights = calcNights(checkIn, day.dateStr);
+      const minStay = getMinStay(checkIn);
+      if (nights < minStay) {
+        setMinStayWarning(t('booking.minStayError', { min: minStay }));
+        return; // don't accept this checkout
       }
       onChange(checkIn, day.dateStr);
       setSelecting('checkIn');
@@ -248,6 +268,20 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
         {loadingRates && (
           <div className="cal-loading">
             <span>{t('common.loading', 'Loading...')}</span>
+          </div>
+        )}
+
+        {/* Min-stay notice */}
+        {checkIn && selecting === 'checkOut' && (
+          <div className="cal-min-stay-notice">
+            ℹ️ {t('booking.minStayNotice', { min: getMinStay(checkIn) })}
+          </div>
+        )}
+
+        {/* Min-stay warning */}
+        {minStayWarning && (
+          <div className="cal-min-stay-warning">
+            ⚠️ {minStayWarning}
           </div>
         )}
 

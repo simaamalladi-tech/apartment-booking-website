@@ -122,6 +122,7 @@
     "invalidDates": "Please select valid check-in and check-out dates.",
     "guestLimit": "Maximum {{max}} guests allowed.",
     "minStayError": "Minimum stay is {{min}} nights for these dates.",
+    "minStayNotice": "Minimum stay: {{min}} nights",
     "selectDates": "Select Your Dates",
     "guestDetails": "Guest Information",
     "nameRequired": "Please enter your full name.",

@@ -122,6 +122,7 @@
     "invalidDates": "Bitte wählen Sie gültige An- und Abreisedaten.",
     "guestLimit": "Maximal {{max}} Gäste erlaubt.",
     "minStayError": "Mindestaufenthalt für diese Daten: {{min}} Nächte.",
+    "minStayNotice": "Mindestaufenthalt: {{min}} Nächte",
     "selectDates": "Wählen Sie Ihre Daten",
     "guestDetails": "Gastinformationen",
     "nameRequired": "Bitte geben Sie Ihren vollständigen Namen ein.",
