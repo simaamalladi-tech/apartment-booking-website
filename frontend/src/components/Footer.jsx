@@ -17,7 +17,7 @@ function Footer({ onPageChange }) {
           <a href="https://www.booking.com/hotel/de/alt-berliner-eckkneipe-feuchte-ecke.html" target="_blank" rel="noopener noreferrer" className="platform-link" aria-label="Booking.com">
             <svg className="platform-logo" viewBox="0 0 300 48" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="48" rx="6" fill="#003580"/><text x="150" y="33" textAnchor="middle" fill="#fff" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">Booking.com</text></svg>
           </a>
-          <a href="https://www.airbnb.com" target="_blank" rel="noopener noreferrer" className="platform-link" aria-label="Airbnb">
+          <a href="https://www.airbnb.de/rooms/1593474482014854100" target="_blank" rel="noopener noreferrer" className="platform-link" aria-label="Airbnb">
             <svg className="platform-logo" viewBox="0 0 300 48" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="48" rx="6" fill="#FF5A5F"/><text x="150" y="33" textAnchor="middle" fill="#fff" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">Airbnb</text></svg>
           </a>
           <a href="https://www.google.com/travel/hotels" target="_blank" rel="noopener noreferrer" className="platform-link" aria-label="Google Hotels">
