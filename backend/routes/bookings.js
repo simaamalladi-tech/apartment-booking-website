@@ -1,37 +1,9 @@
 import express from 'express';
 import Booking from '../models/Booking.js';
 import Apartment from '../models/Apartment.js';
-import { sendBookingConfirmation, sendBookingCancellation, sendBookingPending, sendAdminNotification } from '../utils/emailService.js';
+import { sendBookingPending, sendAdminNotification } from '../utils/emailService.js';
 
 const router = express.Router();
-// Get booked dates for an apartment (public - needed for calendar)
-router.get('/booked-dates/:apartmentId', async (req, res) => {
-  try {
-    // Validate ObjectId format
-    if (!req.params.apartmentId.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ message: 'Invalid apartment ID' });
-    }
-
-    const bookings = await Booking.find({
-      apartment: req.params.apartmentId,
-      status: { $in: ['confirmed', 'pending'] }
-    }).select('checkInDate checkOutDate');
-
-    // Build array of all booked date strings (YYYY-MM-DD)
-    const bookedDates = [];
-    bookings.forEach(b => {
-      const start = new Date(b.checkInDate);
-      const end = new Date(b.checkOutDate);
-      for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-        bookedDates.push(d.toISOString().split('T')[0]);
-      }
-    });
-
-    res.json([...new Set(bookedDates)]);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching booked dates' });
-  }
-});
 
 // Create a new booking
 router.post('/', async (req, res) => {

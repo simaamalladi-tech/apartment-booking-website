@@ -11,10 +11,11 @@ import { fileURLToPath } from 'url';
 import apartmentRoutes from './routes/apartments.js';
 import bookingRoutes from './routes/bookings.js';
 import paymentRoutes from './routes/payments.js';
-import { retryUnsyncedBookings } from './routes/payments.js';
 import smoobuRoutes from './routes/smoobu.js';
 import { sendContactMessage } from './utils/emailService.js';
 import seedApartments from './seed.js';
+import Booking from './models/Booking.js';
+import Payment from './models/Payment.js';
 
 dotenv.config();
 
@@ -98,12 +99,23 @@ app.use('/api/', apiLimiter);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment-booking')
-  .then(() => {
+  .then(async () => {
     console.log('✓ Connected to MongoDB');
     // Seed apartments on connection
     seedApartments();
-    // Retry any unsynced Smoobu bookings (delayed to let server settle)
-    setTimeout(() => retryUnsyncedBookings().catch(err => console.error('Startup Smoobu sync sweep error:', err)), 10000);
+
+    // One-time cleanup: clear all local booking/payment data (Smoobu is source of truth)
+    try {
+      const bookingCount = await Booking.countDocuments();
+      const paymentCount = await Payment.countDocuments();
+      if (bookingCount > 0 || paymentCount > 0) {
+        await Booking.deleteMany({});
+        await Payment.deleteMany({});
+        console.log(`✓ Cleared ${bookingCount} bookings and ${paymentCount} payments from local DB (Smoobu is source of truth)`);
+      }
+    } catch (err) {
+      console.error('Cleanup error:', err.message);
+    }
   })
   .catch(err => console.log('✗ MongoDB connection error:', err));
 

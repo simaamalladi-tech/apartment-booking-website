@@ -38,22 +38,6 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
       } catch (err) {
         console.error('Error fetching Smoobu rates:', err);
       }
-      // Also fetch local booked dates as fallback
-      if (apartmentId) {
-        try {
-          const res = await fetch(`/api/bookings/booked-dates/${apartmentId}`);
-          if (res.ok) {
-            const dates = await res.json();
-            setBookedDates(prev => {
-              const merged = new Set(prev);
-              dates.forEach(d => merged.add(d));
-              return merged;
-            });
-          }
-        } catch (err) {
-          // silently ignore fallback failures
-        }
-      }
       setLoadingRates(false);
     };
     fetchRates();

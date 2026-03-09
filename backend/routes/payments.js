@@ -122,10 +122,46 @@ router.post('/create-payment-intent', async (req, res) => {
 
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
 
-    // Fetch Smoobu rates for accurate pricing (server-side verification)
-    let calculatedPrice = nights * apartment.price; // fallback
+    // ─── SERVER-SIDE AVAILABILITY CHECK via Smoobu ───
     const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
     const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+    if (SMOOBU_API_KEY) {
+      try {
+        const startStr = bookingData.checkIn;
+        const endStr = bookingData.checkOut;
+        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${startStr}&end_date=${endStr}`;
+        const ratesRes = await fetch(ratesUrl, {
+          headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+        });
+        if (ratesRes.ok) {
+          const ratesData = await ratesRes.json();
+          const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
+          // Check every night for availability
+          const unavailableDates = [];
+          for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
+            const dateStr = d.toISOString().split('T')[0];
+            const rate = apartmentRates[dateStr];
+            if (rate && !rate.available) {
+              unavailableDates.push(dateStr);
+            }
+          }
+          if (unavailableDates.length > 0) {
+            console.warn('Booking rejected: dates unavailable on Smoobu:', unavailableDates);
+            return res.status(409).json({
+              success: false,
+              message: `Selected dates are no longer available: ${unavailableDates.join(', ')}`,
+              unavailableDates,
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Smoobu availability check failed:', err.message);
+        // Continue with payment — availability check is best-effort
+      }
+    }
+
+    // ─── SERVER-SIDE PRICE CALCULATION via Smoobu ───
+    let calculatedPrice = nights * apartment.price; // fallback
     if (SMOOBU_API_KEY) {
       try {
         const startStr = bookingData.checkIn;
