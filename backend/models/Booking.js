@@ -46,6 +46,15 @@ const bookingSchema = new mongoose.Schema({
     default: 'pending'
   },
   smoobuBookingId: Number,
+  smoobuSynced: {
+    type: Boolean,
+    default: false
+  },
+  smoobuSyncAttempts: {
+    type: Number,
+    default: 0
+  },
+  smoobuSyncError: String,
   createdAt: {
     type: Date,
     default: Date.now

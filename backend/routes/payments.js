@@ -11,59 +11,83 @@ dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const router = express.Router();
 
-// Helper: Sync booking to Smoobu after successful payment
-async function syncBookingToSmoobu(bookingData, savedBooking, email, totalPrice) {
+// Helper: Sync booking to Smoobu after successful payment (with retry)
+async function syncBookingToSmoobu(bookingData, savedBooking, email, totalPrice, maxRetries = 3) {
   const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
   const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
   const SMOOBU_CHANNEL_ID = process.env.SMOOBU_CHANNEL_ID || '2745722';
 
   if (!SMOOBU_API_KEY) {
     console.warn('SMOOBU_API_KEY not set, skipping Smoobu sync');
+    savedBooking.smoobuSyncError = 'API key not configured';
+    await savedBooking.save();
     return;
   }
 
   // Split name into first/last
-  const fullName = bookingData.user?.name || 'Guest';
+  const fullName = bookingData.user?.name || savedBooking.user?.name || 'Guest';
   const nameParts = fullName.trim().split(/\s+/);
   const firstName = nameParts[0] || 'Guest';
   const lastName = nameParts.slice(1).join(' ') || '';
 
   const smoobuBody = {
-    arrivalDate: bookingData.checkIn,
-    departureDate: bookingData.checkOut,
+    arrivalDate: bookingData.checkIn || savedBooking.checkInDate?.toISOString().split('T')[0],
+    departureDate: bookingData.checkOut || savedBooking.checkOutDate?.toISOString().split('T')[0],
     apartmentId: parseInt(SMOOBU_APARTMENT_ID),
     channelId: parseInt(SMOOBU_CHANNEL_ID),
     firstName,
     lastName,
-    email: email || bookingData.user?.email || '',
-    phone: bookingData.user?.phone || '',
-    adults: bookingData.guests || 1,
-    price: totalPrice,
+    email: email || bookingData.user?.email || savedBooking.user?.email || '',
+    phone: bookingData.user?.phone || savedBooking.user?.phone || '',
+    adults: bookingData.guests || savedBooking.numberOfGuests || 1,
+    price: totalPrice || savedBooking.totalPrice,
     priceStatus: 1,
     notice: `Website booking #${savedBooking._id}`,
     language: 'de',
   };
 
-  const res = await fetch('https://login.smoobu.com/api/reservations', {
-    method: 'POST',
-    headers: {
-      'Api-Key': SMOOBU_API_KEY,
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-    },
-    body: JSON.stringify(smoobuBody),
-  });
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      savedBooking.smoobuSyncAttempts = (savedBooking.smoobuSyncAttempts || 0) + 1;
+      await savedBooking.save();
 
-  if (res.ok) {
-    const data = await res.json();
-    console.log('✓ Booking synced to Smoobu, ID:', data.id);
-    // Save Smoobu booking ID to our record
-    savedBooking.smoobuBookingId = data.id;
-    await savedBooking.save();
-  } else {
-    const errText = await res.text();
-    console.error('✗ Smoobu sync failed:', res.status, errText);
+      const res = await fetch('https://login.smoobu.com/api/reservations', {
+        method: 'POST',
+        headers: {
+          'Api-Key': SMOOBU_API_KEY,
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+        },
+        body: JSON.stringify(smoobuBody),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log(`✓ Booking synced to Smoobu on attempt ${attempt}, ID:`, data.id);
+        savedBooking.smoobuBookingId = data.id;
+        savedBooking.smoobuSynced = true;
+        savedBooking.smoobuSyncError = null;
+        await savedBooking.save();
+        return; // success
+      } else {
+        const errText = await res.text();
+        console.error(`✗ Smoobu sync attempt ${attempt}/${maxRetries} failed:`, res.status, errText);
+        savedBooking.smoobuSyncError = `HTTP ${res.status}: ${errText.substring(0, 200)}`;
+        await savedBooking.save();
+      }
+    } catch (err) {
+      console.error(`✗ Smoobu sync attempt ${attempt}/${maxRetries} error:`, err.message);
+      savedBooking.smoobuSyncError = err.message.substring(0, 200);
+      await savedBooking.save();
+    }
+
+    // Exponential backoff: 2s, 4s, 8s
+    if (attempt < maxRetries) {
+      await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt - 1)));
+    }
   }
+
+  console.error(`✗ Smoobu sync failed after ${maxRetries} attempts for booking ${savedBooking._id}`);
 }
 
 // Create payment intent
@@ -183,7 +207,7 @@ router.post('/create-payment-intent', async (req, res) => {
       sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
       sendAdminNotification(booking, 'new').catch(err => console.error('Admin email error:', err));
 
-      // Sync booking to Smoobu (non-blocking)
+      // Sync booking to Smoobu (non-blocking, with retry)
       syncBookingToSmoobu(bookingData, booking, email, calculatedPrice)
         .catch(err => console.error('Smoobu sync error:', err));
 
@@ -237,6 +261,62 @@ router.get('/:paymentId', async (req, res) => {
     res.json(payment);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching payment', error: error.message });
+  }
+});
+
+// ─── RETRY UNSYNCED BOOKINGS TO SMOOBU ───
+// Finds all confirmed bookings missing smoobuSynced and retries them
+export async function retryUnsyncedBookings() {
+  try {
+    const unsynced = await Booking.find({
+      status: 'confirmed',
+      paymentStatus: 'completed',
+      smoobuSynced: { $ne: true },
+    }).sort({ createdAt: -1 });
+
+    if (unsynced.length === 0) {
+      console.log('✓ All bookings synced to Smoobu');
+      return;
+    }
+
+    console.log(`⟳ Found ${unsynced.length} unsynced booking(s), retrying...`);
+    for (const booking of unsynced) {
+      const bookingData = {
+        checkIn: booking.checkInDate?.toISOString().split('T')[0],
+        checkOut: booking.checkOutDate?.toISOString().split('T')[0],
+        user: booking.user,
+        guests: booking.numberOfGuests,
+      };
+      await syncBookingToSmoobu(bookingData, booking, booking.user?.email, booking.totalPrice, 2);
+    }
+  } catch (err) {
+    console.error('Retry unsynced bookings error:', err.message);
+  }
+}
+
+// Manual retry endpoint
+router.post('/retry-smoobu-sync/:bookingId', async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.bookingId);
+    if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
+    if (booking.smoobuSynced) return res.json({ success: true, message: 'Already synced', smoobuBookingId: booking.smoobuBookingId });
+
+    const bookingData = {
+      checkIn: booking.checkInDate?.toISOString().split('T')[0],
+      checkOut: booking.checkOutDate?.toISOString().split('T')[0],
+      user: booking.user,
+      guests: booking.numberOfGuests,
+    };
+    await syncBookingToSmoobu(bookingData, booking, booking.user?.email, booking.totalPrice, 3);
+
+    const updated = await Booking.findById(booking._id);
+    res.json({
+      success: updated.smoobuSynced,
+      smoobuBookingId: updated.smoobuBookingId || null,
+      error: updated.smoobuSyncError || null,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 

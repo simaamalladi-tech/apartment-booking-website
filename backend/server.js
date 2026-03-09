@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import apartmentRoutes from './routes/apartments.js';
 import bookingRoutes from './routes/bookings.js';
 import paymentRoutes from './routes/payments.js';
+import { retryUnsyncedBookings } from './routes/payments.js';
 import smoobuRoutes from './routes/smoobu.js';
 import { sendContactMessage } from './utils/emailService.js';
 import seedApartments from './seed.js';
@@ -101,6 +102,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment
     console.log('✓ Connected to MongoDB');
     // Seed apartments on connection
     seedApartments();
+    // Retry any unsynced Smoobu bookings (delayed to let server settle)
+    setTimeout(() => retryUnsyncedBookings().catch(err => console.error('Startup Smoobu sync sweep error:', err)), 10000);
   })
   .catch(err => console.log('✗ MongoDB connection error:', err));
 
