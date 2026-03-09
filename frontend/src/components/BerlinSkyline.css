@@ -7,44 +7,48 @@
   overflow: hidden;
 }
 
-/* Gradient band that extends the header's purple into a dark fade */
+/* Gradient sky from header purple into dark night */
 .skyline-gradient {
   width: 100%;
-  height: 50px;
+  height: 80px;
   background: linear-gradient(
     to bottom,
     #764ba2 0%,
-    #5a3d8a 30%,
-    #2a1a4e 60%,
-    #0d0d1a 85%,
+    #5a3d8a 15%,
+    #3b2266 30%,
+    #1e1040 50%,
+    #0d0a1a 70%,
+    #050510 85%,
     #000 100%
   );
 }
 
-/* Soft wave shape at the bottom for visual interest */
-.skyline-wave {
+/* Skyline silhouette overlaid on gradient */
+.skyline-silhouette {
   display: block;
   width: 100%;
-  height: 30px;
-  margin-top: -1px;
+  height: 100px;
+  margin-top: -80px; /* overlap the gradient to sit buildings against the sky */
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 @media (min-width: 768px) {
   .skyline-gradient {
-    height: 60px;
+    height: 110px;
   }
-  .skyline-wave {
-    height: 36px;
+  .skyline-silhouette {
+    height: 140px;
+    margin-top: -110px;
   }
 }
 
 @media (min-width: 1200px) {
   .skyline-gradient {
-    height: 70px;
+    height: 140px;
   }
-  .skyline-wave {
-    height: 40px;
+  .skyline-silhouette {
+    height: 180px;
+    margin-top: -140px;
   }
 }
