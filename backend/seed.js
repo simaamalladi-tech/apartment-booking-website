@@ -45,7 +45,12 @@ const sampleApartments = [
       '/images/apartment-07.jpg',
       '/images/apartment-08.jpg',
       '/images/apartment-09.jpg',
-      '/images/apartment-10.jpg'
+      '/images/apartment-10.jpg',
+      '/images/apartment-11.jpg',
+      '/images/apartment-12.jpg',
+      '/images/apartment-13.jpg',
+      '/images/apartment-14.jpg',
+      '/images/apartment-15.jpg'
     ]
   }
 ];
