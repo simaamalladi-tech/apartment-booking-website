@@ -6,24 +6,50 @@
   z-index: 99;
 }
 
-/* Gradient fade from skyline dark buildings to photo gallery */
+/* Gradient fade from skyline photo to photo gallery */
 .berlin-skyline::after {
   content: '';
   display: block;
   height: 40px;
-  background: linear-gradient(to bottom, #1a1a2e 0%, #111118 40%, #000 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, #000 100%);
   margin-top: -2px;
 }
 
-.skyline-svg {
+.skyline-photo-container {
+  position: relative;
   width: 100%;
-  height: 90px;
+  height: 160px;
+  overflow: hidden;
+}
+
+.skyline-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
   display: block;
 }
 
+/* Dark overlay for moody aesthetic + bottom fade */
+.skyline-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(102, 126, 234, 0.15) 0%,
+    rgba(0, 0, 0, 0.1) 30%,
+    rgba(0, 0, 0, 0.5) 70%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+  pointer-events: none;
+}
+
 @media (min-width: 768px) {
-  .skyline-svg {
-    height: 110px;
+  .skyline-photo-container {
+    height: 200px;
   }
   .berlin-skyline::after {
     height: 50px;
@@ -31,8 +57,8 @@
 }
 
 @media (min-width: 1200px) {
-  .skyline-svg {
-    height: 130px;
+  .skyline-photo-container {
+    height: 250px;
   }
   .berlin-skyline::after {
     height: 60px;
