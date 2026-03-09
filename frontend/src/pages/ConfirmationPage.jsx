@@ -47,7 +47,7 @@ function ConfirmationPage({ bookingData, onGoHome }) {
             </div>
             <div className="detail-row">
               <span className="detail-label">{t('confirmation.address')}</span>
-              <span className="detail-value">{bookingData?.apartment?.address || '146A Gustav-Adolf-Straße, Berlin'}</span>
+              <span className="detail-value">{bookingData?.apartment?.address || 'Gustav-Adolf-Straße 146A, Berlin'}</span>
             </div>
           </div>
 

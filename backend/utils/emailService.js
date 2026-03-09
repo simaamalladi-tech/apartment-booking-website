@@ -12,7 +12,7 @@ const resend = new Resend(RESEND_API_KEY);
 const FROM_EMAIL = 'booking@alt-berliner-eckkneipe.de';
 const REPLY_TO = 'lutz.richter@gmail.com';
 const PROPERTY_NAME = 'Alt-Berliner Eckkneipe';
-const PROPERTY_ADDRESS = '146A Gustav-Adolf-Straße, 13086 Berlin';
+const PROPERTY_ADDRESS = 'Gustav-Adolf-Straße 146A, 13086 Berlin';
 const PROPERTY_PHONE = '+49 178 348 5970';
 
 // Sanitize user input before inserting into HTML emails

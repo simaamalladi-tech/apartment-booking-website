@@ -6,20 +6,35 @@
   z-index: 99;
 }
 
+/* Gradient fade from skyline dark buildings to photo gallery */
+.berlin-skyline::after {
+  content: '';
+  display: block;
+  height: 40px;
+  background: linear-gradient(to bottom, #1a1a2e 0%, #111118 40%, #000 100%);
+  margin-top: -2px;
+}
+
 .skyline-svg {
   width: 100%;
-  height: 80px;
+  height: 90px;
   display: block;
 }
 
 @media (min-width: 768px) {
   .skyline-svg {
-    height: 100px;
+    height: 110px;
+  }
+  .berlin-skyline::after {
+    height: 50px;
   }
 }
 
 @media (min-width: 1200px) {
   .skyline-svg {
-    height: 120px;
+    height: 130px;
+  }
+  .berlin-skyline::after {
+    height: 60px;
   }
 }

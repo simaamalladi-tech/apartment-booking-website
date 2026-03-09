@@ -25,6 +25,19 @@ function App() {
   const [headerHidden, setHeaderHidden] = useState(false);
   const lastScrollY = useRef(0);
 
+  // Secret admin access via URL hash
+  useEffect(() => {
+    const checkAdminHash = () => {
+      if (window.location.hash === '#admin') {
+        setCurrentPage('admin');
+        window.location.hash = '';
+      }
+    };
+    checkAdminHash();
+    window.addEventListener('hashchange', checkAdminHash);
+    return () => window.removeEventListener('hashchange', checkAdminHash);
+  }, []);
+
   // Fetch the single property on mount
   useEffect(() => {
     const fetchProperty = async () => {
@@ -104,6 +117,7 @@ function App() {
       <Header
         currentPage={currentPage}
         onPageChange={navigateTo}
+        onBookNow={handleBookNow}
         scrolled={headerScrolled}
         hidden={headerHidden}
       />

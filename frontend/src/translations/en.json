@@ -3,6 +3,7 @@
     "home": "Home",
     "contact": "Contact",
     "admin": "Admin",
+    "bookNow": "Book Now",
     "language": "Language"
   },
   "property": {
@@ -310,7 +311,7 @@
       "title": "Terms & Conditions",
       "lastUpdated": "Last updated",
       "scopeTitle": "Scope of Application",
-      "scopeText": "These General Terms and Conditions apply to all bookings made through our website for the holiday apartment \"Alt-Berliner Eckkneipe\" at 146A Gustav-Adolf-Straße, 13086 Berlin. By making a booking, you agree to these terms.",
+      "scopeText": "These General Terms and Conditions apply to all bookings made through our website for the holiday apartment \"Alt-Berliner Eckkneipe\" at Gustav-Adolf-Straße 146A, 13086 Berlin. By making a booking, you agree to these terms.",
       "bookingTitle": "Booking & Confirmation",
       "bookingText": "A booking is considered confirmed once payment has been successfully processed. You will receive a confirmation email with your booking details. The booking constitutes a binding rental agreement between you and the property owner.",
       "pricesTitle": "Prices",

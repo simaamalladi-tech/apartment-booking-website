@@ -31,7 +31,7 @@ function ImpressumContent({ t }) {
         <h2>{t('legal.impressum.providerTitle')}</h2>
         <p>
           Lutz Richter<br />
-          146A Gustav-Adolf-Straße<br />
+          Gustav-Adolf-Straße 146A<br />
           13086 Berlin<br />
           Deutschland / Germany
         </p>
@@ -89,7 +89,7 @@ function PrivacyContent({ t }) {
         <h2>2. {t('legal.privacy.controllerTitle')}</h2>
         <p>
           Lutz Richter<br />
-          146A Gustav-Adolf-Straße<br />
+          Gustav-Adolf-Straße 146A<br />
           13086 Berlin<br />
           {t('legal.impressum.email')}: lutz.richter@gmail.com<br />
           {t('legal.impressum.phone')}: +49 178 348 5970
@@ -219,7 +219,7 @@ function TermsContent({ t }) {
         <h2>10. {t('legal.terms.contactTitle')}</h2>
         <p>
           Lutz Richter<br />
-          146A Gustav-Adolf-Straße, 13086 Berlin<br />
+          Gustav-Adolf-Straße 146A, 13086 Berlin<br />
           lutz.richter@gmail.com<br />
           +49 178 348 5970
         </p>

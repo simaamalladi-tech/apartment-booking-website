@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import './Header.css';
 
-function Header({ currentPage, onPageChange, scrolled, hidden }) {
+function Header({ currentPage, onPageChange, onBookNow, scrolled, hidden }) {
   const { t, i18n } = useTranslation();
 
   const changeLanguage = (lng) => {
@@ -32,10 +32,10 @@ function Header({ currentPage, onPageChange, scrolled, hidden }) {
               {t('nav.contact')}
             </button>
             <button
-              className={`nav-btn admin-btn ${currentPage === 'admin' ? 'active' : ''}`}
-              onClick={() => onPageChange('admin')}
+              className="nav-btn book-now-btn"
+              onClick={onBookNow}
             >
-              {t('nav.admin')}
+              {t('nav.bookNow')}
             </button>
           </nav>
 

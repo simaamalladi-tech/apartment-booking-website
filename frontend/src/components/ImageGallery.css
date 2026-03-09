@@ -13,6 +13,19 @@
   padding: 0;
 }
 
+/* Subtle vignette overlay at top of gallery for smoother blend */
+.main-image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 100%);
+  z-index: 5;
+  pointer-events: none;
+}
+
 .main-image {
   width: 100%;
   height: 100%;
