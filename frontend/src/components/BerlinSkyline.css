@@ -7,48 +7,98 @@
   overflow: hidden;
 }
 
-/* Gradient sky from header purple into dark night */
+/* Gradient sky — smooth transition from header purple into night sky */
 .skyline-gradient {
   width: 100%;
-  height: 80px;
+  height: 90px;
   background: linear-gradient(
     to bottom,
     #764ba2 0%,
-    #5a3d8a 15%,
-    #3b2266 30%,
-    #1e1040 50%,
-    #0d0a1a 70%,
-    #050510 85%,
+    #5a3d8a 14%,
+    #3b2266 28%,
+    #1e1040 46%,
+    #0f0920 64%,
+    #050510 82%,
     #000 100%
   );
 }
 
-/* Skyline silhouette overlaid on gradient */
+/* Skyline SVG overlapping the gradient */
 .skyline-silhouette {
   display: block;
   width: 100%;
-  height: 100px;
-  margin-top: -80px; /* overlap the gradient to sit buildings against the sky */
+  height: 110px;
+  margin-top: -90px;
   position: relative;
   z-index: 2;
 }
 
+/* ===== Star twinkling animation ===== */
+.stars circle {
+  animation: twinkle 4s ease-in-out infinite;
+}
+.stars circle:nth-child(2n) {
+  animation-duration: 5s;
+  animation-delay: 0.6s;
+}
+.stars circle:nth-child(3n) {
+  animation-duration: 3.5s;
+  animation-delay: 1.2s;
+}
+.stars circle:nth-child(5n) {
+  animation-duration: 4.5s;
+  animation-delay: 1.8s;
+}
+.stars circle:nth-child(7n) {
+  animation-duration: 3s;
+  animation-delay: 2.5s;
+}
+.stars circle:nth-child(11n) {
+  animation-duration: 5.5s;
+  animation-delay: 0.3s;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.8; }
+}
+
+/* ===== TV Tower red light pulse ===== */
+.tower-light {
+  animation: towerPulse 2s ease-in-out infinite;
+}
+
+@keyframes towerPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.tower-glow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.05; }
+}
+
+/* ===== Responsive scaling ===== */
 @media (min-width: 768px) {
   .skyline-gradient {
-    height: 110px;
+    height: 130px;
   }
   .skyline-silhouette {
-    height: 140px;
-    margin-top: -110px;
+    height: 160px;
+    margin-top: -130px;
   }
 }
 
 @media (min-width: 1200px) {
   .skyline-gradient {
-    height: 140px;
+    height: 170px;
   }
   .skyline-silhouette {
-    height: 180px;
-    margin-top: -140px;
+    height: 220px;
+    margin-top: -170px;
   }
 }
