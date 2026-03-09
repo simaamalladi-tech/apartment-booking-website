@@ -38,6 +38,9 @@ app.use(helmet({
 const allowedOrigins = [
   'https://apartment-booking-website-production.up.railway.app',
   'https://alt-berliner-eckkneipe.de',
+  'http://alt-berliner-eckkneipe.de',
+  'https://www.alt-berliner-eckkneipe.de',
+  'http://www.alt-berliner-eckkneipe.de',
   'http://localhost:5173',
   'http://localhost:5000'
 ];
