@@ -1,68 +1,50 @@
 .berlin-skyline {
   width: 100%;
   line-height: 0;
-  margin-top: -1px; /* seamless connection to header */
+  margin-top: -1px;
   position: relative;
   z-index: 99;
-}
-
-.skyline-photo-container {
-  position: relative;
-  width: 100%;
-  height: 80px;
   overflow: hidden;
 }
 
-.skyline-photo {
+/* Gradient band that extends the header's purple into a dark fade */
+.skyline-gradient {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 35%;
-  display: block;
-  filter: brightness(0.7) saturate(1.1);
-}
-
-/* Top blend: purple header gradient merges into the photo */
-.skyline-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  height: 50px;
   background: linear-gradient(
     to bottom,
-    rgba(102, 126, 234, 0.65) 0%,
-    rgba(118, 75, 162, 0.35) 25%,
-    rgba(0, 0, 0, 0.05) 50%,
-    rgba(0, 0, 0, 0.55) 80%,
-    rgba(0, 0, 0, 0.92) 100%
+    #764ba2 0%,
+    #5a3d8a 30%,
+    #2a1a4e 60%,
+    #0d0d1a 85%,
+    #000 100%
   );
-  pointer-events: none;
 }
 
-/* Bottom fade strip into gallery */
-.berlin-skyline::after {
-  content: '';
+/* Soft wave shape at the bottom for visual interest */
+.skyline-wave {
   display: block;
-  height: 20px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, #000 100%);
+  width: 100%;
+  height: 30px;
   margin-top: -1px;
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 768px) {
-  .skyline-photo-container {
-    height: 100px;
+  .skyline-gradient {
+    height: 60px;
   }
-  .berlin-skyline::after {
-    height: 25px;
+  .skyline-wave {
+    height: 36px;
   }
 }
 
 @media (min-width: 1200px) {
-  .skyline-photo-container {
-    height: 120px;
+  .skyline-gradient {
+    height: 70px;
   }
-  .berlin-skyline::after {
-    height: 30px;
+  .skyline-wave {
+    height: 40px;
   }
 }
