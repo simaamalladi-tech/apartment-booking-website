@@ -74,7 +74,10 @@
     "restaurant2": "Restaurant Las Miras",
     "restaurant2Dist": "150 m",
     "restaurant3": "Café Schwarzer Kater",
-    "restaurant3Dist": "200 m"
+    "restaurant3Dist": "200 m",
+    "prevReviews": "Vorherige Bewertungen",
+    "nextReviews": "Nächste Bewertungen",
+    "reviewPage": "Seite {{number}}"
   },
   "apartments": {
     "price": "pro Nacht",
@@ -144,7 +147,8 @@
     "successMessage": "Vielen Dank! Ihre Nachricht wurde gesendet. Wir melden uns in Kürze.",
     "errorMessage": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
     "sendAnother": "Weitere Nachricht senden",
-    "findUs": "So finden Sie uns"
+    "findUs": "So finden Sie uns",
+    "country": "Deutschland"
   },
   "admin": {
     "title": "Buchungsverwaltung",
@@ -213,8 +217,16 @@
     "impressum": "Impressum",
     "privacy": "Datenschutz",
     "terms": "AGB",
+    "reviews": "{{count}} Bewertungen",
     "copyright": "© {{year}} Alt-Berliner Eckkneipe. Alle Rechte vorbehalten.",
     "madeWith": "Made with ❤️ in Berlin"
+  },
+  "gallery": {
+    "prevImage": "Vorheriges Bild",
+    "nextImage": "Nächstes Bild",
+    "imageAlt": "Unterkunftsbild {{number}}",
+    "goToImage": "Gehe zu Bild {{number}}",
+    "thumbnail": "Vorschaubild {{number}}"
   },
   "common": {
     "loading": "Wird geladen...",

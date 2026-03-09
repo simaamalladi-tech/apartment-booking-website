@@ -60,7 +60,7 @@ function ContactPage() {
             <div className="info-card">
               <div className="info-icon">📍</div>
               <h3>{t('contact.addressLabel')}</h3>
-              <p>146A Gustav-Adolf-Straße<br />13086 Berlin, Germany</p>
+              <p>146A Gustav-Adolf-Straße<br />13086 Berlin, {t('contact.country')}</p>
             </div>
 
             <div className="info-card">

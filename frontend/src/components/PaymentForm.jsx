@@ -85,7 +85,7 @@ function PaymentForm({ bookingData, onSuccess }) {
           });
         }, 1500);
       } else {
-        setError(paymentData.message || 'Payment failed');
+        setError(paymentData.message || t('payment.error'));
       }
     } catch (err) {
       setError(err.message);

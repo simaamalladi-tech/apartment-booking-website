@@ -74,7 +74,10 @@
     "restaurant2": "Restaurant Las Miras",
     "restaurant2Dist": "150 m",
     "restaurant3": "Café Schwarzer Kater",
-    "restaurant3Dist": "200 m"
+    "restaurant3Dist": "200 m",
+    "prevReviews": "Previous reviews",
+    "nextReviews": "Next reviews",
+    "reviewPage": "Page {{number}}"
   },
   "apartments": {
     "price": "per night",
@@ -144,7 +147,8 @@
     "successMessage": "Thank you! Your message has been sent. We'll get back to you soon.",
     "errorMessage": "Failed to send message. Please try again.",
     "sendAnother": "Send Another Message",
-    "findUs": "Find Us"
+    "findUs": "Find Us",
+    "country": "Germany"
   },
   "admin": {
     "title": "Booking Management",
@@ -213,8 +217,16 @@
     "impressum": "Impressum",
     "privacy": "Privacy Policy",
     "terms": "Terms & Conditions",
+    "reviews": "{{count}} Reviews",
     "copyright": "© {{year}} Alt-Berliner Eckkneipe. All rights reserved.",
     "madeWith": "Made with ❤️ in Berlin"
+  },
+  "gallery": {
+    "prevImage": "Previous image",
+    "nextImage": "Next image",
+    "imageAlt": "Property image {{number}}",
+    "goToImage": "Go to image {{number}}",
+    "thumbnail": "Thumbnail {{number}}"
   },
   "common": {
     "loading": "Loading...",

@@ -34,7 +34,7 @@ function Footer({ onPageChange }) {
             <p className="footer-tagline">{t('footer.tagline')}</p>
             <div className="footer-rating">
               <span className="footer-rating-badge">9.3</span>
-              <span className="footer-rating-text">{t('property.superb')} · 82 Reviews</span>
+              <span className="footer-rating-text">{t('property.superb')} · {t('footer.reviews', { count: 82 })}</span>
             </div>
           </div>
 

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './ImageGallery.css';
 
 function ImageGallery({ images = [] }) {
+  const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Default images if none provided
@@ -32,17 +34,17 @@ function ImageGallery({ images = [] }) {
         <img 
           key={currentImageIndex}
           src={galleryImages[currentImageIndex]}
-          alt={`Property image ${currentImageIndex + 1}`}
+          alt={t('gallery.imageAlt', { number: currentImageIndex + 1 })}
           className="main-image"
         />
         
         {/* Navigation Arrows */}
         {galleryImages.length > 1 && (
           <>
-            <button className="gallery-nav prev" onClick={prevImage} title="Previous image">
+            <button className="gallery-nav prev" onClick={prevImage} title={t('gallery.prevImage')}>
               ‹
             </button>
-            <button className="gallery-nav next" onClick={nextImage} title="Next image">
+            <button className="gallery-nav next" onClick={nextImage} title={t('gallery.nextImage')}>
               ›
             </button>
           </>
@@ -62,9 +64,9 @@ function ImageGallery({ images = [] }) {
               key={index}
               className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
               onClick={() => goToImage(index)}
-              title={`Go to image ${index + 1}`}
+              title={t('gallery.goToImage', { number: index + 1 })}
             >
-              <img src={image} alt={`Thumbnail ${index + 1}`} />
+              <img src={image} alt={t('gallery.thumbnail', { number: index + 1 })} />
             </button>
           ))}
         </div>

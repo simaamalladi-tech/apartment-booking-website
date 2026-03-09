@@ -50,7 +50,7 @@ function ReviewsCarousel({ t }) {
         <button
           className="carousel-arrow"
           onClick={() => goTo((page - 1 + PAGES) % PAGES)}
-          aria-label="Previous reviews"
+          aria-label={t('property.prevReviews')}
         >‹</button>
         <div className="carousel-dots">
           {Array.from({ length: PAGES }, (_, i) => (
@@ -58,14 +58,14 @@ function ReviewsCarousel({ t }) {
               key={i}
               className={`carousel-dot ${i === page ? 'active' : ''}`}
               onClick={() => goTo(i)}
-              aria-label={`Page ${i + 1}`}
+              aria-label={t('property.reviewPage', { number: i + 1 })}
             />
           ))}
         </div>
         <button
           className="carousel-arrow"
           onClick={() => goTo((page + 1) % PAGES)}
-          aria-label="Next reviews"
+          aria-label={t('property.nextReviews')}
         >›</button>
       </div>
     </div>
