@@ -127,63 +127,6 @@ router.post('/check-availability', async (req, res) => {
   }
 });
 
-// ─── POST /api/smoobu/create-booking ───
-// Creates a reservation in Smoobu (called internally after successful payment)
-router.post('/create-booking', async (req, res) => {
-  try {
-    const {
-      arrivalDate,
-      departureDate,
-      firstName,
-      lastName,
-      email,
-      phone,
-      adults,
-      children,
-      price,
-      notice,
-    } = req.body;
-
-    if (!arrivalDate || !departureDate) {
-      return res.status(400).json({ success: false, message: 'Dates required' });
-    }
-
-    const bookingData = {
-      arrivalDate,
-      departureDate,
-      apartmentId: parseInt(SMOOBU_APARTMENT_ID),
-      channelId: parseInt(SMOOBU_CHANNEL_ID),
-      firstName: firstName || '',
-      lastName: lastName || '',
-      email: email || '',
-      phone: phone || '',
-      adults: adults || 1,
-      children: children || 0,
-      price: price || 0,
-      priceStatus: 1, // paid
-      notice: notice || 'Booking via Alt-Berliner Eckkneipe website',
-      language: 'de',
-    };
-
-    const data = await smoobuFetch(`${SMOOBU_BASE_URL}/api/reservations`, {
-      method: 'POST',
-      body: JSON.stringify(bookingData),
-    });
-
-    // Invalidate rates cache
-    ratesCache = { data: null, expiry: 0 };
-
-    res.json({
-      success: true,
-      smoobuBookingId: data.id,
-    });
-  } catch (error) {
-    console.error('Error creating Smoobu booking:', error.message);
-    // Don't fail the whole booking if Smoobu sync fails
-    res.status(500).json({ success: false, message: 'Failed to sync with Smoobu' });
-  }
-});
-
 // ─── GET /api/smoobu/apartment ───
 // Returns apartment details from Smoobu
 router.get('/apartment', async (req, res) => {

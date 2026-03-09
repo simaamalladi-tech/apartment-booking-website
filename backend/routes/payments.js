@@ -46,6 +46,37 @@ async function syncBookingToSmoobu(bookingData, savedBooking, email, totalPrice,
     language: 'de',
   };
 
+  // ── Pre-check: verify dates are still available on Smoobu ──
+  // This prevents creating reservations that conflict with Airbnb, Booking.com, etc.
+  try {
+    const checkUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${smoobuBody.arrivalDate}&end_date=${smoobuBody.departureDate}`;
+    const checkRes = await fetch(checkUrl, {
+      headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json' },
+    });
+    if (checkRes.ok) {
+      const checkData = await checkRes.json();
+      const rates = checkData.data?.[SMOOBU_APARTMENT_ID] || {};
+      const conflicts = [];
+      for (const [date, info] of Object.entries(rates)) {
+        if (date >= smoobuBody.arrivalDate && date < smoobuBody.departureDate && !info.available) {
+          conflicts.push(date);
+        }
+      }
+      if (conflicts.length > 0) {
+        const errMsg = `Dates blocked by another channel (Airbnb/Booking.com): ${conflicts.join(', ')}`;
+        console.error(`✗ Smoobu sync aborted: ${errMsg}`);
+        savedBooking.smoobuSyncError = errMsg;
+        await savedBooking.save();
+        // Alert admin — this is a paid booking that can't be synced due to conflict
+        sendSmoobuSyncFailedAlert(savedBooking, errMsg)
+          .catch(err => console.error('Alert email error:', err.message));
+        return; // Don't retry — dates are occupied by another channel
+      }
+    }
+  } catch (err) {
+    console.warn('Smoobu availability pre-check failed, proceeding with sync:', err.message);
+  }
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       savedBooking.smoobuSyncAttempts = (savedBooking.smoobuSyncAttempts || 0) + 1;
