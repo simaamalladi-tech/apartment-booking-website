@@ -13,7 +13,6 @@ import bookingRoutes from './routes/bookings.js';
 import paymentRoutes from './routes/payments.js';
 import smoobuRoutes from './routes/smoobu.js';
 import { sendContactMessage } from './utils/emailService.js';
-import { generateAdminToken, verifyAdminPassword } from './middleware/auth.js';
 import seedApartments from './seed.js';
 
 dotenv.config();
@@ -110,20 +109,6 @@ app.use('/api/apartments', apartmentRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/smoobu', smoobuRoutes);
-
-// ─── ADMIN AUTH ───
-app.post('/api/admin/login', authLimiter, (req, res) => {
-  const { password } = req.body;
-  if (!password) {
-    return res.status(400).json({ success: false, message: 'Password required' });
-  }
-  if (verifyAdminPassword(password)) {
-    const token = generateAdminToken();
-    res.json({ success: true, token });
-  } else {
-    res.status(401).json({ success: false, message: 'Invalid password' });
-  }
-});
 
 // ─── CONTACT FORM (with honeypot CAPTCHA + validation) ───
 app.post('/api/contact', contactLimiter, async (req, res) => {

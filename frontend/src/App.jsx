@@ -6,7 +6,6 @@ import PropertyHero from './components/PropertyHero';
 import BookingPage from './pages/BookingPage';
 import PaymentPage from './pages/PaymentPage';
 import ContactPage from './pages/ContactPage';
-import AdminPanel from './pages/AdminPanel';
 import ConfirmationPage from './pages/ConfirmationPage';
 import LegalPage from './pages/LegalPage';
 import './App.css';
@@ -23,19 +22,6 @@ function App() {
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [headerHidden, setHeaderHidden] = useState(false);
   const lastScrollY = useRef(0);
-
-  // Secret admin access via URL hash
-  useEffect(() => {
-    const checkAdminHash = () => {
-      if (window.location.hash === '#admin') {
-        setCurrentPage('admin');
-        window.location.hash = '';
-      }
-    };
-    checkAdminHash();
-    window.addEventListener('hashchange', checkAdminHash);
-    return () => window.removeEventListener('hashchange', checkAdminHash);
-  }, []);
 
   // Fetch the single property on mount
   useEffect(() => {
@@ -168,10 +154,6 @@ function App() {
             bookingData={bookingData}
             onGoHome={handleGoHome}
           />
-        )}
-
-        {currentPage === 'admin' && (
-          <AdminPanel />
         )}
 
         {(currentPage === 'impressum' || currentPage === 'privacy' || currentPage === 'terms') && (

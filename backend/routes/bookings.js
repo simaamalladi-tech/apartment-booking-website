@@ -2,7 +2,6 @@ import express from 'express';
 import Booking from '../models/Booking.js';
 import Apartment from '../models/Apartment.js';
 import { sendBookingConfirmation, sendBookingCancellation, sendBookingPending, sendAdminNotification } from '../utils/emailService.js';
-import { requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 // Get booked dates for an apartment (public - needed for calendar)
@@ -111,127 +110,6 @@ router.post('/', async (req, res) => {
     res.status(201).json({ success: true, booking });
   } catch (error) {
     res.status(400).json({ success: false, message: 'Error creating booking' });
-  }
-});
-
-// Get all bookings (admin only)
-router.get('/', requireAdmin, async (req, res) => {
-  try {
-    const bookings = await Booking.find().populate('apartment');
-    res.json(bookings);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching bookings' });
-  }
-});
-
-// Get booking by ID (admin only)
-router.get('/:id', requireAdmin, async (req, res) => {
-  try {
-    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ message: 'Invalid booking ID' });
-    }
-    const booking = await Booking.findById(req.params.id).populate('apartment');
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-    res.json(booking);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching booking' });
-  }
-});
-
-// Get bookings by email (admin only)
-router.get('/email/:email', requireAdmin, async (req, res) => {
-  try {
-    const bookings = await Booking.find({ 'user.email': req.params.email }).populate('apartment');
-    res.json(bookings);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching bookings' });
-  }
-});
-
-// Update booking status (admin only)
-router.put('/:id', requireAdmin, async (req, res) => {
-  try {
-    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ message: 'Invalid booking ID' });
-    }
-    // Only allow status updates
-    const { status } = req.body;
-    if (!['confirmed', 'cancelled', 'pending'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status' });
-    }
-
-    const booking = await Booking.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-
-    // Send email based on new status
-    if (status === 'confirmed') {
-      sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
-    } else if (status === 'cancelled') {
-      sendBookingCancellation(booking).catch(err => console.error('Email error:', err));
-    }
-
-    res.json(booking);
-  } catch (error) {
-    res.status(400).json({ message: 'Error updating booking' });
-  }
-});
-
-// Cancel booking (admin only)
-router.delete('/:id', requireAdmin, async (req, res) => {
-  try {
-    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ message: 'Invalid booking ID' });
-    }
-
-    const booking = await Booking.findByIdAndUpdate(
-      req.params.id,
-      { status: 'cancelled' },
-      { new: true }
-    );
-
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-
-    // Send cancellation email
-    sendBookingCancellation(booking).catch(err => console.error('Email error:', err));
-
-    res.json({ success: true, booking });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Error cancelling booking' });
-  }
-});
-
-// Resend email for a booking (admin only)
-router.post('/:id/send-email', requireAdmin, async (req, res) => {
-  try {
-    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ message: 'Invalid booking ID' });
-    }
-    const booking = await Booking.findById(req.params.id);
-    if (!booking) return res.status(404).json({ message: 'Booking not found' });
-
-    let result;
-    if (booking.status === 'confirmed') {
-      result = await sendBookingConfirmation(booking);
-    } else if (booking.status === 'cancelled') {
-      result = await sendBookingCancellation(booking);
-    } else {
-      result = await sendBookingPending(booking);
-    }
-
-    res.json({ success: true, emailResult: result });
-  } catch (error) {
-    res.status(500).json({ message: 'Error sending email' });
   }
 });
 

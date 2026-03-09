@@ -1,20 +1,8 @@
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'alt-berliner-eckkneipe-admin-secret-2026';
-const ADMIN_PASSWORD_HASH = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 10);
 
-// Generate admin JWT token
-export const generateAdminToken = () => {
-  return jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
-};
-
-// Verify admin password
-export const verifyAdminPassword = (password) => {
-  return bcrypt.compareSync(password, ADMIN_PASSWORD_HASH);
-};
-
-// Middleware to protect admin routes
+// Middleware to protect admin routes (used by apartments.js for seed protection)
 export const requireAdmin = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -34,4 +22,4 @@ export const requireAdmin = (req, res, next) => {
   }
 };
 
-export default { generateAdminToken, verifyAdminPassword, requireAdmin };
+export default { requireAdmin };
