@@ -50,7 +50,27 @@ const sampleApartments = [
       '/images/apartment-12.jpg',
       '/images/apartment-13.jpg',
       '/images/apartment-14.jpg',
-      '/images/apartment-15.jpg'
+      '/images/apartment-15.jpg',
+      '/images/apartment-16.jpg',
+      '/images/apartment-17.jpg',
+      '/images/apartment-18.jpg',
+      '/images/apartment-19.jpg',
+      '/images/apartment-20.jpg',
+      '/images/apartment-21.jpg',
+      '/images/apartment-22.jpg',
+      '/images/apartment-23.jpg',
+      '/images/apartment-24.jpg',
+      '/images/apartment-25.jpg',
+      '/images/apartment-26.jpg',
+      '/images/apartment-27.jpg',
+      '/images/apartment-28.jpg',
+      '/images/apartment-29.jpg',
+      '/images/apartment-30.jpg',
+      '/images/apartment-31.jpg',
+      '/images/apartment-32.jpg',
+      '/images/apartment-33.jpg',
+      '/images/apartment-34.jpg',
+      '/images/apartment-35.jpg'
     ]
   }
 ];
