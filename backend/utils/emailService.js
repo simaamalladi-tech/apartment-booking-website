@@ -257,10 +257,33 @@ export const sendContactMessage = async ({ name, email, subject, message }) => {
   return sendEmail(adminEmail, `[Contact] ${subject} – ${PROPERTY_NAME}`, html);
 };
 
+// Send admin alert when Smoobu sync fails after all retries
+export const sendSmoobuSyncFailedAlert = async (booking, error) => {
+  const adminEmail = process.env.ADMIN_EMAIL || 'lutz.richter@gmail.com';
+  if (!adminEmail) return { success: false, message: 'No admin email configured' };
+
+  const html = emailWrapper(`
+    <h2 style="color: #dc2626;">⚠️ Smoobu Sync Failed</h2>
+    <p>A paid booking could <strong>not</strong> be synced to Smoobu after multiple retry attempts. Please add it manually in the Smoobu dashboard.</p>
+    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+    <p><strong>Guest:</strong> ${sanitize(booking.user?.name || 'Unknown')}</p>
+    <p><strong>Email:</strong> ${sanitize(booking.user?.email || 'No email')}</p>
+    ${bookingDetailsBlock(booking)}
+    <p><strong>Booking ID:</strong> ${booking._id}</p>
+    <p><strong>Sync Attempts:</strong> ${booking.smoobuSyncAttempts || 'N/A'}</p>
+    <p><strong>Last Error:</strong> <code style="background: #fee2e2; padding: 2px 6px; border-radius: 4px; color: #dc2626;">${sanitize(error || booking.smoobuSyncError || 'Unknown')}</code></p>
+    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+    <p style="font-size: 0.85rem; color: #888;">Log into <a href="https://login.smoobu.com">Smoobu</a> and create this reservation manually to avoid double-bookings.</p>
+  `);
+
+  return sendEmail(adminEmail, `[URGENT] Smoobu Sync Failed – Manual Action Required`, html);
+};
+
 export default {
   sendBookingConfirmation,
   sendBookingCancellation,
   sendBookingPending,
   sendAdminNotification,
+  sendSmoobuSyncFailedAlert,
   sendContactMessage
 };

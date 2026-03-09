@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import Payment from '../models/Payment.js';
 import Booking from '../models/Booking.js';
 import Apartment from '../models/Apartment.js';
-import { sendBookingConfirmation, sendAdminNotification } from '../utils/emailService.js';
+import { sendBookingConfirmation, sendAdminNotification, sendSmoobuSyncFailedAlert } from '../utils/emailService.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -88,6 +88,11 @@ async function syncBookingToSmoobu(bookingData, savedBooking, email, totalPrice,
   }
 
   console.error(`✗ Smoobu sync failed after ${maxRetries} attempts for booking ${savedBooking._id}`);
+
+  // Alert admin via email
+  sendSmoobuSyncFailedAlert(savedBooking, savedBooking.smoobuSyncError)
+    .then(() => console.log('✉ Admin alerted about Smoobu sync failure'))
+    .catch(err => console.error('Failed to send Smoobu sync failure alert:', err.message));
 }
 
 // Create payment intent
