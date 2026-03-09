@@ -81,7 +81,7 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
 
                 <div className="summary-item">
                   <label>{t('payment.property')}:</label>
-                  <span>{bookingData.apartment.title}</span>
+                  <span>{t('property.title')}</span>
                 </div>
 
                 <div className="summary-item">

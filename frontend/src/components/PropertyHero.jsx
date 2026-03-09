@@ -152,7 +152,7 @@ function PropertyHero({ apartment, onBookNow }) {
             {/* Description */}
             <div className="description-section fade-in-up">
               <h3>{t('property.aboutTitle')}</h3>
-              <p>{apartment.description}</p>
+              <p>{t('property.description')}</p>
             </div>
 
             {/* Amenities */}
