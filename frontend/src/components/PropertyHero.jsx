@@ -76,6 +76,26 @@ function ReviewsCarousel({ t }) {
 function PropertyHero({ apartment, onBookNow }) {
   const { t } = useTranslation();
   useScrollAnimation();
+  const [startingPrice, setStartingPrice] = useState(null);
+
+  // Fetch the lowest available nightly rate from Smoobu
+  useEffect(() => {
+    fetch('/api/smoobu/rates')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data?.rates) return;
+        let minPrice = Infinity;
+        for (const info of Object.values(data.rates)) {
+          if (info.available && info.price && info.price < minPrice) {
+            minPrice = info.price;
+          }
+        }
+        if (minPrice < Infinity) setStartingPrice(minPrice);
+      })
+      .catch(() => {});
+  }, []);
+
+  const displayPrice = startingPrice || apartment.price;
 
   return (
     <div className="property-hero">
@@ -100,7 +120,7 @@ function PropertyHero({ apartment, onBookNow }) {
             </div>
 
             <div className="price-section fade-in-up">
-              <h2 className="price">€{apartment.price}</h2>
+              <h2 className="price">{startingPrice ? `${t('apartments.priceFrom')} €${displayPrice}` : `€${displayPrice}`}</h2>
               <p className="price-label">{t('apartments.price')}</p>
             </div>
 

@@ -7,7 +7,7 @@ const sampleApartments = [
     description: 'Spacious ground-floor apartment in a converted historic Berlin corner pub (Eckkneipe). This unique 90 m² two-bedroom apartment features original character with parquet floors, a private terrace with inner courtyard views, and an outdoor dining area. Fully equipped with a modern kitchen including dishwasher, oven, microwave, and coffee maker. Located in a quiet Berlin neighborhood with excellent tram connections — reach Museum Island and Alexanderplatz in about 30 minutes. Non-smoking property with free WiFi, air conditioning, and washing machine. Rated 9.3/10 "Superb" by guests.',
     city: 'Berlin',
     address: 'Gustav-Adolf-Straße 146A, 13086 Berlin',
-    price: 55,
+    price: 139,
     beds: 2,
     baths: 1,
     maxGuests: 4,

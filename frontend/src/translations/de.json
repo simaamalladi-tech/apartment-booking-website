@@ -105,6 +105,7 @@
   },
   "apartments": {
     "price": "pro Nacht",
+    "priceFrom": "ab",
     "beds": "Schlafzimmer",
     "baths": "Badezimmer",
     "bookNow": "Jetzt buchen"
