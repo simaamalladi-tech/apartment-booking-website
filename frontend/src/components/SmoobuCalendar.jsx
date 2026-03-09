@@ -65,7 +65,7 @@ function SmoobuCalendar() {
         day: d,
         dateStr,
         isPast: date < today,
-        available: rateInfo ? rateInfo.available === true : null, // null = no data
+        available: rateInfo != null ? !!rateInfo.available : null,
         price: rateInfo?.price || null,
       });
     }
