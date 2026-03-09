@@ -198,7 +198,7 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
     if (day.dateStr === checkIn) cls += ' cal-selected cal-check-in';
     if (day.dateStr === checkOut) cls += ' cal-selected cal-check-out';
     if (isInRange(day.dateStr)) cls += ' cal-in-range';
-    if (!day.isPast && !day.isBooked) cls += ' cal-available';
+    if (!day.isPast && !day.isBooked && !loadingRates) cls += ' cal-available';
     return cls;
   };
 
@@ -266,8 +266,9 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
         </div>
 
         {loadingRates && (
-          <div className="cal-loading">
-            <span>{t('common.loading', 'Loading...')}</span>
+          <div className="cal-loading-overlay">
+            <div className="cal-spinner" />
+            <span>{t('common.loading', 'Loading availability...')}</span>
           </div>
         )}
 

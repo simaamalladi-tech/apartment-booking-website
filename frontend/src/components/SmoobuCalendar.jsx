@@ -6,6 +6,7 @@ function SmoobuCalendar() {
   const { i18n, t } = useTranslation();
   const [rates, setRates] = useState({});
   const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [baseMonth, setBaseMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
@@ -14,11 +15,19 @@ function SmoobuCalendar() {
   useEffect(() => {
     setLoading(true);
     fetch('/api/smoobu/rates')
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data?.rates) setRates(data.rates);
+      .then(res => {
+        if (!res.ok) throw new Error('API error');
+        return res.json();
       })
-      .catch(() => {})
+      .then(data => {
+        if (data?.rates && Object.keys(data.rates).length > 0) {
+          setRates(data.rates);
+          setDataLoaded(true);
+        }
+      })
+      .catch(err => {
+        console.error('SmoobuCalendar: failed to load rates', err);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -56,7 +65,7 @@ function SmoobuCalendar() {
         day: d,
         dateStr,
         isPast: date < today,
-        available: rateInfo ? rateInfo.available : true,
+        available: rateInfo ? rateInfo.available === true : null, // null = no data
         price: rateInfo?.price || null,
       });
     }
@@ -86,8 +95,9 @@ function SmoobuCalendar() {
           if (!day) return <div key={i} className="avail-cell avail-empty" />;
           let cls = 'avail-cell';
           if (day.isPast) cls += ' avail-past';
-          else if (!day.available) cls += ' avail-booked';
-          else cls += ' avail-free';
+          else if (day.available === false) cls += ' avail-booked';
+          else if (day.available === true) cls += ' avail-free';
+          else cls += ' avail-no-data';
           return (
             <div key={i} className={cls} title={day.price ? `€${day.price}` : ''}>
               <span className="avail-day-num">{day.day}</span>
