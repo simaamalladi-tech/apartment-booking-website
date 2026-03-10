@@ -148,10 +148,12 @@ export async function checkSmoobuCancellations() {
 
   try {
     // Find all confirmed website bookings that have a smoobuBookingId
+    // Only check bookings where checkout is still in the future (no need to poll past stays)
     const websiteBookings = await Booking.find({
       smoobuSynced: true,
       smoobuBookingId: { $exists: true, $ne: null },
       status: { $ne: 'cancelled' },
+      checkOutDate: { $gte: new Date() },
     });
 
     if (websiteBookings.length === 0) return;
@@ -189,11 +191,11 @@ export async function checkSmoobuCancellations() {
         const reservation = await res.json();
 
         // Check if Smoobu reservation status indicates cancellation
-        // Smoobu uses type/status fields — cancelled reservations have type === 3 or status includes 'cancelled'
+        // Smoobu uses type/status fields — cancelled reservations have type === 3 or status 'cancelled'
+        // Note: do NOT check is-blocked-booking — those are owner date blocks, not cancellations
         const isCancelled =
           reservation.type === 3 ||
-          reservation.status === 'cancelled' ||
-          reservation['is-blocked-booking'] === true;
+          reservation.status === 'cancelled';
 
         if (isCancelled) {
           console.log(`✗ Smoobu reservation ${booking.smoobuBookingId} is cancelled — sending email`);
