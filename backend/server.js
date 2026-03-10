@@ -52,7 +52,8 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(null, true); // Still allow but log
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
@@ -60,6 +61,9 @@ app.use(cors({
 
 // NoSQL injection prevention
 app.use(mongoSanitize());
+
+// Stripe webhook needs raw body for signature verification — must come BEFORE express.json()
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 
 // Body parsing with size limits
 app.use(express.json({ limit: '10kb' }));
@@ -204,28 +208,30 @@ try {
   console.log('❌ Error reading dist folder:', err.message);
 }
 
-// Debug endpoint to check filesystem
-app.get('/api/debug-dist', (req, res) => {
-  const info = {
-    frontendPath,
-    exists: fs.existsSync(frontendPath),
-    cwd: process.cwd(),
-    dirname: __dirname,
-    distFiles: [],
-    assetFiles: [],
-    indexHtmlExists: fs.existsSync(path.join(frontendPath, 'index.html'))
-  };
-  try {
-    info.distFiles = fs.readdirSync(frontendPath);
-    const assetsPath = path.join(frontendPath, 'assets');
-    if (fs.existsSync(assetsPath)) {
-      info.assetFiles = fs.readdirSync(assetsPath);
+// Debug endpoint — only available in development
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/api/debug-dist', (req, res) => {
+    const info = {
+      frontendPath,
+      exists: fs.existsSync(frontendPath),
+      cwd: process.cwd(),
+      dirname: __dirname,
+      distFiles: [],
+      assetFiles: [],
+      indexHtmlExists: fs.existsSync(path.join(frontendPath, 'index.html'))
+    };
+    try {
+      info.distFiles = fs.readdirSync(frontendPath);
+      const assetsPath = path.join(frontendPath, 'assets');
+      if (fs.existsSync(assetsPath)) {
+        info.assetFiles = fs.readdirSync(assetsPath);
+      }
+    } catch(err) {
+      info.error = err.message;
     }
-  } catch(err) {
-    info.error = err.message;
-  }
-  res.json(info);
-});
+    res.json(info);
+  });
+}
 
 // Hashed assets (JS/CSS) can be cached forever; index.html must not be cached
 app.use('/assets', express.static(path.join(frontendPath, 'assets'), {

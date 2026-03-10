@@ -67,7 +67,6 @@ function PaymentForm({ bookingData, onSuccess }) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          amount: bookingData.totalPrice * 100, // Convert to cents
           bookingData: bookingData,
           paymentMethodId: paymentMethod.id,
           email: formData.email

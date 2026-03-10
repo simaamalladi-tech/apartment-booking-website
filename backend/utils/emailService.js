@@ -5,8 +5,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Resend API (HTTP-based — works on Railway which blocks SMTP ports)
-const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_T4vXrvxK_KuLsnCbZ9NUhQyohBz8z9pwa';
-const resend = new Resend(RESEND_API_KEY);
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+if (!RESEND_API_KEY) {
+  console.warn('RESEND_API_KEY not set — email sending will be disabled');
+}
+const resend = new Resend(RESEND_API_KEY || 'missing_key');
 
 // Use verified domain for sending
 const FROM_EMAIL = 'booking@alt-berliner-eckkneipe.de';

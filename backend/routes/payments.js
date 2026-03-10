@@ -49,9 +49,17 @@ async function syncBookingToSmoobu(bookingData, savedBooking, email, totalPrice,
   const firstName = nameParts[0] || 'Guest';
   const lastName = nameParts.slice(1).join(' ') || '';
 
+  // Always use parsed dates from the saved booking to avoid raw client strings
+  const arrivalDate = savedBooking.checkInDate
+    ? savedBooking.checkInDate.toISOString().split('T')[0]
+    : new Date(bookingData.checkIn).toISOString().split('T')[0];
+  const departureDate = savedBooking.checkOutDate
+    ? savedBooking.checkOutDate.toISOString().split('T')[0]
+    : new Date(bookingData.checkOut).toISOString().split('T')[0];
+
   const smoobuBody = {
-    arrivalDate: bookingData.checkIn || savedBooking.checkInDate?.toISOString().split('T')[0],
-    departureDate: bookingData.checkOut || savedBooking.checkOutDate?.toISOString().split('T')[0],
+    arrivalDate,
+    departureDate,
     apartmentId: parseInt(SMOOBU_APARTMENT_ID),
     channelId: parseInt(SMOOBU_CHANNEL_ID),
     firstName,
@@ -256,7 +264,8 @@ router.post('/create-payment-intent', async (req, res) => {
         apartment: apartment._id,
         user: {
           email: email.substring(0, 200),
-          name: (bookingData.user?.name || 'Guest').substring(0, 100)
+          name: (bookingData.user?.name || 'Guest').substring(0, 100),
+          phone: (bookingData.user?.phone || '').substring(0, 30)
         },
         checkInDate: checkIn,
         checkOutDate: checkOut,
@@ -324,6 +333,11 @@ router.post('/create-payment-intent', async (req, res) => {
 router.post('/confirm', async (req, res) => {
   try {
     const { paymentIntentId } = req.body;
+
+    // Validate Stripe payment intent ID format
+    if (!paymentIntentId || typeof paymentIntentId !== 'string' || !paymentIntentId.startsWith('pi_')) {
+      return res.status(400).json({ success: false, message: 'Invalid payment intent ID' });
+    }
 
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
@@ -524,6 +538,18 @@ router.post('/paypal/capture-order', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid email address' });
     }
 
+    // Duplicate capture guard — prevent double bookings from same PayPal order
+    const existingPayment = await Payment.findOne({ paypalOrderId: orderID });
+    if (existingPayment) {
+      const existingBooking = await Booking.findById(existingPayment.booking);
+      return res.json({
+        success: true,
+        message: 'Payment already processed',
+        bookingId: existingBooking?._id || existingPayment.booking,
+        paymentId: existingPayment.paypalCaptureId || orderID,
+      });
+    }
+
     // Capture the payment
     const { body } = await paypalOrdersController.ordersCapture({ id: orderID });
 
@@ -584,6 +610,7 @@ router.post('/paypal/capture-order', async (req, res) => {
         user: {
           email: email.substring(0, 200),
           name: (bookingData.user?.name || 'Guest').substring(0, 100),
+          phone: (bookingData.user?.phone || '').substring(0, 30),
         },
         checkInDate: checkIn,
         checkOutDate: checkOut,
@@ -632,7 +659,8 @@ router.post('/paypal/capture-order', async (req, res) => {
 });
 
 // Webhook endpoint for Stripe events
-router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+// Note: express.raw() is applied at the server level for this path (before express.json)
+router.post('/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
 
   try {
