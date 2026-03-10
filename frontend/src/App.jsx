@@ -45,15 +45,21 @@ function App() {
 
   // Header show/hide on scroll
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setHeaderScrolled(currentScrollY > 50);
-      if (currentScrollY > 200) {
-        setHeaderHidden(currentScrollY > lastScrollY.current && currentScrollY > 300);
-      } else {
-        setHeaderHidden(false);
-      }
-      lastScrollY.current = currentScrollY;
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        setHeaderScrolled(currentScrollY > 50);
+        if (currentScrollY > 200) {
+          setHeaderHidden(currentScrollY > lastScrollY.current && currentScrollY > 300);
+        } else {
+          setHeaderHidden(false);
+        }
+        lastScrollY.current = currentScrollY;
+        ticking = false;
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
