@@ -507,6 +507,7 @@ router.post('/paypal/create-order', async (req, res) => {
         }],
         applicationContext: {
           shippingPreference: 'NO_SHIPPING',
+          landingPage: 'LOGIN',
           userAction: 'PAY_NOW',
           brandName: 'Alt-Berliner Eckkneipe',
         },
