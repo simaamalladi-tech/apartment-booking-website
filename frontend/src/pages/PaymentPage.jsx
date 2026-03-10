@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
+import { PayPalScriptProvider, PayPalButtons, FUNDING } from '@paypal/react-paypal-js';
 import { useTranslation } from 'react-i18next';
 import PaymentForm from '../components/PaymentForm';
 import './PaymentPage.css';
@@ -174,8 +174,9 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
                   ) : (
                     <>
                       <p className="paypal-info">{t('payment.paypalInfo')}</p>
-                      <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'EUR' }}>
+                      <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'EUR', disableFunding: 'card,credit' }}>
                         <PayPalButtons
+                          fundingSource={FUNDING.PAYPAL}
                           style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' }}
                           createOrder={handlePaypalCreateOrder}
                           onApprove={handlePaypalApprove}
