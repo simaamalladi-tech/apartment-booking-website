@@ -1,7 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import Booking from '../models/Booking.js';
-import { sendBookingCancellation, sendAdminNotification } from '../utils/emailService.js';
 
 dotenv.config();
 
@@ -153,84 +151,5 @@ router.get('/apartment', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch apartment details' });
   }
 });
-
-// ─── CANCELLATION CHECK: Poll Smoobu for cancelled website bookings ───
-export async function checkSmoobuCancellations() {
-  const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
-  if (!SMOOBU_API_KEY) return;
-
-  try {
-    // Find all confirmed website bookings that have a smoobuBookingId
-    // Only check bookings where checkout is still in the future (no need to poll past stays)
-    const websiteBookings = await Booking.find({
-      smoobuSynced: true,
-      smoobuBookingId: { $exists: true, $ne: null },
-      status: { $ne: 'cancelled' },
-      checkOutDate: { $gte: new Date() },
-    });
-
-    if (websiteBookings.length === 0) return;
-
-    console.log(`⟳ Checking ${websiteBookings.length} website booking(s) for cancellations on Smoobu...`);
-
-    for (const booking of websiteBookings) {
-      try {
-        const res = await fetch(`${SMOOBU_BASE_URL}/api/reservations/${booking.smoobuBookingId}`, {
-          headers: {
-            'Api-Key': SMOOBU_API_KEY,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!res.ok) {
-          // 404 means the reservation was deleted/cancelled in Smoobu
-          if (res.status === 404) {
-            console.log(`✗ Smoobu reservation ${booking.smoobuBookingId} not found — marking as cancelled`);
-            booking.status = 'cancelled';
-            await booking.save();
-
-            // Send cancellation email to customer
-            sendBookingCancellation(booking)
-              .then(r => console.log(`📧 Cancellation email sent to ${booking.user?.email}:`, r.success))
-              .catch(err => console.error('Cancellation email error:', err.message));
-
-            // Notify admin
-            sendAdminNotification(booking, 'cancelled')
-              .catch(err => console.error('Admin notification error:', err.message));
-          }
-          continue;
-        }
-
-        const reservation = await res.json();
-
-        // Check if Smoobu reservation status indicates cancellation
-        // Smoobu uses type/status fields — cancelled reservations have type === 3 or status 'cancelled'
-        // Note: do NOT check is-blocked-booking — those are owner date blocks, not cancellations
-        const isCancelled =
-          reservation.type === 3 ||
-          reservation.status === 'cancelled';
-
-        if (isCancelled) {
-          console.log(`✗ Smoobu reservation ${booking.smoobuBookingId} is cancelled — sending email`);
-          booking.status = 'cancelled';
-          await booking.save();
-
-          // Send cancellation email to customer
-          sendBookingCancellation(booking)
-            .then(r => console.log(`📧 Cancellation email sent to ${booking.user?.email}:`, r.success))
-            .catch(err => console.error('Cancellation email error:', err.message));
-
-          // Notify admin
-          sendAdminNotification(booking, 'cancelled')
-            .catch(err => console.error('Admin notification error:', err.message));
-        }
-      } catch (err) {
-        console.error(`Error checking reservation ${booking.smoobuBookingId}:`, err.message);
-      }
-    }
-  } catch (err) {
-    console.error('checkSmoobuCancellations error:', err.message);
-  }
-}
 
 export default router;

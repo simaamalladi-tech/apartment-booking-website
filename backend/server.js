@@ -103,16 +103,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment
     console.log('✓ Connected to MongoDB');
     // Seed apartments on connection
     seedApartments();
-
-    // Start periodic cancellation check for website bookings
-    const { checkSmoobuCancellations } = await import('./routes/smoobu.js');
-    // Run once on startup (after 30s delay), then every 10 minutes
-    setTimeout(() => {
-      checkSmoobuCancellations().catch(err => console.error('Initial cancellation check error:', err.message));
-      setInterval(() => {
-        checkSmoobuCancellations().catch(err => console.error('Cancellation check error:', err.message));
-      }, 30 * 60 * 1000);
-    }, 30000);
   })
   .catch(err => console.log('✗ MongoDB connection error:', err));
 
