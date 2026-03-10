@@ -429,20 +429,6 @@ router.post('/retry-smoobu-sync/:bookingId', requireAdmin, async (req, res) => {
   }
 });
 
-// ─── TEMP ADMIN: List all bookings (protected by ADMIN_SECRET header) ───
-router.get('/admin/bookings', async (req, res) => {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret || req.headers['x-admin-secret'] !== secret) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-  try {
-    const bookings = await Booking.find().sort({ createdAt: -1 }).limit(50).lean();
-    res.json({ count: bookings.length, bookings });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 // ─── PAYPAL: Create Order ───
 router.post('/paypal/create-order', async (req, res) => {
   try {
