@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import ImageGallery from './ImageGallery';
-import SmoobuCalendar from './SmoobuCalendar';
 import useScrollAnimation from '../hooks/useScrollAnimation';
 import './PropertyHero.css';
 
@@ -230,9 +229,6 @@ function PropertyHero({ apartment, onBookNow }) {
               </p>
             </div>
             </div>{/* end booking-card-sticky */}
-
-            {/* Smoobu Availability Calendar */}
-            <SmoobuCalendar />
 
             {/* Neighborhood Highlights */}
             <div className="sidebar-card neighborhood-card fade-in-up">

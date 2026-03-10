@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "apartment-booking-frontend": "file:.."
+  }
+}
