@@ -186,26 +186,66 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
     return cls;
   };
 
+  const handleCheckInInput = (e) => {
+    const val = e.target.value;
+    if (!val) return;
+    // Validate: not in the past, not booked
+    if (val < todayStr || bookedDates.has(val)) return;
+    onChange(val, '');
+    setSelecting('checkOut');
+    setMinStayWarning('');
+    // Navigate calendar to selected month
+    const d = new Date(val);
+    setCurrentMonth(new Date(d.getFullYear(), d.getMonth(), 1));
+  };
+
+  const handleCheckOutInput = (e) => {
+    const val = e.target.value;
+    if (!val || !checkIn || val <= checkIn) return;
+    // Validate: no booked dates in range
+    if (hasBookedInRange(checkIn, val)) return;
+    // Validate: min stay
+    const nights = calcNights(checkIn, val);
+    const minStay = getMinStay(checkIn);
+    if (nights < minStay) {
+      setMinStayWarning(t('booking.minStayError', { min: minStay }));
+      return;
+    }
+    onChange(checkIn, val);
+    setSelecting('checkIn');
+    setMinStayWarning('');
+  };
+
   return (
     <div className="date-range-picker">
       <div className="drp-labels">
-        <button
-          type="button"
+        <label
           className={`drp-label ${selecting === 'checkIn' ? 'drp-label-active' : ''}`}
           onClick={() => setSelecting('checkIn')}
         >
           <span className="drp-label-title">{t('booking.checkIn')}</span>
-          <span className="drp-label-value">{checkIn || '—'}</span>
-        </button>
+          <input
+            type="date"
+            className="drp-date-input"
+            value={checkIn}
+            min={todayStr}
+            onChange={handleCheckInInput}
+          />
+        </label>
         <div className="drp-arrow">→</div>
-        <button
-          type="button"
+        <label
           className={`drp-label ${selecting === 'checkOut' ? 'drp-label-active' : ''}`}
           onClick={() => setSelecting('checkOut')}
         >
           <span className="drp-label-title">{t('booking.checkOut')}</span>
-          <span className="drp-label-value">{checkOut || '—'}</span>
-        </button>
+          <input
+            type="date"
+            className="drp-date-input"
+            value={checkOut}
+            min={checkIn || todayStr}
+            onChange={handleCheckOutInput}
+          />
+        </label>
       </div>
 
       <div className="cal-container">

@@ -15,6 +15,27 @@
 .drp-label-active { border-color: #667eea; background: #f0f4ff; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
 .drp-label-title { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; font-weight: 600; margin-bottom: 4px; }
 .drp-label-value { display: block; font-size: 1rem; font-weight: 700; color: #1a1a2e; }
+.drp-date-input {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+}
+.drp-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.drp-date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
 .drp-arrow { color: #ccc; font-size: 1.2rem; font-weight: 700; flex-shrink: 0; }
 
 /* Calendar */
