@@ -156,7 +156,8 @@
     "loadingSystem": "Loading secure payment...",
     "creditCard": "Credit Card",
     "paypal": "PayPal",
-    "paypalInfo": "You will be redirected to PayPal to complete your payment securely."
+    "paypalInfo": "You will be redirected to PayPal to complete your payment securely.",
+    "or": "or"
   },
   "contact": {
     "title": "Contact Us",

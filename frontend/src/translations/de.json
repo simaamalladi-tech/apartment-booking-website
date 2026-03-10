@@ -156,7 +156,8 @@
     "loadingSystem": "Sicheres Zahlungssystem wird geladen...",
     "creditCard": "Kreditkarte",
     "paypal": "PayPal",
-    "paypalInfo": "Sie werden zu PayPal weitergeleitet, um Ihre Zahlung sicher abzuschließen."
+    "paypalInfo": "Sie werden zu PayPal weitergeleitet, um Ihre Zahlung sicher abzuschließen.",
+    "or": "oder"
   },
   "contact": {
     "title": "Kontaktieren Sie uns",

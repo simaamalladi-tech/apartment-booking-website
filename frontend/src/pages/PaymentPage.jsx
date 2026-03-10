@@ -32,7 +32,6 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
   const { t } = useTranslation();
   const [stripe, setStripe] = useState(null);
   const [paypalClientId, setPaypalClientId] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('stripe');
   const [error, setError] = useState(null);
   const [paypalProcessing, setPaypalProcessing] = useState(false);
   const [paypalSuccess, setPaypalSuccess] = useState(false);
@@ -45,10 +44,6 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
       }
       if (config.paypalClientId) {
         setPaypalClientId(config.paypalClientId);
-      }
-      // Default to whichever is available
-      if (!config.stripeKey && config.paypalClientId) {
-        setPaymentMethod('paypal');
       }
       if (!config.stripeKey && !config.paypalClientId) {
         setError(t('payment.systemUnavailable'));
@@ -132,28 +127,8 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
         {configLoaded && (hasStripe || hasPaypal) && (
           <div className="payment-grid">
             <div className="payment-form-section">
-              {/* Payment method toggle */}
-              {hasStripe && hasPaypal && (
-                <div className="payment-method-toggle">
-                  <button
-                    type="button"
-                    className={`method-btn ${paymentMethod === 'stripe' ? 'active' : ''}`}
-                    onClick={() => { setPaymentMethod('stripe'); setError(null); }}
-                  >
-                    💳 {t('payment.creditCard')}
-                  </button>
-                  <button
-                    type="button"
-                    className={`method-btn ${paymentMethod === 'paypal' ? 'active' : ''}`}
-                    onClick={() => { setPaymentMethod('paypal'); setError(null); }}
-                  >
-                    {t('payment.paypal')}
-                  </button>
-                </div>
-              )}
-
-              {/* Stripe form */}
-              {paymentMethod === 'stripe' && hasStripe && (
+              {/* Credit card form */}
+              {hasStripe && (
                 <Elements stripe={stripe}>
                   <PaymentForm 
                     bookingData={bookingData} 
@@ -162,9 +137,10 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
                 </Elements>
               )}
 
-              {/* PayPal buttons */}
-              {paymentMethod === 'paypal' && hasPaypal && (
+              {/* PayPal section below credit card */}
+              {hasPaypal && (
                 <div className="paypal-section">
+                  {hasStripe && <div className="payment-divider"><span>{t('payment.or', 'or')}</span></div>}
                   {paypalSuccess ? (
                     <div className="payment-success">
                       <div className="success-icon">✓</div>
@@ -173,7 +149,6 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
                     </div>
                   ) : (
                     <>
-                      <p className="paypal-info">{t('payment.paypalInfo')}</p>
                       <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'EUR', disableFunding: 'card,credit' }}>
                         <PayPalButtons
                           fundingSource={FUNDING.PAYPAL}
