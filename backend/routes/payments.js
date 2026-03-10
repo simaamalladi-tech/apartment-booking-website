@@ -490,7 +490,7 @@ router.post('/paypal/create-order', async (req, res) => {
       }
     }
 
-    const { body } = await paypalOrdersController.ordersCreate({
+    const response = await paypalOrdersController.createOrder({
       body: {
         intent: 'CAPTURE',
         purchaseUnits: [{
@@ -503,9 +503,10 @@ router.post('/paypal/create-order', async (req, res) => {
       },
     });
 
+    const order = response.result;
     res.json({
       success: true,
-      orderID: body.id,
+      orderID: order.id,
       calculatedPrice,
     });
   } catch (error) {
@@ -551,11 +552,12 @@ router.post('/paypal/capture-order', async (req, res) => {
     }
 
     // Capture the payment
-    const { body } = await paypalOrdersController.ordersCapture({ id: orderID });
+    const response = await paypalOrdersController.captureOrder({ id: orderID });
+    const captureResult = response.result;
 
-    if (body.status === 'COMPLETED') {
-      const captureId = body.purchaseUnits?.[0]?.payments?.captures?.[0]?.id || orderID;
-      const capturedAmount = parseFloat(body.purchaseUnits?.[0]?.payments?.captures?.[0]?.amount?.value || 0);
+    if (captureResult.status === 'COMPLETED') {
+      const captureId = captureResult.purchaseUnits?.[0]?.payments?.captures?.[0]?.id || orderID;
+      const capturedAmount = parseFloat(captureResult.purchaseUnits?.[0]?.payments?.captures?.[0]?.amount?.value || 0);
 
       const apartment = await Apartment.findById(bookingData.apartment?._id || bookingData.apartment?.id);
       if (!apartment) {
@@ -650,7 +652,7 @@ router.post('/paypal/capture-order', async (req, res) => {
         paymentId: captureId,
       });
     } else {
-      return res.json({ success: false, message: 'PayPal payment not completed', status: body.status });
+      return res.json({ success: false, message: 'PayPal payment not completed', status: captureResult.status });
     }
   } catch (error) {
     console.error('PayPal capture error:', error);
