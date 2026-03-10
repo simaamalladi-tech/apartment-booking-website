@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import useScrollAnimation from '../hooks/useScrollAnimation';
 import './ContactPage.css';
 
-function ContactPage() {
+function ContactPage({ onBookNow }) {
   const { t } = useTranslation();
   useScrollAnimation();
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
@@ -176,6 +176,19 @@ function ContactPage() {
             />
           </div>
         </div>
+
+        {/* Book Now CTA Banner */}
+        {onBookNow && (
+          <div className="contact-cta-banner fade-in-up">
+            <div className="contact-cta-content">
+              <h3>{t('cta.contactCta')}</h3>
+              <p>{t('cta.contactCtaSub')}</p>
+            </div>
+            <button className="contact-cta-btn" onClick={onBookNow}>
+              {t('cta.bookNow')}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

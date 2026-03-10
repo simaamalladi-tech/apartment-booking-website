@@ -43,20 +43,36 @@ function App() {
     fetchProperty();
   }, []);
 
-  // Header show/hide on scroll
+  // Header show/hide on scroll with hysteresis to prevent bounce
   useEffect(() => {
     let ticking = false;
+    let lastDirection = 'up';
+    let directionChangeY = 0;
+    const HYSTERESIS = 40; // px of consistent scroll needed to toggle
+
     const handleScroll = () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
         const currentScrollY = window.scrollY;
         setHeaderScrolled(currentScrollY > 50);
-        if (currentScrollY > 200) {
-          setHeaderHidden(currentScrollY > lastScrollY.current && currentScrollY > 300);
-        } else {
+
+        if (currentScrollY <= 200) {
           setHeaderHidden(false);
+          lastDirection = 'up';
+          directionChangeY = currentScrollY;
+        } else {
+          const direction = currentScrollY > lastScrollY.current ? 'down' : 'up';
+          if (direction !== lastDirection) {
+            directionChangeY = lastScrollY.current;
+            lastDirection = direction;
+          }
+          const delta = Math.abs(currentScrollY - directionChangeY);
+          if (delta > HYSTERESIS) {
+            setHeaderHidden(direction === 'down');
+          }
         }
+
         lastScrollY.current = currentScrollY;
         ticking = false;
       });
@@ -152,7 +168,7 @@ function App() {
         )}
 
         {currentPage === 'contact' && (
-          <ContactPage />
+          <ContactPage onBookNow={handleBookNow} />
         )}
 
         {currentPage === 'confirmation' && bookingData && (
@@ -167,7 +183,7 @@ function App() {
         )}
       </main>
 
-      <Footer onPageChange={navigateTo} />
+      <Footer onPageChange={navigateTo} onBookNow={handleBookNow} />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import useScrollAnimation from '../hooks/useScrollAnimation';
 import './Footer.css';
 
-function Footer({ onPageChange }) {
+function Footer({ onPageChange, onBookNow }) {
   const { t } = useTranslation();
   useScrollAnimation();
   const year = new Date().getFullYear();
@@ -24,6 +24,14 @@ function Footer({ onPageChange }) {
             <svg className="platform-logo google-logo" viewBox="0 0 300 48" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="48" rx="6" fill="#fff" stroke="#ddd"/><text x="20" y="33" fill="#4285F4" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">G</text><text x="40" y="33" fill="#EA4335" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">o</text><text x="62" y="33" fill="#FBBC05" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">o</text><text x="84" y="33" fill="#4285F4" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">g</text><text x="106" y="33" fill="#34A853" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">l</text><text x="118" y="33" fill="#EA4335" fontFamily="Arial,sans-serif" fontSize="24" fontWeight="700">e</text><text x="145" y="33" fill="#555" fontFamily="Arial,sans-serif" fontSize="20" fontWeight="400">Hotels</text></svg>
           </a>
         </div>
+      </div>
+
+      {/* Book Now CTA Banner */}
+      <div className="footer-cta fade-in-up">
+        <p className="footer-cta-text">{t('cta.footerCta')}</p>
+        <button className="footer-cta-btn" onClick={onBookNow}>
+          {t('cta.bookNow')} →
+        </button>
       </div>
 
       <div className="footer-container">

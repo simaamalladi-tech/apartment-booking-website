@@ -51,6 +51,57 @@
   height: 36px;
 }
 
+/* ===== Footer CTA Banner ===== */
+.footer-cta {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-cta-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #eee;
+  margin: 0;
+}
+
+.footer-cta-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.footer-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 18px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 480px) {
+  .footer-cta {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .footer-cta-btn {
+    width: 100%;
+    padding: 12px 24px;
+  }
+}
+
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;

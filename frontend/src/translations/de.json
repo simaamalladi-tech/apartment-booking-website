@@ -199,6 +199,17 @@
     "goToImage": "Gehe zu Bild {{number}}",
     "thumbnail": "Vorschaubild {{number}}"
   },
+  "cta": {
+    "loveIt": "Gefällt Ihnen, was Sie sehen?",
+    "loveItSub": "Buchen Sie noch heute Ihren Aufenthalt in diesem einzigartigen Berliner Apartment.",
+    "dontMiss": "Nicht verpassen!",
+    "dontMissSub": "Dieses Apartment ist schnell ausgebucht. Reservieren Sie jetzt.",
+    "contactCta": "Bereit für Ihren Berlin-Urlaub?",
+    "contactCtaSub": "Überspringen Sie die Fragen und reservieren Sie jetzt.",
+    "footerCta": "Buchen Sie noch heute",
+    "bookNow": "Jetzt buchen",
+    "checkAvailability": "Verfügbarkeit prüfen"
+  },
   "common": {
     "loading": "Wird geladen...",
     "loadError": "Unterkunft konnte nicht geladen werden. Bitte versuchen Sie es erneut.",

@@ -199,6 +199,17 @@
     "goToImage": "Go to image {{number}}",
     "thumbnail": "Thumbnail {{number}}"
   },
+  "cta": {
+    "loveIt": "Love what you see?",
+    "loveItSub": "Book your stay at this unique Berlin apartment today.",
+    "dontMiss": "Don't miss out!",
+    "dontMissSub": "This apartment books up fast. Reserve your dates now.",
+    "contactCta": "Ready to book your Berlin getaway?",
+    "contactCtaSub": "Skip the questions and reserve your apartment now.",
+    "footerCta": "Book your stay today",
+    "bookNow": "Book Now",
+    "checkAvailability": "Check Availability"
+  },
   "common": {
     "loading": "Loading...",
     "loadError": "Unable to load property. Please try again.",

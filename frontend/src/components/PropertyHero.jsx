@@ -175,6 +175,17 @@ function PropertyHero({ apartment, onBookNow }) {
               <p>{t('property.description')}</p>
             </div>
 
+            {/* Inline CTA #1 */}
+            <div className="inline-cta fade-in-up">
+              <div className="inline-cta-text">
+                <h3>{t('cta.loveIt')}</h3>
+                <p>{t('cta.loveItSub')}</p>
+              </div>
+              <button className="inline-cta-btn" onClick={onBookNow}>
+                {t('cta.checkAvailability')}
+              </button>
+            </div>
+
             {/* Amenities */}
             <div className="amenities-section fade-in-up">
               <h3>{t('property.amenitiesTitle')}</h3>
@@ -192,6 +203,17 @@ function PropertyHero({ apartment, onBookNow }) {
                 <p className="longterm-title">{t('property.longtermTitle')}</p>
                 <p className="longterm-text">{t('property.longtermText')}</p>
               </div>
+            </div>
+
+            {/* Inline CTA #2 */}
+            <div className="inline-cta inline-cta-accent fade-in-up">
+              <div className="inline-cta-text">
+                <h3>{t('cta.dontMiss')}</h3>
+                <p>{t('cta.dontMissSub')}</p>
+              </div>
+              <button className="inline-cta-btn" onClick={onBookNow}>
+                {t('cta.bookNow')}
+              </button>
             </div>
           </div>
 
@@ -314,6 +336,19 @@ function PropertyHero({ apartment, onBookNow }) {
             {/* Guest Reviews Carousel */}
             <ReviewsCarousel t={t} />
           </div>
+        </div>
+      </div>
+
+      {/* Floating mobile Book Now bar */}
+      <div className="floating-cta">
+        <div className="floating-cta-inner">
+          <div className="floating-cta-price">
+            <span className="floating-price">{startingPrice ? `€${displayPrice}` : `€${displayPrice}`}</span>
+            <span className="floating-label">{t('apartments.price')}</span>
+          </div>
+          <button className="floating-cta-btn" onClick={onBookNow}>
+            {t('cta.bookNow')}
+          </button>
         </div>
       </div>
     </div>
