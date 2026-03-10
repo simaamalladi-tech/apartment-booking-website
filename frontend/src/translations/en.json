@@ -153,7 +153,10 @@
     "guestsLabel": "Guests",
     "totalLabel": "Total",
     "systemUnavailable": "The payment system is temporarily unavailable. Please try again later.",
-    "loadingSystem": "Loading secure payment..."
+    "loadingSystem": "Loading secure payment...",
+    "creditCard": "Credit Card",
+    "paypal": "PayPal",
+    "paypalInfo": "You will be redirected to PayPal to complete your payment securely."
   },
   "contact": {
     "title": "Contact Us",
@@ -263,7 +266,7 @@
       "dataEmail": "Email address",
       "dataPhone": "Phone number (optional)",
       "dataDates": "Check-in and check-out dates",
-      "dataPayment": "Payment information (processed securely via Stripe)",
+      "dataPayment": "Payment information (processed securely via Stripe or PayPal)",
       "technicalDataTitle": "Technical Data",
       "technicalDataText": "When visiting our website, the web server automatically records log files that your browser transmits. These include browser type/version, operating system, referrer URL, hostname, and time of the server request.",
       "purposeTitle": "Purpose of Data Processing",
@@ -272,7 +275,7 @@
       "purpose3": "Processing payments securely",
       "purpose4": "Improving our website and services",
       "paymentTitle": "Payment Processing",
-      "paymentText": "Payment processing is handled by Stripe, Inc. Your payment data is transmitted directly to Stripe and is not stored on our servers. Stripe's privacy policy applies to the processing of payment data. Visit stripe.com/privacy for more information.",
+      "paymentText": "Payment processing is handled by Stripe, Inc. or PayPal (Europe). Your payment data is transmitted directly to the payment provider and is not stored on our servers. For more information, visit stripe.com/privacy or paypal.com/privacy.",
       "rightsTitle": "Your Rights",
       "rightsText": "Under the GDPR, you have the following rights regarding your personal data:",
       "rightAccess": "Right of access to your personal data (Art. 15 GDPR)",

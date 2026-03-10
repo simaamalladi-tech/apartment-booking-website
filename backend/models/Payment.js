@@ -6,11 +6,17 @@ const paymentSchema = new mongoose.Schema({
     ref: 'Booking',
     required: true
   },
-  stripePaymentId: {
+  paymentProvider: {
     type: String,
-    required: true
+    enum: ['stripe', 'paypal'],
+    default: 'stripe'
+  },
+  stripePaymentId: {
+    type: String
   },
   stripePaymentMethodId: String,
+  paypalOrderId: String,
+  paypalCaptureId: String,
   amount: {
     type: Number,
     required: true

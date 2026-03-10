@@ -115,6 +115,62 @@
   margin: 1rem 0;
 }
 
+/* Payment method toggle */
+.payment-method-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.method-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  background: #f8f9fa;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+}
+
+.method-btn:first-child {
+  border-right: 2px solid #e0e0e0;
+}
+
+.method-btn.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.method-btn:hover:not(.active) {
+  background: #f0f2f8;
+}
+
+/* PayPal section */
+.paypal-section {
+  padding-top: 0.5rem;
+}
+
+.paypal-info {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 1.5rem;
+  text-align: center;
+}
+
+.paypal-processing {
+  text-align: center;
+  padding: 1rem;
+  color: #667eea;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
 @media (max-width: 768px) {
   .payment-grid {
     grid-template-columns: 1fr;

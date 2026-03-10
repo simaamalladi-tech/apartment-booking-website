@@ -1,5 +1,6 @@
 import express from 'express';
 import Stripe from 'stripe';
+import { Client, Environment, OrdersController } from '@paypal/paypal-server-sdk';
 import Payment from '../models/Payment.js';
 import Booking from '../models/Booking.js';
 import Apartment from '../models/Apartment.js';
@@ -10,6 +11,22 @@ dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const router = express.Router();
+
+// ─── PayPal client setup ───
+let paypalOrdersController = null;
+if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET) {
+  const paypalClient = new Client({
+    clientCredentialsAuthCredentials: {
+      oAuthClientId: process.env.PAYPAL_CLIENT_ID,
+      oAuthClientSecret: process.env.PAYPAL_CLIENT_SECRET,
+    },
+    environment: process.env.PAYPAL_MODE === 'live' ? Environment.Production : Environment.Sandbox,
+  });
+  paypalOrdersController = new OrdersController(paypalClient);
+  console.log(`✓ PayPal initialized (${process.env.PAYPAL_MODE === 'live' ? 'Production' : 'Sandbox'})`);
+} else {
+  console.warn('PayPal credentials not configured, PayPal payments disabled');
+}
 
 // Helper: Sync booking to Smoobu after successful payment (with retry)
 async function syncBookingToSmoobu(bookingData, savedBooking, email, totalPrice, maxRetries = 3) {
@@ -374,6 +391,174 @@ router.post('/retry-smoobu-sync/:bookingId', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ─── PAYPAL: Create Order ───
+router.post('/paypal/create-order', async (req, res) => {
+  try {
+    if (!paypalOrdersController) {
+      return res.status(503).json({ success: false, message: 'PayPal is not configured' });
+    }
+
+    const { bookingData, email } = req.body;
+
+    if (!bookingData || !email) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: 'Invalid email address' });
+    }
+
+    // Server-side price calculation (same as Stripe flow)
+    const apartment = await Apartment.findById(bookingData.apartment?._id || bookingData.apartment?.id);
+    if (!apartment) {
+      return res.status(404).json({ success: false, message: 'Apartment not found' });
+    }
+
+    const checkIn = new Date(bookingData.checkIn);
+    const checkOut = new Date(bookingData.checkOut);
+    if (isNaN(checkIn) || isNaN(checkOut) || checkOut <= checkIn) {
+      return res.status(400).json({ success: false, message: 'Invalid dates' });
+    }
+
+    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+    let calculatedPrice = nights * apartment.price;
+
+    // Smoobu availability check + pricing
+    const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
+    const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+
+    if (SMOOBU_API_KEY) {
+      try {
+        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${bookingData.checkIn}&end_date=${bookingData.checkOut}`;
+        const ratesRes = await fetch(ratesUrl, {
+          headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+        });
+        if (ratesRes.ok) {
+          const ratesData = await ratesRes.json();
+          const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
+          const unavailableDates = [];
+          let smoobuTotal = 0;
+          let daysWithRate = 0;
+          for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
+            const dateStr = d.toISOString().split('T')[0];
+            const rate = apartmentRates[dateStr];
+            if (rate && !rate.available) unavailableDates.push(dateStr);
+            if (rate && rate.price) { smoobuTotal += rate.price; daysWithRate++; }
+            else { smoobuTotal += apartment.price; }
+          }
+          if (unavailableDates.length > 0) {
+            return res.status(409).json({ success: false, message: `Selected dates are no longer available: ${unavailableDates.join(', ')}`, unavailableDates });
+          }
+          if (daysWithRate > 0) calculatedPrice = smoobuTotal;
+        }
+      } catch (err) {
+        console.error('Smoobu check failed (PayPal):', err.message);
+      }
+    }
+
+    const { body } = await paypalOrdersController.ordersCreate({
+      body: {
+        intent: 'CAPTURE',
+        purchaseUnits: [{
+          amount: {
+            currencyCode: 'EUR',
+            value: calculatedPrice.toFixed(2),
+          },
+          description: `Booking: ${bookingData.checkIn} – ${bookingData.checkOut} (${nights} nights)`,
+        }],
+      },
+    });
+
+    res.json({
+      success: true,
+      orderID: body.id,
+      calculatedPrice,
+    });
+  } catch (error) {
+    console.error('PayPal create order error:', error);
+    res.status(500).json({ success: false, message: 'Failed to create PayPal order' });
+  }
+});
+
+// ─── PAYPAL: Capture Order (after buyer approves) ───
+router.post('/paypal/capture-order', async (req, res) => {
+  try {
+    if (!paypalOrdersController) {
+      return res.status(503).json({ success: false, message: 'PayPal is not configured' });
+    }
+
+    const { orderID, bookingData, email } = req.body;
+
+    if (!orderID || !bookingData || !email) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    // Capture the payment
+    const { body } = await paypalOrdersController.ordersCapture({ id: orderID });
+
+    if (body.status === 'COMPLETED') {
+      const captureId = body.purchaseUnits?.[0]?.payments?.captures?.[0]?.id || orderID;
+      const capturedAmount = parseFloat(body.purchaseUnits?.[0]?.payments?.captures?.[0]?.amount?.value || 0);
+
+      const apartment = await Apartment.findById(bookingData.apartment?._id || bookingData.apartment?.id);
+      const checkIn = new Date(bookingData.checkIn);
+      const checkOut = new Date(bookingData.checkOut);
+      const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+      // Create booking
+      const booking = new Booking({
+        apartment: apartment._id,
+        user: {
+          email: email.substring(0, 200),
+          name: (bookingData.user?.name || 'Guest').substring(0, 100),
+        },
+        checkInDate: checkIn,
+        checkOutDate: checkOut,
+        numberOfGuests: Math.min(bookingData.guests || 1, apartment.maxGuests),
+        numberOfNights: nights,
+        totalPrice: capturedAmount,
+        status: 'confirmed',
+        paymentId: captureId,
+        paymentStatus: 'completed',
+      });
+      await booking.save();
+
+      // Create payment record
+      const payment = new Payment({
+        booking: booking._id,
+        paymentProvider: 'paypal',
+        paypalOrderId: orderID,
+        paypalCaptureId: captureId,
+        amount: Math.round(capturedAmount * 100),
+        email,
+        status: 'succeeded',
+      });
+      await payment.save();
+
+      // Send emails (non-blocking)
+      sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
+      sendAdminNotification(booking, 'new').catch(err => console.error('Admin email error:', err));
+
+      // Sync to Smoobu (non-blocking)
+      syncBookingToSmoobu(bookingData, booking, email, capturedAmount)
+        .catch(err => console.error('Smoobu sync error:', err));
+
+      return res.json({
+        success: true,
+        message: 'Payment successful',
+        bookingId: booking._id,
+        paymentId: captureId,
+      });
+    } else {
+      return res.json({ success: false, message: 'PayPal payment not completed', status: body.status });
+    }
+  } catch (error) {
+    console.error('PayPal capture error:', error);
+    res.status(500).json({ success: false, message: 'Failed to capture PayPal payment' });
   }
 });
 

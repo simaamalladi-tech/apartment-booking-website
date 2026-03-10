@@ -153,7 +153,10 @@
     "guestsLabel": "Gäste",
     "totalLabel": "Gesamt",
     "systemUnavailable": "Das Zahlungssystem ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
-    "loadingSystem": "Sicheres Zahlungssystem wird geladen..."
+    "loadingSystem": "Sicheres Zahlungssystem wird geladen...",
+    "creditCard": "Kreditkarte",
+    "paypal": "PayPal",
+    "paypalInfo": "Sie werden zu PayPal weitergeleitet, um Ihre Zahlung sicher abzuschließen."
   },
   "contact": {
     "title": "Kontaktieren Sie uns",
@@ -263,7 +266,7 @@
       "dataEmail": "E-Mail-Adresse",
       "dataPhone": "Telefonnummer (optional)",
       "dataDates": "An- und Abreisedatum",
-      "dataPayment": "Zahlungsinformationen (sicher über Stripe verarbeitet)",
+      "dataPayment": "Zahlungsinformationen (sicher über Stripe oder PayPal verarbeitet)",
       "technicalDataTitle": "Technische Daten",
       "technicalDataText": "Beim Besuch unserer Website erfasst der Webserver automatisch Logdateien, die Ihr Browser übermittelt. Diese umfassen Browsertyp/-version, Betriebssystem, Referrer-URL, Hostname und Zeitpunkt der Serveranfrage.",
       "purposeTitle": "Zweck der Datenverarbeitung",
@@ -272,7 +275,7 @@
       "purpose3": "Sichere Abwicklung von Zahlungen",
       "purpose4": "Verbesserung unserer Website und Dienstleistungen",
       "paymentTitle": "Zahlungsabwicklung",
-      "paymentText": "Die Zahlungsabwicklung erfolgt über Stripe, Inc. Ihre Zahlungsdaten werden direkt an Stripe übermittelt und nicht auf unseren Servern gespeichert. Für die Verarbeitung der Zahlungsdaten gilt die Datenschutzerklärung von Stripe. Weitere Informationen unter stripe.com/privacy.",
+      "paymentText": "Die Zahlungsabwicklung erfolgt über Stripe, Inc. oder PayPal (Europe). Ihre Zahlungsdaten werden direkt an den Zahlungsanbieter übermittelt und nicht auf unseren Servern gespeichert. Weitere Informationen unter stripe.com/privacy oder paypal.com/privacy.",
       "rightsTitle": "Ihre Rechte",
       "rightsText": "Gemäß DSGVO haben Sie folgende Rechte bezüglich Ihrer personenbezogenen Daten:",
       "rightAccess": "Recht auf Auskunft über Ihre personenbezogenen Daten (Art. 15 DSGVO)",

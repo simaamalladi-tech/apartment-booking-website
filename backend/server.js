@@ -157,10 +157,11 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
   }
 });
 
-// Config endpoint - return Stripe publishable key
+// Config endpoint - return payment keys
 app.get('/api/config', (req, res) => {
   res.json({
-    stripePublishableKey: process.env.VITE_STRIPE_PUBLISHABLE_KEY || ''
+    stripePublishableKey: process.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
+    paypalClientId: process.env.PAYPAL_CLIENT_ID || '',
   });
 });
 

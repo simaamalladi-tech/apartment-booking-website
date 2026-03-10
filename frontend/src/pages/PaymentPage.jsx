@@ -1,53 +1,118 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { useTranslation } from 'react-i18next';
 import PaymentForm from '../components/PaymentForm';
 import './PaymentPage.css';
 
 let stripePromise = null;
 
-// Fetch Stripe key from backend
-const fetchStripeKey = async () => {
+// Fetch config from backend
+const fetchConfig = async () => {
   try {
     const res = await fetch('/api/config');
     const data = await res.json();
+    const config = { stripeKey: '', paypalClientId: '' };
     if (data.stripePublishableKey) {
-      console.log('Stripe key loaded from backend');
       stripePromise = loadStripe(data.stripePublishableKey);
-      return stripePromise;
-    } else {
-      console.warn('Stripe publishable key not configured');
-      return null;
+      config.stripeKey = data.stripePublishableKey;
     }
+    if (data.paypalClientId) {
+      config.paypalClientId = data.paypalClientId;
+    }
+    return config;
   } catch (err) {
-    console.error('Error fetching Stripe config:', err);
-    return null;
+    console.error('Error fetching payment config:', err);
+    return { stripeKey: '', paypalClientId: '' };
   }
-};
-
-// Initialize on first load
-const initStripe = () => {
-  if (!stripePromise) {
-    return fetchStripeKey();
-  }
-  return Promise.resolve(stripePromise);
 };
 
 function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
   const { t } = useTranslation();
   const [stripe, setStripe] = useState(null);
+  const [paypalClientId, setPaypalClientId] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('stripe');
   const [error, setError] = useState(null);
+  const [paypalProcessing, setPaypalProcessing] = useState(false);
+  const [paypalSuccess, setPaypalSuccess] = useState(false);
+  const [configLoaded, setConfigLoaded] = useState(false);
 
   useEffect(() => {
-    initStripe().then(stripeInstance => {
-      if (stripeInstance) {
-        setStripe(stripeInstance);
-      } else {
+    fetchConfig().then(config => {
+      if (config.stripeKey && stripePromise) {
+        stripePromise.then(s => setStripe(s));
+      }
+      if (config.paypalClientId) {
+        setPaypalClientId(config.paypalClientId);
+      }
+      // Default to whichever is available
+      if (!config.stripeKey && config.paypalClientId) {
+        setPaymentMethod('paypal');
+      }
+      if (!config.stripeKey && !config.paypalClientId) {
         setError(t('payment.systemUnavailable'));
       }
+      setConfigLoaded(true);
     });
   }, []);
+
+  const hasStripe = !!stripe;
+  const hasPaypal = !!paypalClientId;
+
+  const handlePaypalCreateOrder = async () => {
+    try {
+      const res = await fetch('/api/payments/paypal/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingData,
+          email: bookingData.user?.email || '',
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        return data.orderID;
+      } else {
+        setError(data.message || t('payment.error'));
+        throw new Error(data.message);
+      }
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const handlePaypalApprove = async (data) => {
+    setPaypalProcessing(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/payments/paypal/capture-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderID: data.orderID,
+          bookingData,
+          email: bookingData.user?.email || '',
+        }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setPaypalSuccess(true);
+        setTimeout(() => {
+          onPaymentSuccess({
+            bookingId: result.bookingId,
+            paymentId: result.paymentId,
+          });
+        }, 1500);
+      } else {
+        setError(result.message || t('payment.error'));
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+    setPaypalProcessing(false);
+  };
 
   return (
     <div className="payment-page">
@@ -64,15 +129,69 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
           </div>
         )}
 
-        {stripe && (
+        {configLoaded && (hasStripe || hasPaypal) && (
           <div className="payment-grid">
             <div className="payment-form-section">
-              <Elements stripe={stripe}>
-                <PaymentForm 
-                  bookingData={bookingData} 
-                  onSuccess={onPaymentSuccess}
-                />
-              </Elements>
+              {/* Payment method toggle */}
+              {hasStripe && hasPaypal && (
+                <div className="payment-method-toggle">
+                  <button
+                    type="button"
+                    className={`method-btn ${paymentMethod === 'stripe' ? 'active' : ''}`}
+                    onClick={() => { setPaymentMethod('stripe'); setError(null); }}
+                  >
+                    💳 {t('payment.creditCard')}
+                  </button>
+                  <button
+                    type="button"
+                    className={`method-btn ${paymentMethod === 'paypal' ? 'active' : ''}`}
+                    onClick={() => { setPaymentMethod('paypal'); setError(null); }}
+                  >
+                    {t('payment.paypal')}
+                  </button>
+                </div>
+              )}
+
+              {/* Stripe form */}
+              {paymentMethod === 'stripe' && hasStripe && (
+                <Elements stripe={stripe}>
+                  <PaymentForm 
+                    bookingData={bookingData} 
+                    onSuccess={onPaymentSuccess}
+                  />
+                </Elements>
+              )}
+
+              {/* PayPal buttons */}
+              {paymentMethod === 'paypal' && hasPaypal && (
+                <div className="paypal-section">
+                  {paypalSuccess ? (
+                    <div className="payment-success">
+                      <div className="success-icon">✓</div>
+                      <h2>{t('payment.success')}</h2>
+                      <p>{t('payment.bookingConfirmed')}</p>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="paypal-info">{t('payment.paypalInfo')}</p>
+                      <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'EUR' }}>
+                        <PayPalButtons
+                          style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' }}
+                          createOrder={handlePaypalCreateOrder}
+                          onApprove={handlePaypalApprove}
+                          onError={(err) => { setError(t('payment.error')); console.error('PayPal error:', err); }}
+                          disabled={paypalProcessing}
+                        />
+                      </PayPalScriptProvider>
+                      {paypalProcessing && (
+                        <div className="paypal-processing">
+                          {t('payment.processing')}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="booking-summary-section">
@@ -115,7 +234,7 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
           </div>
         )}
 
-        {!stripe && !error && (
+        {!configLoaded && (
           <div className="loading-payment">
             {t('payment.loadingSystem')}
           </div>
