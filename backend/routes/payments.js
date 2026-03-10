@@ -495,6 +495,14 @@ router.post('/paypal/create-order', async (req, res) => {
       }
     }
 
+    // Derive the site origin for PayPal return/cancel URLs.
+    // Prefer explicit env var, then fall back to the Origin/Referer header.
+    const origin =
+      process.env.PAYPAL_RETURN_BASE_URL ||
+      req.headers.origin ||
+      req.headers.referer?.replace(/\/$/, '') ||
+      'https://apartment-booking-website-production.up.railway.app';
+
     const response = await paypalOrdersController.createOrder({
       body: {
         intent: 'CAPTURE',
@@ -510,6 +518,8 @@ router.post('/paypal/create-order', async (req, res) => {
           landingPage: 'LOGIN',
           userAction: 'PAY_NOW',
           brandName: 'Alt-Berliner Eckkneipe',
+          returnUrl: `${origin}/`,
+          cancelUrl: `${origin}/`,
         },
       },
     });
