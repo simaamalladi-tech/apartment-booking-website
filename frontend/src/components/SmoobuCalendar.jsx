@@ -53,9 +53,12 @@ function SmoobuCalendar() {
     const month = monthDate.getMonth();
     const first = new Date(year, month, 1);
     const last = new Date(year, month + 1, 0);
-    let startDow = first.getDay() - 1;
-    if (startDow < 0) startDow = 6;
+    // Sunday = 0, Monday = 1, ...
+    let startDow = first.getDay();
+    // Adjust so week starts on Monday
+    startDow = (startDow === 0) ? 6 : startDow - 1;
     const days = [];
+    // Fill empty cells for first week
     for (let i = 0; i < startDow; i++) days.push(null);
     for (let d = 1; d <= last.getDate(); d++) {
       const date = new Date(year, month, d);
@@ -69,6 +72,8 @@ function SmoobuCalendar() {
         price: rateInfo?.price || null,
       });
     }
+    // Fill empty cells for last week
+    while (days.length % 7 !== 0) days.push(null);
     return days;
   };
 

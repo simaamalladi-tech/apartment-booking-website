@@ -60,7 +60,8 @@
 .avail-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
+  gap: 4px;
+  margin-bottom: 8px;
   margin-bottom: 2px;
 }
 
@@ -82,7 +83,7 @@
 }
 
 .avail-cell {
-  aspect-ratio: 1;
+  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -93,6 +94,8 @@
   color: #333;
   position: relative;
   transition: background 0.15s;
+  min-width: 32px;
+  min-height: 32px;
 }
 
 .avail-day-num {
@@ -110,6 +113,8 @@
 
 .avail-empty {
   visibility: hidden;
+  pointer-events: none;
+  background: transparent;
 }
 
 .avail-past {
