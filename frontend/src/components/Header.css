@@ -95,6 +95,13 @@
   color: #fff;
 }
 
+.nav-link:focus-visible {
+  color: #fff;
+  outline: 2px solid rgba(255,255,255,0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .nav-link:hover::after {
   width: 70%;
   left: 15%;
@@ -129,6 +136,12 @@
 .book-now-btn:hover {
   background: #fff;
   transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 4px 18px rgba(255, 255, 255, 0.3);
+}
+
+.book-now-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
   box-shadow: 0 4px 18px rgba(255, 255, 255, 0.3);
 }
 

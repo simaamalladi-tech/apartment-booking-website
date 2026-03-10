@@ -134,7 +134,7 @@
 .footer-tagline {
   font-size: 14px;
   line-height: 1.5;
-  color: #aaa;
+  color: #c0c0c0;
   margin: 0;
 }
 
@@ -160,7 +160,7 @@
 
 .footer-rating-text {
   font-size: 13px;
-  color: #aaa;
+  color: #c0c0c0;
 }
 
 /* Links columns */
@@ -187,7 +187,7 @@
 .footer-links ul li button {
   background: none;
   border: none;
-  color: #aaa;
+  color: #c0c0c0;
   font-size: 14px;
   cursor: pointer;
   padding: 0;
@@ -199,8 +199,15 @@
   transform: translateX(4px);
 }
 
+.footer-links ul li button:focus-visible {
+  color: #667eea;
+  outline: 1px solid #667eea;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .footer-links ul li a {
-  color: #aaa;
+  color: #c0c0c0;
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -210,8 +217,18 @@
 }
 
 .footer-contact-list li {
-  color: #aaa;
+  color: #c0c0c0;
   line-height: 1.6;
+}
+
+.footer-contact-list li a {
+  color: #c0c0c0;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-contact-list li a:hover {
+  color: #667eea;
 }
 
 /* Bottom */

@@ -61,8 +61,8 @@ function Footer({ onPageChange, onBookNow }) {
             <h4>{t('footer.contactUs')}</h4>
             <ul className="footer-contact-list">
               <li>📍 Gustav-Adolf-Straße 146A, 13086 Berlin</li>
-              <li>📞 +49 178 348 5970</li>
-              <li>✉️ lutz.richter@gmail.com</li>
+              <li><a href="tel:+491783485970">📞 +49 178 348 5970</a></li>
+              <li><a href="mailto:lutz.richter@gmail.com">✉️ lutz.richter@gmail.com</a></li>
             </ul>
           </div>
 

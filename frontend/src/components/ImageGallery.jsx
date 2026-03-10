@@ -36,15 +36,16 @@ function ImageGallery({ images = [] }) {
           src={galleryImages[currentImageIndex]}
           alt={t('gallery.imageAlt', { number: currentImageIndex + 1 })}
           className="main-image"
+          loading="lazy"
         />
         
         {/* Navigation Arrows */}
         {galleryImages.length > 1 && (
           <>
-            <button className="gallery-nav prev" onClick={prevImage} title={t('gallery.prevImage')}>
+            <button className="gallery-nav prev" onClick={prevImage} aria-label={t('gallery.prevImage')} title={t('gallery.prevImage')}>
               ‹
             </button>
-            <button className="gallery-nav next" onClick={nextImage} title={t('gallery.nextImage')}>
+            <button className="gallery-nav next" onClick={nextImage} aria-label={t('gallery.nextImage')} title={t('gallery.nextImage')}>
               ›
             </button>
           </>
@@ -66,7 +67,7 @@ function ImageGallery({ images = [] }) {
               onClick={() => goToImage(index)}
               title={t('gallery.goToImage', { number: index + 1 })}
             >
-              <img src={image} alt={t('gallery.thumbnail', { number: index + 1 })} />
+              <img src={image} alt={t('gallery.thumbnail', { number: index + 1 })} loading="lazy" />
             </button>
           ))}
         </div>

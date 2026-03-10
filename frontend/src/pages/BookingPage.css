@@ -79,6 +79,9 @@
 .form-group input:focus {
   outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.12);
 }
+.form-group input:focus-visible {
+  outline: 2px solid #667eea; outline-offset: 1px;
+}
 .field-hint { font-size: 0.8rem; color: #999; margin-top: 4px; }
 
 /* Right summary */
@@ -130,6 +133,9 @@
 }
 .continue-btn:active:not(:disabled) {
   transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+}
+.continue-btn:focus-visible {
+  outline: 2px solid #667eea; outline-offset: 2px;
 }
 .continue-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 

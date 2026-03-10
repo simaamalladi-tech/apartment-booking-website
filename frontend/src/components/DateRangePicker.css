@@ -134,7 +134,7 @@
 /* Responsive */
 @media (max-width: 480px) {
   .cal-dropdown { padding: 10px; }
-  .cal-day { font-size: 0.75rem; }
+  .cal-day { font-size: 0.75rem; min-height: 44px; min-width: 44px; }
   .cal-day-price { font-size: 0.45rem; }
   .cal-month-label { font-size: 0.95rem; }
   .drp-labels { flex-direction: column; gap: 8px; }

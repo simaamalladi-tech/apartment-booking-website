@@ -111,7 +111,7 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
             {/* Property card */}
             <div className="apartment-summary">
               {heroImage ? (
-                <img src={heroImage} alt={apartment.title} className="summary-image" />
+                <img src={heroImage} alt={apartment.title} className="summary-image" loading="lazy" />
               ) : (
                 <div className="summary-image-placeholder">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -206,7 +206,7 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
                 <strong>€{totalPrice}</strong>
               </div>
 
-              {error && <div className="booking-error">{error}</div>}
+              {error && <div className="booking-error" role="alert" aria-live="assertive">⚠️ {error}</div>}
 
               <button
                 type="button"
