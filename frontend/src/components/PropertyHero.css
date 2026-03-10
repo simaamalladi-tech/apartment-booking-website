@@ -979,4 +979,16 @@
     padding: 12px 22px;
     font-size: 14px;
   }
+
+  .inline-cta {
+    flex-direction: column;
+    text-align: center;
+    padding: 18px 20px;
+    gap: 14px;
+  }
+
+  .inline-cta-btn {
+    width: 100%;
+    padding: 12px 20px;
+  }
 }
