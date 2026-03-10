@@ -1,6 +1,7 @@
 .date-range-picker {
   margin-bottom: 1.5rem;
   position: relative;
+  z-index: 50;
 }
 
 /* Labels row */
@@ -31,7 +32,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 9999;
   margin-top: 8px;
   background: white;
   border: 2px solid #e0e0e0;
