@@ -1,56 +1,87 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import './Header.css';
 
 function Header({ currentPage, onPageChange, onBookNow, scrolled, hidden }) {
   const { t, i18n } = useTranslation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     localStorage.setItem('language', lng);
   };
 
+  const handleNav = useCallback((page) => {
+    onPageChange(page);
+    setMenuOpen(false);
+  }, [onPageChange]);
+
+  const handleBook = useCallback(() => {
+    onBookNow();
+    setMenuOpen(false);
+  }, [onBookNow]);
+
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth > 768) setMenuOpen(false); };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
+
   return (
     <header className={`header ${scrolled ? 'header-scrolled' : ''} ${hidden ? 'header-hidden' : ''}`}>
+      {/* Overlay for mobile menu */}
+      {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)} />}
+
       <div className="header-container">
-        <div className="logo" onClick={() => onPageChange('home')} style={{ cursor: 'pointer' }}>
+        <div className="logo" onClick={() => handleNav('home')} style={{ cursor: 'pointer' }}>
           <img src="/logo.svg" alt="Alt-Berliner Eckkneipe" className="logo-img" />
         </div>
 
-        <div className="header-right">
+        {/* Hamburger button — mobile only */}
+        <button
+          className={`hamburger ${menuOpen ? 'open' : ''}`}
+          onClick={() => setMenuOpen(prev => !prev)}
+          aria-label="Toggle menu"
+        >
+          <span /><span /><span />
+        </button>
+
+        <div className={`header-right ${menuOpen ? 'menu-open' : ''}`}>
           <nav className="nav">
-            <button 
-              className={`nav-btn ${currentPage === 'home' ? 'active' : ''}`}
-              onClick={() => onPageChange('home')}
+            <button
+              className={`nav-link ${currentPage === 'home' ? 'active' : ''}`}
+              onClick={() => handleNav('home')}
             >
               {t('nav.home')}
             </button>
-            <button 
-              className={`nav-btn ${currentPage === 'contact' ? 'active' : ''}`}
-              onClick={() => onPageChange('contact')}
+            <button
+              className={`nav-link ${currentPage === 'contact' ? 'active' : ''}`}
+              onClick={() => handleNav('contact')}
             >
               {t('nav.contact')}
             </button>
-            <button
-              className="nav-btn book-now-btn"
-              onClick={onBookNow}
-            >
+            <button className="book-now-btn" onClick={handleBook}>
               {t('nav.bookNow')}
             </button>
           </nav>
 
-          <div className="language-selector">
-            <button 
+          <div className="lang-toggle">
+            <button
               className={i18n.language === 'en' ? 'active' : ''}
               onClick={() => changeLanguage('en')}
-              title="English"
             >
               EN
             </button>
-            <button 
+            <button
               className={i18n.language === 'de' ? 'active' : ''}
               onClick={() => changeLanguage('de')}
-              title="Deutsch"
             >
               DE
             </button>
