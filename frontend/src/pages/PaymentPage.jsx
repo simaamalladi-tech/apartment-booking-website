@@ -13,7 +13,7 @@ const fetchConfig = async () => {
   try {
     const res = await fetch('/api/config');
     const data = await res.json();
-    const config = { stripeKey: '', paypalClientId: '' };
+    const config = { stripeKey: '', paypalClientId: '', paypalMode: 'sandbox' };
     if (data.stripePublishableKey) {
       stripePromise = loadStripe(data.stripePublishableKey);
       config.stripeKey = data.stripePublishableKey;
@@ -21,14 +21,17 @@ const fetchConfig = async () => {
     if (data.paypalClientId) {
       config.paypalClientId = data.paypalClientId;
     }
+    if (data.paypalMode) {
+      config.paypalMode = data.paypalMode;
+    }
     return config;
   } catch (err) {
     console.error('Error fetching payment config:', err);
-    return { stripeKey: '', paypalClientId: '' };
+    return { stripeKey: '', paypalClientId: '', paypalMode: 'sandbox' };
   }
 };
 
-function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, paypalClientId, configLoaded }) {
+function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, paypalClientId, paypalMode, configLoaded }) {
   const { t } = useTranslation();
   const [error, setError] = useState(null);
   const [paypalProcessing, setPaypalProcessing] = useState(false);
@@ -122,6 +125,14 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
               {/* PayPal section FIRST — above credit card */}
               {hasPaypal && (
                 <div className="paypal-section">
+                  {paypalMode !== 'live' && (
+                    <div className="paypal-sandbox-note">
+                      {t(
+                        'payment.paypalSandboxHint',
+                        'Sandbox mode: please log in with a PayPal Sandbox Personal (buyer) account. Using a real email or business account may show card checkout only.'
+                      )}
+                    </div>
+                  )}
                   {paypalSuccess ? (
                     <div className="payment-success">
                       <div className="success-icon">✓</div>
@@ -217,9 +228,9 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
 }
 
 function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
-  const { t } = useTranslation();
   const [stripe, setStripe] = useState(null);
   const [paypalClientId, setPaypalClientId] = useState('');
+  const [paypalMode, setPaypalMode] = useState('sandbox');
   const [configLoaded, setConfigLoaded] = useState(false);
 
   useEffect(() => {
@@ -230,11 +241,20 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
       if (config.paypalClientId) {
         setPaypalClientId(config.paypalClientId);
       }
+      setPaypalMode(config.paypalMode || 'sandbox');
       setConfigLoaded(true);
     });
   }, []);
 
-  const contentProps = { bookingData, onPaymentSuccess, onCancel, stripe, paypalClientId, configLoaded };
+  const contentProps = {
+    bookingData,
+    onPaymentSuccess,
+    onCancel,
+    stripe,
+    paypalClientId,
+    paypalMode,
+    configLoaded,
+  };
 
   const paypalOptions = useMemo(() => ({
     clientId: paypalClientId,
