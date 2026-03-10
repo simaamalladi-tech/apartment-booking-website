@@ -104,18 +104,15 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment
     // Seed apartments on connection
     seedApartments();
 
-    // One-time cleanup: clear all local booking/payment data (Smoobu is source of truth)
-    try {
-      const bookingCount = await Booking.countDocuments();
-      const paymentCount = await Payment.countDocuments();
-      if (bookingCount > 0 || paymentCount > 0) {
-        await Booking.deleteMany({});
-        await Payment.deleteMany({});
-        console.log(`✓ Cleared ${bookingCount} bookings and ${paymentCount} payments from local DB (Smoobu is source of truth)`);
-      }
-    } catch (err) {
-      console.error('Cleanup error:', err.message);
-    }
+    // Start periodic cancellation check for website bookings
+    const { checkSmoobuCancellations } = await import('./routes/smoobu.js');
+    // Run once on startup (after 30s delay), then every 10 minutes
+    setTimeout(() => {
+      checkSmoobuCancellations().catch(err => console.error('Initial cancellation check error:', err.message));
+      setInterval(() => {
+        checkSmoobuCancellations().catch(err => console.error('Cancellation check error:', err.message));
+      }, 10 * 60 * 1000);
+    }, 30000);
   })
   .catch(err => console.log('✗ MongoDB connection error:', err));
 
