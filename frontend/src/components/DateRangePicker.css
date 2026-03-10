@@ -1,49 +1,65 @@
 .date-range-picker {
   margin-bottom: 1.5rem;
+  position: relative;
 }
 
 /* Labels row */
 .drp-labels {
-  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px; margin-bottom: 0;
 }
 .drp-label {
   flex: 1; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 10px;
   padding: 12px 16px; text-align: left; cursor: pointer; transition: all 0.2s;
-  font-family: inherit;
+  font-family: inherit; display: flex; flex-direction: column; position: relative;
 }
-.drp-label:hover { border-color: #b0b8cc; }
-.drp-label-active { border-color: #667eea; background: #f0f4ff; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
-.drp-label-title { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; font-weight: 600; margin-bottom: 4px; }
-.drp-label-value { display: block; font-size: 1rem; font-weight: 700; color: #1a1a2e; }
-.drp-date-input {
-  display: block;
-  width: 100%;
-  border: none;
-  background: transparent;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1a1a2e;
-  font-family: inherit;
-  cursor: pointer;
-  padding: 0;
-  outline: none;
+.drp-label:hover { border-color: #b0b8cc; background: #f0f2f8; }
+.drp-label-active { border-color: #667eea; background: #f0f4ff; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+.drp-label-filled .drp-label-value { color: #1a1a2e; }
+.drp-label-title { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; font-weight: 600; margin-bottom: 4px; }
+.drp-label-value { display: block; font-size: 1rem; font-weight: 700; color: #aaa; }
+.drp-label-icon {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 1.1rem; opacity: 0.4; transition: opacity 0.2s;
 }
-.drp-date-input::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.2s;
-}
-.drp-date-input::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
-}
+.drp-label:hover .drp-label-icon { opacity: 0.7; }
+.drp-label-active .drp-label-icon { opacity: 1; }
 .drp-arrow { color: #ccc; font-size: 1.2rem; font-weight: 700; flex-shrink: 0; }
 
-/* Calendar */
-.cal-container {
-  background: white; border: 2px solid #e9ecef; border-radius: 12px;
-  padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  position: relative;
+/* Dropdown calendar panel */
+.cal-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin-top: 8px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  animation: calDropIn 0.2s ease-out;
 }
+.cal-dropdown-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #eee;
+}
+.cal-dropdown-title {
+  font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: #667eea;
+}
+.cal-dropdown-close {
+  background: none; border: none; font-size: 1.1rem; color: #999;
+  cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;
+}
+.cal-dropdown-close:hover { background: #f0f0f0; color: #333; }
+
+@keyframes calDropIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Calendar (inside dropdown) */
 .cal-header {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
 }
@@ -116,7 +132,7 @@
 
 /* Responsive */
 @media (max-width: 480px) {
-  .cal-container { padding: 14px; }
+  .cal-dropdown { padding: 14px; }
   .cal-day { font-size: 0.8rem; }
   .cal-day-price { font-size: 0.5rem; }
   .cal-month-label { font-size: 0.95rem; }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import './DateRangePicker.css';
 
@@ -14,6 +14,8 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
   const [hoverDate, setHoverDate] = useState(null);
   const [loadingRates, setLoadingRates] = useState(true);
   const [minStayWarning, setMinStayWarning] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const pickerRef = useRef(null);
 
   // Fetch Smoobu rates (primary source of truth for availability + pricing)
   useEffect(() => {
@@ -147,6 +149,7 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
     if (selecting === 'checkIn') {
       onChange(day.dateStr, '');
       setSelecting('checkOut');
+      // Keep dropdown open for checkout selection
     } else {
       // Check-out selection
       if (day.dateStr <= checkIn) {
@@ -166,11 +169,44 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
       const minStay = getMinStay(checkIn);
       if (nights < minStay) {
         setMinStayWarning(t('booking.minStayError', { min: minStay }));
-        return; // don't accept this checkout
+        return;
       }
       onChange(checkIn, day.dateStr);
       setSelecting('checkIn');
+      setDropdownOpen(false); // Close after both dates selected
     }
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownOpen]);
+
+  const openDropdown = useCallback((mode) => {
+    setSelecting(mode);
+    setDropdownOpen(true);
+    setMinStayWarning('');
+    // Navigate to relevant month
+    const dateStr = mode === 'checkIn' ? checkIn : checkOut;
+    if (dateStr) {
+      const d = new Date(dateStr);
+      setCurrentMonth(new Date(d.getFullYear(), d.getMonth(), 1));
+    }
+  }, [checkIn, checkOut]);
+
+  // Format date for display
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   const getDayClass = (day) => {
@@ -186,69 +222,39 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
     return cls;
   };
 
-  const handleCheckInInput = (e) => {
-    const val = e.target.value;
-    if (!val) return;
-    // Validate: not in the past, not booked
-    if (val < todayStr || bookedDates.has(val)) return;
-    onChange(val, '');
-    setSelecting('checkOut');
-    setMinStayWarning('');
-    // Navigate calendar to selected month
-    const d = new Date(val);
-    setCurrentMonth(new Date(d.getFullYear(), d.getMonth(), 1));
-  };
-
-  const handleCheckOutInput = (e) => {
-    const val = e.target.value;
-    if (!val || !checkIn || val <= checkIn) return;
-    // Validate: no booked dates in range
-    if (hasBookedInRange(checkIn, val)) return;
-    // Validate: min stay
-    const nights = calcNights(checkIn, val);
-    const minStay = getMinStay(checkIn);
-    if (nights < minStay) {
-      setMinStayWarning(t('booking.minStayError', { min: minStay }));
-      return;
-    }
-    onChange(checkIn, val);
-    setSelecting('checkIn');
-    setMinStayWarning('');
-  };
-
   return (
-    <div className="date-range-picker">
+    <div className="date-range-picker" ref={pickerRef}>
       <div className="drp-labels">
-        <label
-          className={`drp-label ${selecting === 'checkIn' ? 'drp-label-active' : ''}`}
-          onClick={() => setSelecting('checkIn')}
+        <button
+          type="button"
+          className={`drp-label ${selecting === 'checkIn' && dropdownOpen ? 'drp-label-active' : ''} ${checkIn ? 'drp-label-filled' : ''}`}
+          onClick={() => openDropdown('checkIn')}
         >
           <span className="drp-label-title">{t('booking.checkIn')}</span>
-          <input
-            type="date"
-            className="drp-date-input"
-            value={checkIn}
-            min={todayStr}
-            onChange={handleCheckInInput}
-          />
-        </label>
+          <span className="drp-label-value">{formatDate(checkIn)}</span>
+          <span className="drp-label-icon">📅</span>
+        </button>
         <div className="drp-arrow">→</div>
-        <label
-          className={`drp-label ${selecting === 'checkOut' ? 'drp-label-active' : ''}`}
-          onClick={() => setSelecting('checkOut')}
+        <button
+          type="button"
+          className={`drp-label ${selecting === 'checkOut' && dropdownOpen ? 'drp-label-active' : ''} ${checkOut ? 'drp-label-filled' : ''}`}
+          onClick={() => openDropdown('checkOut')}
         >
           <span className="drp-label-title">{t('booking.checkOut')}</span>
-          <input
-            type="date"
-            className="drp-date-input"
-            value={checkOut}
-            min={checkIn || todayStr}
-            onChange={handleCheckOutInput}
-          />
-        </label>
+          <span className="drp-label-value">{formatDate(checkOut)}</span>
+          <span className="drp-label-icon">📅</span>
+        </button>
       </div>
 
-      <div className="cal-container">
+      {/* Dropdown Calendar */}
+      {dropdownOpen && (
+      <div className="cal-dropdown">
+        <div className="cal-dropdown-header">
+          <span className="cal-dropdown-title">
+            {selecting === 'checkIn' ? t('booking.checkIn') : t('booking.checkOut')}
+          </span>
+          <button type="button" className="cal-dropdown-close" onClick={() => setDropdownOpen(false)}>✕</button>
+        </div>
         <div className="cal-header">
           <button type="button" className="cal-nav" onClick={prevMonth} disabled={!canGoPrev}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -325,6 +331,7 @@ function DateRangePicker({ apartmentId, checkIn, checkOut, onChange, onRatesLoad
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
