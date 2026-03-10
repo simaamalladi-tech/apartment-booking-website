@@ -86,7 +86,7 @@
 
 /* Right summary */
 .booking-summary-side {
-  position: sticky; top: 100px;
+  position: static;
 }
 .booking-summary-card {
   background: white; border-radius: 12px; padding: 24px;
@@ -148,7 +148,6 @@
 /* Responsive */
 @media (max-width: 900px) {
   .booking-layout { grid-template-columns: 1fr; }
-  .booking-summary-side { position: static; }
 }
 @media (max-width: 600px) {
   .booking-page { padding: 1rem; }

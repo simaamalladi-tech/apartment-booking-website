@@ -943,75 +943,40 @@
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-/* ===== Floating Mobile Book Now Bar ===== */
-.floating-cta {
-  display: none;
+/* ===== Floating Book Now Button ===== */
+.floating-book-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 90;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  box-shadow: 0 6px 24px rgba(102, 126, 234, 0.45);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.3px;
 }
 
-@media (max-width: 768px) {
-  .floating-cta {
-    display: block;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 90;
-    background: #fff;
-    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.12);
-    padding: 10px 16px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-  }
+.floating-book-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 10px 32px rgba(102, 126, 234, 0.55);
+}
 
-  .floating-cta-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 600px;
-    margin: 0 auto;
-  }
+.floating-book-btn:active {
+  transform: scale(0.97);
+}
 
-  .floating-cta-price {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .floating-price {
-    font-size: 20px;
-    font-weight: 700;
-    color: #000;
-  }
-
-  .floating-label {
-    font-size: 12px;
-    color: #888;
-  }
-
-  .floating-cta-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    border: none;
-    padding: 12px 32px;
-    border-radius: 24px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: 'Inter', system-ui, sans-serif;
-    transition: transform 0.2s ease;
-  }
-
-  .floating-cta-btn:active {
-    transform: scale(0.96);
-  }
-
-  .inline-cta {
-    flex-direction: column;
-    text-align: center;
-    padding: 18px 20px;
-    gap: 14px;
-  }
-
-  .inline-cta-btn {
-    width: 100%;
-    padding: 12px 20px;
+@media (max-width: 480px) {
+  .floating-book-btn {
+    bottom: 16px;
+    right: 16px;
+    padding: 12px 22px;
+    font-size: 14px;
   }
 }

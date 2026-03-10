@@ -175,17 +175,6 @@ function PropertyHero({ apartment, onBookNow }) {
               <p>{t('property.description')}</p>
             </div>
 
-            {/* Inline CTA #1 */}
-            <div className="inline-cta fade-in-up">
-              <div className="inline-cta-text">
-                <h3>{t('cta.loveIt')}</h3>
-                <p>{t('cta.loveItSub')}</p>
-              </div>
-              <button className="inline-cta-btn" onClick={onBookNow}>
-                {t('cta.checkAvailability')}
-              </button>
-            </div>
-
             {/* Amenities */}
             <div className="amenities-section fade-in-up">
               <h3>{t('property.amenitiesTitle')}</h3>
@@ -204,54 +193,10 @@ function PropertyHero({ apartment, onBookNow }) {
                 <p className="longterm-text">{t('property.longtermText')}</p>
               </div>
             </div>
-
-            {/* Inline CTA #2 */}
-            <div className="inline-cta inline-cta-accent fade-in-up">
-              <div className="inline-cta-text">
-                <h3>{t('cta.dontMiss')}</h3>
-                <p>{t('cta.dontMissSub')}</p>
-              </div>
-              <button className="inline-cta-btn" onClick={onBookNow}>
-                {t('cta.bookNow')}
-              </button>
-            </div>
           </div>
 
-          {/* Right: Booking Card + Sidebar */}
+          {/* Right: Sidebar Info */}
           <div className="booking-card-container fade-in-right">
-            <div className="booking-card-sticky">
-              <div className="booking-card">
-              <h3>{t('property.readyToBook')}</h3>
-              <p className="booking-description">{t('property.bookingCta')}</p>
-              
-              <div className="booking-highlights">
-                <div className="highlight">
-                  <span>✓</span>
-                  <span>{t('property.instantConfirmation')}</span>
-                </div>
-                <div className="highlight">
-                  <span>✓</span>
-                  <span>{t('property.freeCancellation')}</span>
-                </div>
-                <p className="highlight-sub">{t('property.freeCancellationNote')}</p>
-                <div className="highlight">
-                  <span>✓</span>
-                  <span>{t('property.support247')}</span>
-                </div>
-              </div>
-
-              <button className="book-btn" onClick={onBookNow}>
-                {t('apartments.bookNow')}
-              </button>
-
-              <p className="booking-info">
-                💳 {t('property.securePayment')}<br/>
-                🔒 {t('property.safeProtected')}<br/>
-                📧 {t('property.emailConfirmation')}
-              </p>
-            </div>
-            </div>{/* end booking-card-sticky */}
-
             {/* Neighborhood Highlights */}
             <div className="sidebar-card neighborhood-card fade-in-up">
               <h3>📍 {t('property.neighborhoodTitle')}</h3>
@@ -339,18 +284,10 @@ function PropertyHero({ apartment, onBookNow }) {
         </div>
       </div>
 
-      {/* Floating mobile Book Now bar */}
-      <div className="floating-cta">
-        <div className="floating-cta-inner">
-          <div className="floating-cta-price">
-            <span className="floating-price">{startingPrice ? `€${displayPrice}` : `€${displayPrice}`}</span>
-            <span className="floating-label">{t('apartments.price')}</span>
-          </div>
-          <button className="floating-cta-btn" onClick={onBookNow}>
-            {t('cta.bookNow')}
-          </button>
-        </div>
-      </div>
+      {/* Floating Book Now Button */}
+      <button className="floating-book-btn" onClick={onBookNow} aria-label={t('cta.bookNow')}>
+        {t('cta.bookNow')} →
+      </button>
     </div>
   );
 }
