@@ -15,6 +15,9 @@ const SMOOBU_BASE_URL = 'https://login.smoobu.com';
 // Simple in-memory cache for rates (5-minute TTL)
 let ratesCache = { data: null, expiry: 0 };
 
+// Simple in-memory cache for apartment details (1-hour TTL)
+let apartmentCache = { data: null, expiry: 0 };
+
 // Helper: make authenticated request to Smoobu API
 async function smoobuFetch(url, options = {}) {
   if (!SMOOBU_API_KEY) {
@@ -133,7 +136,17 @@ router.post('/check-availability', async (req, res) => {
 // Returns apartment details from Smoobu
 router.get('/apartment', async (req, res) => {
   try {
+    const now = Date.now();
+    // Return cached data if still fresh (1 hour)
+    if (apartmentCache.data && apartmentCache.expiry > now) {
+      return res.json(apartmentCache.data);
+    }
+
     const data = await smoobuFetch(`${SMOOBU_BASE_URL}/api/apartments/${SMOOBU_APARTMENT_ID}`);
+
+    // Cache for 1 hour
+    apartmentCache = { data, expiry: now + 60 * 60 * 1000 };
+
     res.json(data);
   } catch (error) {
     console.error('Error fetching Smoobu apartment:', error.message);

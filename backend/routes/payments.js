@@ -158,9 +158,12 @@ router.post('/create-payment-intent', async (req, res) => {
 
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
 
-    // ─── SERVER-SIDE AVAILABILITY CHECK via Smoobu ───
+    // ─── SERVER-SIDE AVAILABILITY CHECK + PRICE CALCULATION via Smoobu ───
+    // Single API call for both availability and pricing
     const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
     const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+    let calculatedPrice = nights * apartment.price; // fallback
+
     if (SMOOBU_API_KEY) {
       try {
         const startStr = bookingData.checkIn;
@@ -172,15 +175,26 @@ router.post('/create-payment-intent', async (req, res) => {
         if (ratesRes.ok) {
           const ratesData = await ratesRes.json();
           const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
-          // Check every night for availability
+
+          // Check availability AND calculate price in one pass
           const unavailableDates = [];
+          let smoobuTotal = 0;
+          let daysWithRate = 0;
           for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
             const dateStr = d.toISOString().split('T')[0];
             const rate = apartmentRates[dateStr];
             if (rate && !rate.available) {
               unavailableDates.push(dateStr);
             }
+            if (rate && rate.price) {
+              smoobuTotal += rate.price;
+              daysWithRate++;
+            } else {
+              smoobuTotal += apartment.price;
+            }
           }
+
+          // Reject if dates are unavailable
           if (unavailableDates.length > 0) {
             console.warn('Booking rejected: dates unavailable on Smoobu:', unavailableDates);
             return res.status(409).json({
@@ -189,45 +203,16 @@ router.post('/create-payment-intent', async (req, res) => {
               unavailableDates,
             });
           }
-        }
-      } catch (err) {
-        console.error('Smoobu availability check failed:', err.message);
-        // Continue with payment — availability check is best-effort
-      }
-    }
 
-    // ─── SERVER-SIDE PRICE CALCULATION via Smoobu ───
-    let calculatedPrice = nights * apartment.price; // fallback
-    if (SMOOBU_API_KEY) {
-      try {
-        const startStr = bookingData.checkIn;
-        const endStr = bookingData.checkOut;
-        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${startStr}&end_date=${endStr}`;
-        const ratesRes = await fetch(ratesUrl, {
-          headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
-        });
-        if (ratesRes.ok) {
-          const ratesData = await ratesRes.json();
-          const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
-          let smoobuTotal = 0;
-          let daysWithRate = 0;
-          for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
-            const dateStr = d.toISOString().split('T')[0];
-            const rate = apartmentRates[dateStr];
-            if (rate && rate.price) {
-              smoobuTotal += rate.price;
-              daysWithRate++;
-            } else {
-              smoobuTotal += apartment.price;
-            }
-          }
+          // Use Smoobu price if available
           if (daysWithRate > 0) {
             calculatedPrice = smoobuTotal;
             console.log(`Smoobu pricing: ${daysWithRate}/${nights} days with rate, total: €${calculatedPrice}`);
           }
         }
       } catch (err) {
-        console.error('Smoobu rate fetch for payment failed, using base price:', err.message);
+        console.error('Smoobu availability/price check failed:', err.message);
+        // Continue with fallback price — check is best-effort
       }
     }
 

@@ -111,7 +111,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment
       checkSmoobuCancellations().catch(err => console.error('Initial cancellation check error:', err.message));
       setInterval(() => {
         checkSmoobuCancellations().catch(err => console.error('Cancellation check error:', err.message));
-      }, 10 * 60 * 1000);
+      }, 30 * 60 * 1000);
     }, 30000);
   })
   .catch(err => console.log('✗ MongoDB connection error:', err));
