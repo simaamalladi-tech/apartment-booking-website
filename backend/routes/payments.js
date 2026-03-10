@@ -1,7 +1,8 @@
 import express from 'express';
 import Stripe from 'stripe';
-import paypalSdk from '@paypal/paypal-server-sdk';
-const { Client, Environment, OrdersController } = paypalSdk;
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { Client, Environment, OrdersController } = require('@paypal/paypal-server-sdk');
 import Payment from '../models/Payment.js';
 import Booking from '../models/Booking.js';
 import Apartment from '../models/Apartment.js';
