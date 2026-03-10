@@ -53,6 +53,25 @@
   appearance: auto;
 }
 
+/* Field-level validation errors */
+.form-group.has-error input,
+.form-group.has-error select {
+  border-color: #dc3545;
+}
+
+.form-group.has-error input:focus,
+.form-group.has-error select:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 5px rgba(220, 53, 69, 0.4);
+}
+
+.field-error {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
 .form-group input:disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;

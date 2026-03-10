@@ -125,6 +125,7 @@
     "selectDates": "Select Your Dates",
     "guestDetails": "Guest Information",
     "nameRequired": "Please enter your full name.",
+    "nameTooShort": "Name must be at least 2 characters.",
     "emailRequired": "Please enter a valid email address.",
     "phone": "Phone Number",
     "maxGuests": "Max {{max}} guests",
@@ -157,7 +158,16 @@
     "creditCard": "Credit Card",
     "paypal": "PayPal",
     "paypalInfo": "You will be redirected to PayPal to complete your payment securely.",
-    "or": "or"
+    "or": "or",
+    "validation": {
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email address.",
+      "nameRequired": "Full name is required.",
+      "nameTooShort": "Name must be at least 2 characters.",
+      "addressRequired": "Street address is required.",
+      "cityRequired": "City is required.",
+      "zipRequired": "Zip code is required."
+    }
   },
   "contact": {
     "title": "Contact Us",

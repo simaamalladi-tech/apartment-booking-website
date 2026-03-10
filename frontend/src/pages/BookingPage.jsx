@@ -12,6 +12,7 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [smoobuRates, setSmoobuRates] = useState({});
 
   const handleRatesLoaded = useCallback((rates) => {
@@ -62,29 +63,46 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
 
   const handleBook = () => {
     setError('');
+    const errors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!name.trim()) {
-      setError(t('booking.nameRequired'));
-      return;
+      errors.name = t('booking.nameRequired');
+    } else if (name.trim().length < 2) {
+      errors.name = t('booking.nameTooShort', 'Name must be at least 2 characters.');
     }
-    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) {
-      setError(t('booking.emailRequired'));
-      return;
+
+    if (!email.trim()) {
+      errors.email = t('booking.emailRequired');
+    } else if (!emailRegex.test(email)) {
+      errors.email = t('booking.emailRequired');
     }
+
     if (!checkIn || !checkOut || nights <= 0) {
-      setError(t('booking.invalidDates'));
-      return;
+      errors.dates = t('booking.invalidDates');
     }
+
     // Enforce minimum stay from Smoobu
     const checkInRate = smoobuRates[checkIn];
     const minStay = checkInRate?.minStay || 1;
-    if (nights < minStay) {
-      setError(t('booking.minStayError', { min: minStay }));
+    if (checkIn && checkOut && nights > 0 && nights < minStay) {
+      errors.dates = t('booking.minStayError', { min: minStay });
+    }
+
+    if (guests < 1) {
+      errors.guests = t('booking.guestLimit', { max: apartment.maxGuests });
+    } else if (guests > apartment.maxGuests) {
+      errors.guests = t('booking.guestLimit', { max: apartment.maxGuests });
+    }
+
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      // Show the first error in the main error spot too
+      setError(Object.values(errors)[0]);
       return;
     }
-    if (guests > apartment.maxGuests) {
-      setError(t('booking.guestLimit', { max: apartment.maxGuests }));
-      return;
-    }
+
     onBookingComplete({
       apartment, checkIn, checkOut, guests,
       nights, totalPrice,
@@ -143,13 +161,15 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
             <div className="form-section-title">{t('booking.guestDetails')}</div>
             <form className="booking-form" onSubmit={(e) => e.preventDefault()}>
               <div className="form-row-2">
-                <div className="form-group">
+                <div className={`form-group ${fieldErrors.name ? 'has-error' : ''}`}>
                   <label>{t('payment.name')} *</label>
-                  <input type="text" value={name} onChange={(e) => { setName(e.target.value); setError(''); }} required placeholder={t('contact.nameField')} />
+                  <input type="text" value={name} onChange={(e) => { setName(e.target.value); setError(''); setFieldErrors(p => ({ ...p, name: '' })); }} placeholder={t('contact.nameField')} />
+                  {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
                 </div>
-                <div className="form-group">
+                <div className={`form-group ${fieldErrors.email ? 'has-error' : ''}`}>
                   <label>{t('payment.email')} *</label>
-                  <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(''); }} required placeholder={t('contact.emailField')} />
+                  <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(''); setFieldErrors(p => ({ ...p, email: '' })); }} placeholder={t('contact.emailField')} />
+                  {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
                 </div>
               </div>
               <div className="form-row-2">
@@ -157,10 +177,11 @@ function BookingPage({ apartment, onBookingComplete, onCancel }) {
                   <label>{t('booking.phone')}</label>
                   <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+49 30 ..." />
                 </div>
-                <div className="form-group">
-                  <label>{t('booking.guests')}</label>
-                  <input type="number" value={guests} onChange={(e) => { setGuests(parseInt(e.target.value) || 1); setError(''); }} min="1" max={apartment.maxGuests} required />
+                <div className={`form-group ${fieldErrors.guests ? 'has-error' : ''}`}>
+                  <label>{t('booking.guests')} *</label>
+                  <input type="number" value={guests} onChange={(e) => { const v = parseInt(e.target.value) || 1; setGuests(Math.min(Math.max(v, 1), apartment.maxGuests)); setError(''); setFieldErrors(p => ({ ...p, guests: '' })); }} min="1" max={apartment.maxGuests} />
                   <span className="field-hint">{t('booking.maxGuests', { max: apartment.maxGuests })}</span>
+                  {fieldErrors.guests && <span className="field-error">{fieldErrors.guests}</span>}
                 </div>
               </div>
             </form>

@@ -10,6 +10,8 @@ function PaymentForm({ bookingData, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [formData, setFormData] = useState({
     email: bookingData?.user?.email || '',
     name: bookingData?.user?.name || '',
@@ -19,26 +21,68 @@ function PaymentForm({ bookingData, onSuccess }) {
     country: 'Germany'
   });
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'email':
+        if (!value.trim()) return t('payment.validation.emailRequired', 'Email is required.');
+        if (!emailRegex.test(value)) return t('payment.validation.emailInvalid', 'Please enter a valid email.');
+        return '';
+      case 'name':
+        if (!value.trim()) return t('payment.validation.nameRequired', 'Full name is required.');
+        if (value.trim().length < 2) return t('payment.validation.nameTooShort', 'Name must be at least 2 characters.');
+        return '';
+      case 'address':
+        if (!value.trim()) return t('payment.validation.addressRequired', 'Street address is required.');
+        return '';
+      case 'city':
+        if (!value.trim()) return t('payment.validation.cityRequired', 'City is required.');
+        return '';
+      case 'zipCode':
+        if (!value.trim()) return t('payment.validation.zipRequired', 'Zip code is required.');
+        return '';
+      default:
+        return '';
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (touched[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    setFieldErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+  };
+
+  const validateAll = () => {
+    const errors = {};
+    for (const [key, value] of Object.entries(formData)) {
+      if (key === 'country') continue;
+      const err = validateField(key, value);
+      if (err) errors[key] = err;
+    }
+    setFieldErrors(errors);
+    setTouched({ email: true, name: true, address: true, city: true, zipCode: true });
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
-    if (!stripe || !elements) {
-      return;
-    }
+    if (!validateAll()) return;
+    if (!stripe || !elements) return;
 
     setLoading(true);
 
     try {
-      // Create payment method
       const { error: methodError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
         card: elements.getElement(CardElement),
@@ -60,12 +104,9 @@ function PaymentForm({ bookingData, onSuccess }) {
         return;
       }
 
-      // Call backend to create payment intent
       const response = await fetch('/api/payments/create-payment-intent', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bookingData: bookingData,
           paymentMethodId: paymentMethod.id,
@@ -104,34 +145,36 @@ function PaymentForm({ bookingData, onSuccess }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="payment-form">
+    <form onSubmit={handleSubmit} className="payment-form" noValidate>
       <div className="form-section">
         <h3>{t('payment.cardInfo')}</h3>
 
-        <div className="form-group">
-          <label>{t('payment.email')}</label>
+        <div className={`form-group ${fieldErrors.email && touched.email ? 'has-error' : ''}`}>
+          <label>{t('payment.email')} *</label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            required
+            onBlur={handleBlur}
           />
+          {fieldErrors.email && touched.email && <span className="field-error">{fieldErrors.email}</span>}
         </div>
 
-        <div className="form-group">
-          <label>{t('payment.name')}</label>
+        <div className={`form-group ${fieldErrors.name && touched.name ? 'has-error' : ''}`}>
+          <label>{t('payment.name')} *</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleInputChange}
-            required
+            onBlur={handleBlur}
           />
+          {fieldErrors.name && touched.name && <span className="field-error">{fieldErrors.name}</span>}
         </div>
 
         <div className="form-group">
-          <label>{t('payment.cardInfo')}</label>
+          <label>{t('payment.cardInfo')} *</label>
           <CardElement
             options={{
               style: {
@@ -154,48 +197,50 @@ function PaymentForm({ bookingData, onSuccess }) {
       <div className="form-section">
         <h3>{t('payment.billingAddress')}</h3>
 
-        <div className="form-group">
-          <label>{t('payment.address')}</label>
+        <div className={`form-group ${fieldErrors.address && touched.address ? 'has-error' : ''}`}>
+          <label>{t('payment.address')} *</label>
           <input
             type="text"
             name="address"
             value={formData.address}
             onChange={handleInputChange}
-            required
+            onBlur={handleBlur}
           />
+          {fieldErrors.address && touched.address && <span className="field-error">{fieldErrors.address}</span>}
         </div>
 
         <div className="form-row">
-          <div className="form-group">
-            <label>{t('payment.city')}</label>
+          <div className={`form-group ${fieldErrors.city && touched.city ? 'has-error' : ''}`}>
+            <label>{t('payment.city')} *</label>
             <input
               type="text"
               name="city"
               value={formData.city}
               onChange={handleInputChange}
-              required
+              onBlur={handleBlur}
             />
+            {fieldErrors.city && touched.city && <span className="field-error">{fieldErrors.city}</span>}
           </div>
 
-          <div className="form-group">
-            <label>{t('payment.zipCode')}</label>
+          <div className={`form-group ${fieldErrors.zipCode && touched.zipCode ? 'has-error' : ''}`}>
+            <label>{t('payment.zipCode')} *</label>
             <input
               type="text"
               name="zipCode"
               value={formData.zipCode}
               onChange={handleInputChange}
-              required
+              onBlur={handleBlur}
             />
+            {fieldErrors.zipCode && touched.zipCode && <span className="field-error">{fieldErrors.zipCode}</span>}
           </div>
         </div>
 
         <div className="form-group">
-          <label>{t('payment.country')}</label>
+          <label>{t('payment.country')} *</label>
           <select
             name="country"
             value={formData.country}
             onChange={handleInputChange}
-            required
             className="country-select"
           >
             <option value="Germany">Germany</option>

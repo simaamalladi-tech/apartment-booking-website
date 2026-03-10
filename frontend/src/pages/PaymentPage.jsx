@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons, FUNDING } from '@paypal/react-paypal-js';
@@ -28,35 +28,18 @@ const fetchConfig = async () => {
   }
 };
 
-function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
+function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, paypalClientId, configLoaded }) {
   const { t } = useTranslation();
-  const [stripe, setStripe] = useState(null);
-  const [paypalClientId, setPaypalClientId] = useState('');
   const [error, setError] = useState(null);
   const [paypalProcessing, setPaypalProcessing] = useState(false);
   const [paypalSuccess, setPaypalSuccess] = useState(false);
-  const [configLoaded, setConfigLoaded] = useState(false);
-
-  useEffect(() => {
-    fetchConfig().then(config => {
-      if (config.stripeKey && stripePromise) {
-        stripePromise.then(s => setStripe(s));
-      }
-      if (config.paypalClientId) {
-        setPaypalClientId(config.paypalClientId);
-      }
-      if (!config.stripeKey && !config.paypalClientId) {
-        setError(t('payment.systemUnavailable'));
-      }
-      setConfigLoaded(true);
-    });
-  }, []);
 
   const hasStripe = !!stripe;
   const hasPaypal = !!paypalClientId;
 
-  const handlePaypalCreateOrder = async () => {
+  const handlePaypalCreateOrder = useCallback(async () => {
     try {
+      setError(null);
       const res = await fetch('/api/payments/paypal/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -76,9 +59,9 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
       setError(err.message);
       throw err;
     }
-  };
+  }, [bookingData, t]);
 
-  const handlePaypalApprove = async (data) => {
+  const handlePaypalApprove = useCallback(async (data) => {
     setPaypalProcessing(true);
     setError(null);
     try {
@@ -107,7 +90,12 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
       setError(err.message);
     }
     setPaypalProcessing(false);
-  };
+  }, [bookingData, onPaymentSuccess, t]);
+
+  const handlePaypalError = useCallback((err) => {
+    setError(t('payment.error'));
+    console.error('PayPal error:', err);
+  }, [t]);
 
   return (
     <div className="payment-page">
@@ -127,20 +115,9 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
         {configLoaded && (hasStripe || hasPaypal) && (
           <div className="payment-grid">
             <div className="payment-form-section">
-              {/* Credit card form */}
-              {hasStripe && (
-                <Elements stripe={stripe}>
-                  <PaymentForm 
-                    bookingData={bookingData} 
-                    onSuccess={onPaymentSuccess}
-                  />
-                </Elements>
-              )}
-
-              {/* PayPal section below credit card */}
+              {/* PayPal section FIRST — above credit card */}
               {hasPaypal && (
                 <div className="paypal-section">
-                  {hasStripe && <div className="payment-divider"><span>{t('payment.or', 'or')}</span></div>}
                   {paypalSuccess ? (
                     <div className="payment-success">
                       <div className="success-icon">✓</div>
@@ -149,16 +126,15 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
                     </div>
                   ) : (
                     <>
-                      <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'EUR', disableFunding: 'card,credit' }}>
-                        <PayPalButtons
-                          fundingSource={FUNDING.PAYPAL}
-                          style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' }}
-                          createOrder={handlePaypalCreateOrder}
-                          onApprove={handlePaypalApprove}
-                          onError={(err) => { setError(t('payment.error')); console.error('PayPal error:', err); }}
-                          disabled={paypalProcessing}
-                        />
-                      </PayPalScriptProvider>
+                      <PayPalButtons
+                        fundingSource={FUNDING.PAYPAL}
+                        style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' }}
+                        createOrder={handlePaypalCreateOrder}
+                        onApprove={handlePaypalApprove}
+                        onError={handlePaypalError}
+                        disabled={paypalProcessing}
+                        forceReRender={[bookingData.totalPrice]}
+                      />
                       {paypalProcessing && (
                         <div className="paypal-processing">
                           {t('payment.processing')}
@@ -167,6 +143,21 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
                     </>
                   )}
                 </div>
+              )}
+
+              {/* Divider between PayPal and credit card */}
+              {hasStripe && hasPaypal && (
+                <div className="payment-divider"><span>{t('payment.or', 'or')}</span></div>
+              )}
+
+              {/* Credit card form BELOW PayPal */}
+              {hasStripe && (
+                <Elements stripe={stripe}>
+                  <PaymentForm 
+                    bookingData={bookingData} 
+                    onSuccess={onPaymentSuccess}
+                  />
+                </Elements>
               )}
             </div>
 
@@ -218,6 +209,40 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
       </div>
     </div>
   );
+}
+
+function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
+  const { t } = useTranslation();
+  const [stripe, setStripe] = useState(null);
+  const [paypalClientId, setPaypalClientId] = useState('');
+  const [configLoaded, setConfigLoaded] = useState(false);
+
+  useEffect(() => {
+    fetchConfig().then(config => {
+      if (config.stripeKey && stripePromise) {
+        stripePromise.then(s => setStripe(s));
+      }
+      if (config.paypalClientId) {
+        setPaypalClientId(config.paypalClientId);
+      }
+      setConfigLoaded(true);
+    });
+  }, []);
+
+  const contentProps = { bookingData, onPaymentSuccess, onCancel, stripe, paypalClientId, configLoaded };
+
+  // Wrap in PayPalScriptProvider once clientId is available — never unmounts
+  if (paypalClientId) {
+    return (
+      <PayPalScriptProvider
+        options={{ clientId: paypalClientId, currency: 'EUR', disableFunding: 'card,credit' }}
+      >
+        <PaymentPageContent {...contentProps} />
+      </PayPalScriptProvider>
+    );
+  }
+
+  return <PaymentPageContent {...contentProps} />;
 }
 
 export default PaymentPage;
