@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons, FUNDING } from '@paypal/react-paypal-js';
@@ -97,6 +97,10 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
     console.error('PayPal error:', err);
   }, [t]);
 
+  const handlePaypalCancel = useCallback(() => {
+    setPaypalProcessing(false);
+  }, []);
+
   return (
     <div className="payment-page">
       <div className="payment-container">
@@ -132,6 +136,7 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
                         createOrder={handlePaypalCreateOrder}
                         onApprove={handlePaypalApprove}
                         onError={handlePaypalError}
+                        onCancel={handlePaypalCancel}
                         disabled={paypalProcessing}
                         forceReRender={[bookingData.totalPrice]}
                       />
@@ -231,12 +236,18 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
 
   const contentProps = { bookingData, onPaymentSuccess, onCancel, stripe, paypalClientId, configLoaded };
 
+  const paypalOptions = useMemo(() => ({
+    clientId: paypalClientId,
+    currency: 'EUR',
+    intent: 'capture',
+    components: 'buttons',
+    disableFunding: 'card,credit',
+  }), [paypalClientId]);
+
   // Wrap in PayPalScriptProvider once clientId is available — never unmounts
   if (paypalClientId) {
     return (
-      <PayPalScriptProvider
-        options={{ clientId: paypalClientId, currency: 'EUR', disableFunding: 'card,credit' }}
-      >
+      <PayPalScriptProvider options={paypalOptions}>
         <PaymentPageContent {...contentProps} />
       </PayPalScriptProvider>
     );

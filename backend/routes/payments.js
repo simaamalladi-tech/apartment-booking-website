@@ -505,6 +505,11 @@ router.post('/paypal/create-order', async (req, res) => {
           },
           description: `Booking: ${checkIn.toISOString().split('T')[0]} – ${checkOut.toISOString().split('T')[0]} (${nights} nights)`,
         }],
+        applicationContext: {
+          shippingPreference: 'NO_SHIPPING',
+          userAction: 'PAY_NOW',
+          brandName: 'Alt-Berliner Eckkneipe',
+        },
       },
     });
 
