@@ -297,8 +297,8 @@
       "rightObjection": "Recht auf Widerspruch gegen die Verarbeitung (Art. 21 DSGVO)",
       "retentionTitle": "Datenspeicherung",
       "retentionText": "Wir speichern Ihre personenbezogenen Daten nur so lange, wie es für die Zwecke, für die sie erhoben wurden, erforderlich ist oder gesetzlich vorgeschrieben. Buchungsdaten werden für die nach deutschem Steuer- und Handelsrecht vorgeschriebene Dauer aufbewahrt (in der Regel 10 Jahre).",
-      "cookiesTitle": "Cookies",
-      "cookiesText": "Unsere Website verwendet nur essenzielle Cookies, die für die Funktionalität der Website erforderlich sind (z. B. Spracheinstellung). Wir verwenden keine Tracking- oder Werbe-Cookies.",
+      "cookiesTitle": "Cookies & Einwilligung",
+      "cookiesText": "Unsere Website verwendet Cookies, um die Funktionalität sicherzustellen und Ihr Erlebnis zu verbessern. Beim ersten Besuch ermöglicht Ihnen ein Cookie-Banner, zu wählen, welche Cookies Sie akzeptieren. Essenzielle Cookies (für die Funktion der Website erforderlich) sind immer aktiv. Funktionale Cookies speichern Ihre Einstellungen wie die Sprache. Analyse-Cookies können zukünftig zur Verbesserung unserer Dienste eingesetzt werden. Sie können Ihre Cookie-Einstellungen jederzeit ändern, indem Sie den lokalen Speicher Ihres Browsers löschen. Wir verwenden keine Werbe- oder Drittanbieter-Tracking-Cookies.",
       "changesTitle": "Änderungen dieser Erklärung",
       "changesText": "Wir behalten uns vor, diese Datenschutzerklärung zu aktualisieren, um Änderungen unserer Praktiken oder aus rechtlichen Gründen widerzuspiegeln. Die aktuelle Version ist jederzeit auf unserer Website verfügbar."
     },
@@ -329,5 +329,23 @@
       "governingLawText": "Diese Bedingungen unterliegen dem Recht der Bundesrepublik Deutschland. Gerichtsstand ist Berlin, Deutschland.",
       "contactTitle": "Kontakt"
     }
+  },
+  "cookie": {
+    "title": "Cookie-Einstellungen",
+    "description": "Wir verwenden Cookies, um die grundlegende Funktionalität unserer Website sicherzustellen und Ihr Erlebnis zu verbessern. Sie können wählen, welche Cookies Sie zulassen möchten. Weitere Details finden Sie in unserer",
+    "privacyLink": "Datenschutzerklärung",
+    "acceptAll": "Alle akzeptieren",
+    "essentialOnly": "Nur essenzielle",
+    "settings": "Cookie-Einstellungen",
+    "settingsDescription": "Wählen Sie, welche Cookies Sie zulassen möchten. Essenzielle Cookies sind für die Funktion der Website erforderlich und können nicht deaktiviert werden.",
+    "essentialTitle": "Essenzielle Cookies",
+    "essentialDesc": "Erforderlich für die ordnungsgemäße Funktion der Website. Diese können nicht deaktiviert werden.",
+    "alwaysOn": "Immer aktiv",
+    "functionalTitle": "Funktionale Cookies",
+    "functionalDesc": "Ermöglichen personalisierte Funktionen wie Spracheinstellungen und gespeicherte Einstellungen.",
+    "analyticsTitle": "Analyse-Cookies",
+    "analyticsDesc": "Helfen uns zu verstehen, wie Besucher mit unserer Website interagieren, um das Erlebnis zu verbessern.",
+    "savePreferences": "Einstellungen speichern",
+    "back": "Zurück"
   }
 }

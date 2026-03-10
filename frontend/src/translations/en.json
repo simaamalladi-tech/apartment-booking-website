@@ -297,8 +297,8 @@
       "rightObjection": "Right to object to processing (Art. 21 GDPR)",
       "retentionTitle": "Data Retention",
       "retentionText": "We retain your personal data only as long as necessary for the purposes for which it was collected or as required by law. Booking data is retained for the duration required by German tax and commercial law (typically 10 years).",
-      "cookiesTitle": "Cookies",
-      "cookiesText": "Our website uses only essential cookies required for the functionality of the website (e.g., language preference). We do not use tracking or advertising cookies.",
+      "cookiesTitle": "Cookies & Consent",
+      "cookiesText": "Our website uses cookies to ensure functionality and improve your experience. When you first visit, a cookie consent banner allows you to choose which cookies to accept. Essential cookies (required for the site to work) are always active. Functional cookies store your preferences such as language. Analytics cookies may be used in the future to improve our services. You can change your cookie preferences at any time by clearing your browser's local storage. We do not use advertising or third-party tracking cookies.",
       "changesTitle": "Changes to This Policy",
       "changesText": "We reserve the right to update this Privacy Policy to reflect changes in our practices or for legal reasons. The current version is always available on our website."
     },
@@ -329,5 +329,23 @@
       "governingLawText": "These terms are governed by the laws of the Federal Republic of Germany. The place of jurisdiction is Berlin, Germany.",
       "contactTitle": "Contact"
     }
+  },
+  "cookie": {
+    "title": "Cookie Settings",
+    "description": "We use cookies to ensure the basic functionality of our website and to enhance your experience. You can choose which cookies you allow. For more details, read our",
+    "privacyLink": "Privacy Policy",
+    "acceptAll": "Accept All",
+    "essentialOnly": "Essential Only",
+    "settings": "Cookie Settings",
+    "settingsDescription": "Choose which cookies you want to allow. Essential cookies are required for the website to function and cannot be disabled.",
+    "essentialTitle": "Essential Cookies",
+    "essentialDesc": "Required for the website to function properly. These cannot be disabled.",
+    "alwaysOn": "Always on",
+    "functionalTitle": "Functional Cookies",
+    "functionalDesc": "Enable personalized features such as language preferences and saved settings.",
+    "analyticsTitle": "Analytics Cookies",
+    "analyticsDesc": "Help us understand how visitors interact with our website to improve the experience.",
+    "savePreferences": "Save Preferences",
+    "back": "Back"
   }
 }

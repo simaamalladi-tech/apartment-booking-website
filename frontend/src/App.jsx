@@ -8,6 +8,7 @@ import PaymentPage from './pages/PaymentPage';
 import ContactPage from './pages/ContactPage';
 import ConfirmationPage from './pages/ConfirmationPage';
 import LegalPage from './pages/LegalPage';
+import CookieConsent from './components/CookieConsent';
 import './App.css';
 
 function App() {
@@ -184,6 +185,7 @@ function App() {
       </main>
 
       <Footer onPageChange={navigateTo} onBookNow={handleBookNow} />
+      <CookieConsent onNavigate={navigateTo} />
     </div>
   );
 }
