@@ -1,6 +1,7 @@
 import express from 'express';
 import Stripe from 'stripe';
-import { Client, Environment, OrdersController } from '@paypal/paypal-server-sdk';
+import paypalSdk from '@paypal/paypal-server-sdk';
+const { Client, Environment, OrdersController } = paypalSdk;
 import Payment from '../models/Payment.js';
 import Booking from '../models/Booking.js';
 import Apartment from '../models/Apartment.js';
@@ -183,8 +184,8 @@ router.post('/create-payment-intent', async (req, res) => {
 
     if (SMOOBU_API_KEY) {
       try {
-        const startStr = bookingData.checkIn;
-        const endStr = bookingData.checkOut;
+        const startStr = checkIn.toISOString().split('T')[0];
+        const endStr = checkOut.toISOString().split('T')[0];
         const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${startStr}&end_date=${endStr}`;
         const ratesRes = await fetch(ratesUrl, {
           headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
@@ -241,7 +242,10 @@ router.post('/create-payment-intent', async (req, res) => {
       currency: 'eur',
       payment_method: paymentMethodId,
       confirm: true,
-      payment_method_types: ['card']
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: 'never',
+      },
     });
 
     // Check if payment succeeded
@@ -268,6 +272,7 @@ router.post('/create-payment-intent', async (req, res) => {
       // Create payment record
       const payment = new Payment({
         booking: booking._id,
+        paymentProvider: 'stripe',
         stripePaymentId: paymentIntent.id,
         stripePaymentMethodId: paymentMethodId,
         amount: amountInCents,
@@ -295,15 +300,21 @@ router.post('/create-payment-intent', async (req, res) => {
     } else {
       return res.json({
         success: false,
-        message: 'Payment failed',
+        message: paymentIntent.status === 'requires_action' 
+          ? 'This card requires additional authentication. Please try a different card.'
+          : 'Payment failed',
         status: paymentIntent.status
       });
     }
   } catch (error) {
     console.error('Payment error:', error);
-    res.status(500).json({
+    // Return Stripe-specific error messages for card declines
+    const message = error.type === 'StripeCardError' 
+      ? error.message 
+      : 'Payment processing error';
+    res.status(error.type === 'StripeCardError' ? 400 : 500).json({
       success: false,
-      message: 'Payment processing error'
+      message
     });
   }
 });
@@ -328,13 +339,17 @@ router.post('/confirm', async (req, res) => {
 // Get payment details
 router.get('/:paymentId', async (req, res) => {
   try {
+    // Validate ObjectId format
+    if (!/^[0-9a-fA-F]{24}$/.test(req.params.paymentId)) {
+      return res.status(400).json({ message: 'Invalid payment ID format' });
+    }
     const payment = await Payment.findById(req.params.paymentId).populate('booking');
     if (!payment) {
       return res.status(404).json({ message: 'Payment not found' });
     }
     res.json(payment);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching payment', error: error.message });
+    res.status(500).json({ message: 'Error fetching payment' });
   }
 });
 
@@ -433,7 +448,7 @@ router.post('/paypal/create-order', async (req, res) => {
 
     if (SMOOBU_API_KEY) {
       try {
-        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${bookingData.checkIn}&end_date=${bookingData.checkOut}`;
+        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${checkIn.toISOString().split('T')[0]}&end_date=${checkOut.toISOString().split('T')[0]}`;
         const ratesRes = await fetch(ratesUrl, {
           headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
         });
@@ -468,7 +483,7 @@ router.post('/paypal/create-order', async (req, res) => {
             currencyCode: 'EUR',
             value: calculatedPrice.toFixed(2),
           },
-          description: `Booking: ${bookingData.checkIn} – ${bookingData.checkOut} (${nights} nights)`,
+          description: `Booking: ${checkIn.toISOString().split('T')[0]} – ${checkOut.toISOString().split('T')[0]} (${nights} nights)`,
         }],
       },
     });
@@ -497,6 +512,17 @@ router.post('/paypal/capture-order', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
+    // Validate orderID format (alphanumeric PayPal order ID)
+    if (typeof orderID !== 'string' || !/^[A-Z0-9]{10,25}$/.test(orderID)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID' });
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: 'Invalid email address' });
+    }
+
     // Capture the payment
     const { body } = await paypalOrdersController.ordersCapture({ id: orderID });
 
@@ -505,9 +531,51 @@ router.post('/paypal/capture-order', async (req, res) => {
       const capturedAmount = parseFloat(body.purchaseUnits?.[0]?.payments?.captures?.[0]?.amount?.value || 0);
 
       const apartment = await Apartment.findById(bookingData.apartment?._id || bookingData.apartment?.id);
+      if (!apartment) {
+        console.error('PayPal capture: apartment not found after payment captured');
+        return res.status(404).json({ success: false, message: 'Apartment not found' });
+      }
+
       const checkIn = new Date(bookingData.checkIn);
       const checkOut = new Date(bookingData.checkOut);
+      if (isNaN(checkIn) || isNaN(checkOut) || checkOut <= checkIn) {
+        console.error('PayPal capture: invalid dates after payment captured');
+        return res.status(400).json({ success: false, message: 'Invalid dates' });
+      }
+
       const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+      // Verify captured amount matches expected (within €1 tolerance for rounding)
+      const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
+      const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+      let expectedPrice = nights * apartment.price;
+      if (SMOOBU_API_KEY) {
+        try {
+          const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${checkIn.toISOString().split('T')[0]}&end_date=${checkOut.toISOString().split('T')[0]}`;
+          const ratesRes = await fetch(ratesUrl, {
+            headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json' },
+          });
+          if (ratesRes.ok) {
+            const ratesData = await ratesRes.json();
+            const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
+            let smoobuTotal = 0;
+            let daysWithRate = 0;
+            for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
+              const dateStr = d.toISOString().split('T')[0];
+              const rate = apartmentRates[dateStr];
+              if (rate && rate.price) { smoobuTotal += rate.price; daysWithRate++; }
+              else { smoobuTotal += apartment.price; }
+            }
+            if (daysWithRate > 0) expectedPrice = smoobuTotal;
+          }
+        } catch (err) {
+          console.warn('Price verification check failed:', err.message);
+        }
+      }
+      if (Math.abs(capturedAmount - expectedPrice) > 1) {
+        console.error(`PayPal price mismatch: captured €${capturedAmount}, expected €${expectedPrice}`);
+        // Still save the booking since money was captured, but flag it
+      }
 
       // Create booking
       const booking = new Booking({
