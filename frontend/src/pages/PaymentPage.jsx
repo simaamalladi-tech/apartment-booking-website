@@ -96,7 +96,20 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
   }, [bookingData, onPaymentSuccess, t]);
 
   const handlePaypalError = useCallback((err) => {
-    setError(t('payment.error'));
+    const msg = err?.message || '';
+    const isConnectionError = msg.toLowerCase().includes('popup') ||
+      msg.toLowerCase().includes('closed') ||
+      msg.toLowerCase().includes('window') ||
+      msg.toLowerCase().includes('connect') ||
+      msg.toLowerCase().includes('blocked');
+    if (isConnectionError) {
+      setError(
+        t('payment.paypalPopupBlocked',
+          'The PayPal window could not open. Please allow pop-ups for this site in your browser and try again.')
+      );
+    } else {
+      setError(t('payment.error'));
+    }
     console.error('PayPal error:', err);
   }, [t]);
 
@@ -125,14 +138,6 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
               {/* PayPal section FIRST — above credit card */}
               {hasPaypal && (
                 <div className="paypal-section">
-                  {paypalMode !== 'live' && (
-                    <div className="paypal-sandbox-note">
-                      {t(
-                        'payment.paypalSandboxHint',
-                        'Sandbox mode: please log in with a PayPal Sandbox Personal (buyer) account. Using a real email or business account may show card checkout only.'
-                      )}
-                    </div>
-                  )}
                   {paypalSuccess ? (
                     <div className="payment-success">
                       <div className="success-icon">✓</div>
