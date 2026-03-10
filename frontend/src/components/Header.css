@@ -24,8 +24,7 @@
 
 .header-scrolled .header-skyline {
   opacity: 0;
-  height: 0;
-  margin: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 
@@ -223,18 +222,18 @@
   margin-top: -2px;
   position: relative;
   z-index: 1;
-  transition: height 0.3s ease, opacity 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
   filter: drop-shadow(0 -1px 4px rgba(255, 255, 255, 0.15));
 }
 
 @media (min-width: 768px) {
   .header-skyline { height: 55px; }
-  .header-scrolled .header-skyline { opacity: 0; height: 0; margin: 0; }
+  .header-scrolled .header-skyline { opacity: 0; visibility: hidden; }
 }
 
 @media (min-width: 1200px) {
   .header-skyline { height: 70px; }
-  .header-scrolled .header-skyline { opacity: 0; height: 0; margin: 0; }
+  .header-scrolled .header-skyline { opacity: 0; visibility: hidden; }
 }
 
 /* ===== Mobile (≤ 768px) ===== */
