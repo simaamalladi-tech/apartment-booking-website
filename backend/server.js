@@ -101,6 +101,9 @@ const authLimiter = rateLimit({
 // Apply general limiter to all API routes
 app.use('/api/', apiLimiter);
 
+// Apply stricter limiter to payment endpoints (prevent abuse)
+app.use('/api/payments/', authLimiter);
+
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment-booking')
   .then(async () => {

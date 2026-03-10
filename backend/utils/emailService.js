@@ -257,7 +257,7 @@ export const sendContactMessage = async ({ name, email, subject, message }) => {
     <p style="margin-top:20px;"><a href="mailto:${safeEmail}" class="btn">Reply to ${safeName}</a></p>
   `);
 
-  return sendEmail(adminEmail, `[Contact] ${subject} – ${PROPERTY_NAME}`, html);
+  return sendEmail(adminEmail, `[Contact] ${safeSubject} – ${PROPERTY_NAME}`, html);
 };
 
 // Send admin alert when Smoobu sync fails after all retries

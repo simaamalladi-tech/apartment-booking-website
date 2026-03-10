@@ -6,6 +6,7 @@ const { Client, Environment, OrdersController } = require('@paypal/paypal-server
 import Payment from '../models/Payment.js';
 import Booking from '../models/Booking.js';
 import Apartment from '../models/Apartment.js';
+import { requireAdmin } from '../middleware/auth.js';
 import { sendBookingConfirmation, sendAdminNotification, sendSmoobuSyncFailedAlert } from '../utils/emailService.js';
 import dotenv from 'dotenv';
 
@@ -165,6 +166,11 @@ router.post('/create-payment-intent', async (req, res) => {
       });
     }
 
+    // Validate paymentMethodId format (Stripe payment method IDs start with 'pm_')
+    if (typeof paymentMethodId !== 'string' || !paymentMethodId.startsWith('pm_') || paymentMethodId.length > 100) {
+      return res.status(400).json({ success: false, message: 'Invalid payment method' });
+    }
+
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -303,7 +309,6 @@ router.post('/create-payment-intent', async (req, res) => {
       return res.json({
         success: true,
         message: 'Payment successful',
-        clientSecret: paymentIntent.client_secret,
         bookingId: booking._id,
         paymentId: paymentIntent.id
       });
@@ -351,8 +356,8 @@ router.post('/confirm', async (req, res) => {
   }
 });
 
-// Get payment details
-router.get('/:paymentId', async (req, res) => {
+// Get payment details (admin only)
+router.get('/:paymentId', requireAdmin, async (req, res) => {
   try {
     // Validate ObjectId format
     if (!/^[0-9a-fA-F]{24}$/.test(req.params.paymentId)) {
@@ -398,8 +403,8 @@ export async function retryUnsyncedBookings() {
   }
 }
 
-// Manual retry endpoint
-router.post('/retry-smoobu-sync/:bookingId', async (req, res) => {
+// Manual retry endpoint (admin only)
+router.post('/retry-smoobu-sync/:bookingId', requireAdmin, async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.bookingId);
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -674,19 +679,48 @@ router.post('/webhook', async (req, res) => {
 
     switch (event.type) {
       case 'payment_intent.succeeded':
-        console.log('Payment succeeded:', event.data.object.id);
+        console.log('Webhook: Payment succeeded:', event.data.object.id);
         break;
-      case 'payment_intent.payment_failed':
-        console.log('Payment failed:', event.data.object.id);
+      case 'payment_intent.payment_failed': {
+        const pi = event.data.object;
+        console.warn('Webhook: Payment failed:', pi.id);
+        const failedPayment = await Payment.findOne({ stripePaymentId: pi.id });
+        if (failedPayment) {
+          failedPayment.status = 'failed';
+          await failedPayment.save();
+          const failedBooking = await Booking.findById(failedPayment.booking);
+          if (failedBooking) {
+            failedBooking.paymentStatus = 'failed';
+            failedBooking.status = 'cancelled';
+            await failedBooking.save();
+          }
+        }
         break;
+      }
+      case 'charge.refunded': {
+        const charge = event.data.object;
+        console.log('Webhook: Charge refunded:', charge.payment_intent);
+        const refundedPayment = await Payment.findOne({ stripePaymentId: charge.payment_intent });
+        if (refundedPayment) {
+          refundedPayment.status = 'canceled';
+          await refundedPayment.save();
+          const refundedBooking = await Booking.findById(refundedPayment.booking);
+          if (refundedBooking) {
+            refundedBooking.paymentStatus = 'failed';
+            refundedBooking.status = 'cancelled';
+            await refundedBooking.save();
+          }
+        }
+        break;
+      }
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
 
     res.json({ received: true });
   } catch (error) {
-    console.error('Webhook error:', error.message);
-    res.status(400).send(`Webhook Error: ${error.message}`);
+    console.error('Webhook signature verification failed');
+    res.status(400).json({ received: false });
   }
 });
 

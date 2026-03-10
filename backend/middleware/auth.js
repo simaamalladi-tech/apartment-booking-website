@@ -1,9 +1,16 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'alt-berliner-eckkneipe-admin-secret-2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.warn('⚠ JWT_SECRET not set — admin endpoints will be disabled');
+}
 
 // Middleware to protect admin routes (used by apartments.js for seed protection)
 export const requireAdmin = (req, res, next) => {
+  if (!JWT_SECRET) {
+    return res.status(503).json({ success: false, message: 'Authentication not configured' });
+  }
+
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
