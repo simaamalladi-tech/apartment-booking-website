@@ -30,8 +30,7 @@
 .cal-dropdown {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 280px;
   max-width: 100%;
   z-index: 9999;
