@@ -681,6 +681,210 @@ router.post('/paypal/capture-order', async (req, res) => {
   }
 });
 
+// ─── STRIPE CHECKOUT SESSION (PayPal via Stripe) ───
+// Creates a Stripe Checkout Session with PayPal as payment method
+router.post('/create-checkout-session', async (req, res) => {
+  try {
+    const { bookingData, email } = req.body;
+
+    if (!bookingData || !email) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: 'Invalid email address' });
+    }
+
+    // Server-side price calculation (same as other flows)
+    const apartment = await Apartment.findById(bookingData.apartment?._id || bookingData.apartment?.id);
+    if (!apartment) {
+      return res.status(404).json({ success: false, message: 'Apartment not found' });
+    }
+
+    const checkIn = new Date(bookingData.checkIn);
+    const checkOut = new Date(bookingData.checkOut);
+    if (isNaN(checkIn) || isNaN(checkOut) || checkOut <= checkIn) {
+      return res.status(400).json({ success: false, message: 'Invalid dates' });
+    }
+
+    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+    let calculatedPrice = nights * apartment.price;
+
+    // Smoobu availability check + pricing
+    const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
+    const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+
+    if (SMOOBU_API_KEY) {
+      try {
+        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${checkIn.toISOString().split('T')[0]}&end_date=${checkOut.toISOString().split('T')[0]}`;
+        const ratesRes = await fetch(ratesUrl, {
+          headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+        });
+        if (ratesRes.ok) {
+          const ratesData = await ratesRes.json();
+          const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
+          const unavailableDates = [];
+          let smoobuTotal = 0;
+          let daysWithRate = 0;
+          for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
+            const dateStr = d.toISOString().split('T')[0];
+            const rate = apartmentRates[dateStr];
+            if (rate && !rate.available) unavailableDates.push(dateStr);
+            if (rate && rate.price) { smoobuTotal += rate.price; daysWithRate++; }
+            else { smoobuTotal += apartment.price; }
+          }
+          if (unavailableDates.length > 0) {
+            return res.status(409).json({ success: false, message: `Selected dates are no longer available: ${unavailableDates.join(', ')}`, unavailableDates });
+          }
+          if (daysWithRate > 0) calculatedPrice = smoobuTotal;
+        }
+      } catch (err) {
+        console.error('Smoobu check failed (Checkout):', err.message);
+      }
+    }
+
+    const amountInCents = Math.round(calculatedPrice * 100);
+
+    const origin =
+      process.env.PAYPAL_RETURN_BASE_URL ||
+      req.headers.origin ||
+      req.headers.referer?.replace(/\/$/, '') ||
+      'https://apartment-booking-website-production.up.railway.app';
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['paypal'],
+      mode: 'payment',
+      customer_email: email.substring(0, 200),
+      line_items: [{
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: 'Alt-Berliner Eckkneipe',
+            description: `${checkIn.toISOString().split('T')[0]} – ${checkOut.toISOString().split('T')[0]} (${nights} ${nights === 1 ? 'night' : 'nights'})`,
+          },
+          unit_amount: amountInCents,
+        },
+        quantity: 1,
+      }],
+      metadata: {
+        apartmentId: apartment._id.toString(),
+        checkIn: checkIn.toISOString().split('T')[0],
+        checkOut: checkOut.toISOString().split('T')[0],
+        guests: String(Math.min(bookingData.guests || 1, apartment.maxGuests)),
+        userName: (bookingData.user?.name || 'Guest').substring(0, 100),
+        userPhone: (bookingData.user?.phone || '').substring(0, 30),
+        userEmail: email.substring(0, 200),
+        calculatedPrice: String(calculatedPrice),
+        nights: String(nights),
+      },
+      success_url: `${origin}/?checkout_session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/?checkout_cancelled=1`,
+    });
+
+    res.json({ success: true, url: session.url, sessionId: session.id });
+  } catch (error) {
+    console.error('Stripe Checkout Session error:', error);
+    const message = error.type === 'StripeInvalidRequestError'
+      ? 'PayPal is not enabled in Stripe. Please enable it in your Stripe Dashboard.'
+      : 'Failed to create checkout session';
+    res.status(500).json({ success: false, message });
+  }
+});
+
+// ─── VERIFY STRIPE CHECKOUT SESSION ───
+// Called when user returns from Stripe Checkout to verify payment and create booking
+router.get('/checkout-session/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    // Validate session ID format (starts with cs_)
+    if (!sessionId || typeof sessionId !== 'string' || !sessionId.startsWith('cs_') || sessionId.length > 200) {
+      return res.status(400).json({ success: false, message: 'Invalid session ID' });
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status !== 'paid') {
+      return res.json({ success: false, message: 'Payment not completed' });
+    }
+
+    // Check if booking already exists (may have been created by webhook)
+    const existingPayment = await Payment.findOne({ stripePaymentId: session.payment_intent });
+    if (existingPayment) {
+      const existingBooking = await Booking.findById(existingPayment.booking);
+      return res.json({
+        success: true,
+        bookingId: existingBooking?._id || existingPayment.booking,
+        paymentId: session.payment_intent,
+        booking: existingBooking,
+      });
+    }
+
+    // Create booking from session metadata (webhook hasn't fired yet)
+    const meta = session.metadata;
+    const apartment = await Apartment.findById(meta.apartmentId);
+    if (!apartment) {
+      return res.status(404).json({ success: false, message: 'Apartment not found' });
+    }
+
+    const checkIn = new Date(meta.checkIn);
+    const checkOut = new Date(meta.checkOut);
+    const calculatedPrice = parseFloat(meta.calculatedPrice);
+
+    const booking = new Booking({
+      apartment: apartment._id,
+      user: {
+        email: meta.userEmail,
+        name: meta.userName,
+        phone: meta.userPhone || '',
+      },
+      checkInDate: checkIn,
+      checkOutDate: checkOut,
+      numberOfGuests: parseInt(meta.guests) || 1,
+      numberOfNights: parseInt(meta.nights),
+      totalPrice: calculatedPrice,
+      status: 'confirmed',
+      paymentId: session.payment_intent,
+      paymentStatus: 'completed',
+    });
+    await booking.save();
+
+    const payment = new Payment({
+      booking: booking._id,
+      paymentProvider: 'stripe_paypal',
+      stripePaymentId: session.payment_intent,
+      amount: session.amount_total,
+      email: meta.userEmail,
+      status: 'succeeded',
+    });
+    await payment.save();
+
+    // Send emails (non-blocking)
+    sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
+    sendAdminNotification(booking, 'new').catch(err => console.error('Admin email error:', err));
+
+    // Sync to Smoobu (non-blocking)
+    syncBookingToSmoobu({
+      checkIn: meta.checkIn,
+      checkOut: meta.checkOut,
+      user: { name: meta.userName, email: meta.userEmail, phone: meta.userPhone },
+      guests: parseInt(meta.guests) || 1,
+    }, booking, meta.userEmail, calculatedPrice)
+      .catch(err => console.error('Smoobu sync error:', err));
+
+    return res.json({
+      success: true,
+      bookingId: booking._id,
+      paymentId: session.payment_intent,
+      booking,
+    });
+  } catch (error) {
+    console.error('Checkout session verification error:', error);
+    res.status(500).json({ success: false, message: 'Failed to verify payment' });
+  }
+});
+
 // Webhook endpoint for Stripe events
 // Note: express.raw() is applied at the server level for this path (before express.json)
 router.post('/webhook', async (req, res) => {
@@ -697,6 +901,67 @@ router.post('/webhook', async (req, res) => {
       case 'payment_intent.succeeded':
         console.log('Webhook: Payment succeeded:', event.data.object.id);
         break;
+      case 'checkout.session.completed': {
+        // Handle Stripe Checkout (PayPal via Stripe) completions
+        const session = event.data.object;
+        if (session.payment_status === 'paid') {
+          // Check if booking already exists (may have been created by the verification endpoint)
+          const existingPayment = await Payment.findOne({ stripePaymentId: session.payment_intent });
+          if (!existingPayment) {
+            const meta = session.metadata;
+            const apartment = await Apartment.findById(meta.apartmentId);
+            if (apartment) {
+              const checkIn = new Date(meta.checkIn);
+              const checkOut = new Date(meta.checkOut);
+              const calculatedPrice = parseFloat(meta.calculatedPrice);
+
+              const booking = new Booking({
+                apartment: apartment._id,
+                user: {
+                  email: meta.userEmail,
+                  name: meta.userName,
+                  phone: meta.userPhone || '',
+                },
+                checkInDate: checkIn,
+                checkOutDate: checkOut,
+                numberOfGuests: parseInt(meta.guests) || 1,
+                numberOfNights: parseInt(meta.nights),
+                totalPrice: calculatedPrice,
+                status: 'confirmed',
+                paymentId: session.payment_intent,
+                paymentStatus: 'completed',
+              });
+              await booking.save();
+
+              const payment = new Payment({
+                booking: booking._id,
+                paymentProvider: 'stripe_paypal',
+                stripePaymentId: session.payment_intent,
+                amount: session.amount_total,
+                email: meta.userEmail,
+                status: 'succeeded',
+              });
+              await payment.save();
+
+              sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
+              sendAdminNotification(booking, 'new').catch(err => console.error('Admin email error:', err));
+
+              syncBookingToSmoobu({
+                checkIn: meta.checkIn,
+                checkOut: meta.checkOut,
+                user: { name: meta.userName, email: meta.userEmail, phone: meta.userPhone },
+                guests: parseInt(meta.guests) || 1,
+              }, booking, meta.userEmail, calculatedPrice)
+                .catch(err => console.error('Smoobu sync error:', err));
+
+              console.log('Webhook: Checkout session booking created:', booking._id);
+            }
+          } else {
+            console.log('Webhook: Checkout session booking already exists for:', session.payment_intent);
+          }
+        }
+        break;
+      }
       case 'payment_intent.payment_failed': {
         const pi = event.data.object;
         console.warn('Webhook: Payment failed:', pi.id);

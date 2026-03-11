@@ -44,6 +44,58 @@ function App() {
     fetchProperty();
   }, []);
 
+  // Handle Stripe Checkout return (PayPal via Stripe)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('checkout_session_id');
+    const cancelled = params.get('checkout_cancelled');
+
+    if (cancelled) {
+      // User cancelled the Stripe Checkout — restore booking data and go to payment page
+      window.history.replaceState({}, '', '/');
+      const saved = sessionStorage.getItem('pendingBookingData');
+      if (saved) {
+        try {
+          const restored = JSON.parse(saved);
+          setBookingData(restored);
+          setSelectedApartment(restored.apartment);
+          setCurrentPage('payment');
+        } catch (e) { /* ignore parse errors */ }
+      }
+      sessionStorage.removeItem('pendingBookingData');
+      return;
+    }
+
+    if (sessionId) {
+      // User completed Stripe Checkout — verify and show confirmation
+      window.history.replaceState({}, '', '/');
+      const saved = sessionStorage.getItem('pendingBookingData');
+      let restoredData = null;
+      if (saved) {
+        try { restoredData = JSON.parse(saved); } catch (e) { /* ignore */ }
+      }
+      sessionStorage.removeItem('pendingBookingData');
+
+      const verifySession = async () => {
+        try {
+          const res = await fetch(`/api/payments/checkout-session/${encodeURIComponent(sessionId)}`);
+          const data = await res.json();
+          if (data.success) {
+            setBookingData(prev => ({
+              ...(restoredData || prev || {}),
+              bookingId: data.bookingId,
+              paymentId: data.paymentId,
+            }));
+            setCurrentPage('confirmation');
+          }
+        } catch (err) {
+          console.error('Checkout verification error:', err);
+        }
+      };
+      verifySession();
+    }
+  }, []);
+
   // Header show/hide on scroll with hysteresis to prevent bounce
   useEffect(() => {
     let ticking = false;

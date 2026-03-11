@@ -156,6 +156,38 @@
   padding-top: 0.5rem;
 }
 
+.paypal-stripe-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: #0070ba;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.paypal-stripe-btn:hover:not(:disabled) {
+  background: #005ea6;
+  transform: translateY(-1px);
+}
+
+.paypal-stripe-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.paypal-stripe-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .payment-divider {
   display: flex;
   align-items: center;

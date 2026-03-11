@@ -170,6 +170,7 @@ app.get('/api/config', (req, res) => {
     stripePublishableKey: process.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
     paypalClientId: process.env.PAYPAL_CLIENT_ID || '',
     paypalMode: process.env.PAYPAL_MODE || 'sandbox',
+    paypalViaStripe: process.env.PAYPAL_VIA_STRIPE === 'true',
   });
 });
 

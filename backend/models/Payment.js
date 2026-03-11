@@ -8,7 +8,7 @@ const paymentSchema = new mongoose.Schema({
   },
   paymentProvider: {
     type: String,
-    enum: ['stripe', 'paypal'],
+    enum: ['stripe', 'paypal', 'stripe_paypal'],
     default: 'stripe'
   },
   stripePaymentId: {

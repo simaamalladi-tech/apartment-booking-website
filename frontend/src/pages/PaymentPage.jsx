@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { PayPalScriptProvider, PayPalButtons, FUNDING } from '@paypal/react-paypal-js';
 import { useTranslation } from 'react-i18next';
 import PaymentForm from '../components/PaymentForm';
 import './PaymentPage.css';
@@ -13,37 +12,34 @@ const fetchConfig = async () => {
   try {
     const res = await fetch('/api/config');
     const data = await res.json();
-    const config = { stripeKey: '', paypalClientId: '', paypalMode: 'sandbox' };
+    const config = { stripeKey: '', paypalViaStripe: false };
     if (data.stripePublishableKey) {
       stripePromise = loadStripe(data.stripePublishableKey);
       config.stripeKey = data.stripePublishableKey;
     }
-    if (data.paypalClientId) {
-      config.paypalClientId = data.paypalClientId;
-    }
-    if (data.paypalMode) {
-      config.paypalMode = data.paypalMode;
-    }
+    config.paypalViaStripe = !!data.paypalViaStripe;
     return config;
   } catch (err) {
     console.error('Error fetching payment config:', err);
-    return { stripeKey: '', paypalClientId: '', paypalMode: 'sandbox' };
+    return { stripeKey: '', paypalViaStripe: false };
   }
 };
 
-function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, paypalClientId, paypalMode, configLoaded }) {
+function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, paypalViaStripe, configLoaded }) {
   const { t } = useTranslation();
   const [error, setError] = useState(null);
-  const [paypalProcessing, setPaypalProcessing] = useState(false);
-  const [paypalSuccess, setPaypalSuccess] = useState(false);
+  const [paypalLoading, setPaypalLoading] = useState(false);
 
   const hasStripe = !!stripe;
-  const hasPaypal = !!paypalClientId;
 
-  const handlePaypalCreateOrder = useCallback(async () => {
+  const handlePaypalViaStripe = useCallback(async () => {
+    setPaypalLoading(true);
+    setError(null);
     try {
-      setError(null);
-      const res = await fetch('/api/payments/paypal/create-order', {
+      // Save booking data so we can restore it after Stripe redirect
+      sessionStorage.setItem('pendingBookingData', JSON.stringify(bookingData));
+
+      const res = await fetch('/api/payments/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -52,70 +48,17 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
         }),
       });
       const data = await res.json();
-      if (data.success) {
-        return data.orderID;
+      if (data.success && data.url) {
+        window.location.href = data.url;
       } else {
         setError(data.message || t('payment.error'));
-        throw new Error(data.message);
+        setPaypalLoading(false);
       }
     } catch (err) {
       setError(err.message);
-      throw err;
+      setPaypalLoading(false);
     }
   }, [bookingData, t]);
-
-  const handlePaypalApprove = useCallback(async (data) => {
-    setPaypalProcessing(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/payments/paypal/capture-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderID: data.orderID,
-          bookingData,
-          email: bookingData.user?.email || '',
-        }),
-      });
-      const result = await res.json();
-      if (result.success) {
-        setPaypalSuccess(true);
-        setTimeout(() => {
-          onPaymentSuccess({
-            bookingId: result.bookingId,
-            paymentId: result.paymentId,
-          });
-        }, 1500);
-      } else {
-        setError(result.message || t('payment.error'));
-      }
-    } catch (err) {
-      setError(err.message);
-    }
-    setPaypalProcessing(false);
-  }, [bookingData, onPaymentSuccess, t]);
-
-  const handlePaypalError = useCallback((err) => {
-    const msg = err?.message || '';
-    const isConnectionError = msg.toLowerCase().includes('popup') ||
-      msg.toLowerCase().includes('closed') ||
-      msg.toLowerCase().includes('window') ||
-      msg.toLowerCase().includes('connect') ||
-      msg.toLowerCase().includes('blocked');
-    if (isConnectionError) {
-      setError(
-        t('payment.paypalPopupBlocked',
-          'The PayPal window could not open. Please allow pop-ups for this site in your browser and try again.')
-      );
-    } else {
-      setError(t('payment.error'));
-    }
-    console.error('PayPal error:', err);
-  }, [t]);
-
-  const handlePaypalCancel = useCallback(() => {
-    setPaypalProcessing(false);
-  }, []);
 
   return (
     <div className="payment-page">
@@ -132,54 +75,41 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
           </div>
         )}
 
-        {configLoaded && (hasStripe || hasPaypal) && (
+        {configLoaded && hasStripe && (
           <div className="payment-grid">
             <div className="payment-form-section">
-              {/* PayPal section FIRST — above credit card */}
-              {hasPaypal && (
+              {/* PayPal via Stripe section FIRST */}
+              {paypalViaStripe && (
                 <div className="paypal-section">
-                  {paypalSuccess ? (
-                    <div className="payment-success">
-                      <div className="success-icon">✓</div>
-                      <h2>{t('payment.success')}</h2>
-                      <p>{t('payment.bookingConfirmed')}</p>
-                    </div>
-                  ) : (
-                    <>
-                      <PayPalButtons
-                        fundingSource={FUNDING.PAYPAL}
-                        style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' }}
-                        createOrder={handlePaypalCreateOrder}
-                        onApprove={handlePaypalApprove}
-                        onError={handlePaypalError}
-                        onCancel={handlePaypalCancel}
-                        disabled={paypalProcessing}
-                        forceReRender={[bookingData.totalPrice]}
-                      />
-                      {paypalProcessing && (
-                        <div className="paypal-processing">
-                          {t('payment.processing')}
-                        </div>
-                      )}
-                    </>
-                  )}
+                  <button
+                    className="paypal-stripe-btn"
+                    onClick={handlePaypalViaStripe}
+                    disabled={paypalLoading}
+                  >
+                    {paypalLoading ? (
+                      <span>{t('payment.processing')}</span>
+                    ) : (
+                      <>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c2.377-.56 3.794-2.27 4.244-5.266C26.164-1.254 23.598 0 20.534 0h-1.82l.526-3.076-.018.103z"/></svg>
+                        <span>PayPal</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               )}
 
               {/* Divider between PayPal and credit card */}
-              {hasStripe && hasPaypal && (
+              {paypalViaStripe && (
                 <div className="payment-divider"><span>{t('payment.or', 'or')}</span></div>
               )}
 
               {/* Credit card form BELOW PayPal */}
-              {hasStripe && (
-                <Elements stripe={stripe}>
-                  <PaymentForm 
-                    bookingData={bookingData} 
-                    onSuccess={onPaymentSuccess}
-                  />
-                </Elements>
-              )}
+              <Elements stripe={stripe}>
+                <PaymentForm 
+                  bookingData={bookingData} 
+                  onSuccess={onPaymentSuccess}
+                />
+              </Elements>
             </div>
 
             <div className="booking-summary-section">
@@ -234,8 +164,7 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
 
 function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
   const [stripe, setStripe] = useState(null);
-  const [paypalClientId, setPaypalClientId] = useState('');
-  const [paypalMode, setPaypalMode] = useState('sandbox');
+  const [paypalViaStripe, setPaypalViaStripe] = useState(false);
   const [configLoaded, setConfigLoaded] = useState(false);
 
   useEffect(() => {
@@ -243,44 +172,21 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
       if (config.stripeKey && stripePromise) {
         stripePromise.then(s => setStripe(s));
       }
-      if (config.paypalClientId) {
-        setPaypalClientId(config.paypalClientId);
-      }
-      setPaypalMode(config.paypalMode || 'sandbox');
+      setPaypalViaStripe(config.paypalViaStripe);
       setConfigLoaded(true);
     });
   }, []);
 
-  const contentProps = {
-    bookingData,
-    onPaymentSuccess,
-    onCancel,
-    stripe,
-    paypalClientId,
-    paypalMode,
-    configLoaded,
-  };
-
-  const paypalOptions = useMemo(() => ({
-    clientId: paypalClientId,
-    currency: 'EUR',
-    intent: 'capture',
-    components: 'buttons',
-    disableFunding: 'card,credit',
-    locale: 'de_DE',
-    ...(paypalMode !== 'live' ? { 'buyer-country': 'DE' } : {}),
-  }), [paypalClientId]);
-
-  // Wrap in PayPalScriptProvider once clientId is available — never unmounts
-  if (paypalClientId) {
-    return (
-      <PayPalScriptProvider options={paypalOptions}>
-        <PaymentPageContent {...contentProps} />
-      </PayPalScriptProvider>
-    );
-  }
-
-  return <PaymentPageContent {...contentProps} />;
+  return (
+    <PaymentPageContent
+      bookingData={bookingData}
+      onPaymentSuccess={onPaymentSuccess}
+      onCancel={onCancel}
+      stripe={stripe}
+      paypalViaStripe={paypalViaStripe}
+      configLoaded={configLoaded}
+    />
+  );
 }
 
 export default PaymentPage;
