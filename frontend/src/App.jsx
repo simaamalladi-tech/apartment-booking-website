@@ -87,9 +87,21 @@ function App() {
               paymentId: data.paymentId,
             }));
             setCurrentPage('confirmation');
+          } else {
+            // Payment not completed — restore booking data and return to payment page
+            if (restoredData) {
+              setBookingData(restoredData);
+              setSelectedApartment(restoredData.apartment);
+              setCurrentPage('payment');
+            }
           }
         } catch (err) {
           console.error('Checkout verification error:', err);
+          if (restoredData) {
+            setBookingData(restoredData);
+            setSelectedApartment(restoredData.apartment);
+            setCurrentPage('payment');
+          }
         }
       };
       verifySession();

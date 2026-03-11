@@ -832,33 +832,49 @@ router.get('/checkout-session/:sessionId', async (req, res) => {
     const checkOut = new Date(meta.checkOut);
     const calculatedPrice = parseFloat(meta.calculatedPrice);
 
-    const booking = new Booking({
-      apartment: apartment._id,
-      user: {
-        email: meta.userEmail,
-        name: meta.userName,
-        phone: meta.userPhone || '',
-      },
-      checkInDate: checkIn,
-      checkOutDate: checkOut,
-      numberOfGuests: parseInt(meta.guests) || 1,
-      numberOfNights: parseInt(meta.nights),
-      totalPrice: calculatedPrice,
-      status: 'confirmed',
-      paymentId: session.payment_intent,
-      paymentStatus: 'completed',
-    });
-    await booking.save();
+    let booking, payment;
+    try {
+      booking = new Booking({
+        apartment: apartment._id,
+        user: {
+          email: meta.userEmail,
+          name: meta.userName,
+          phone: meta.userPhone || '',
+        },
+        checkInDate: checkIn,
+        checkOutDate: checkOut,
+        numberOfGuests: parseInt(meta.guests) || 1,
+        numberOfNights: parseInt(meta.nights),
+        totalPrice: calculatedPrice,
+        status: 'confirmed',
+        paymentId: session.payment_intent,
+        paymentStatus: 'completed',
+      });
+      await booking.save();
 
-    const payment = new Payment({
-      booking: booking._id,
-      paymentProvider: 'stripe_paypal',
-      stripePaymentId: session.payment_intent,
-      amount: session.amount_total,
-      email: meta.userEmail,
-      status: 'succeeded',
-    });
-    await payment.save();
+      payment = new Payment({
+        booking: booking._id,
+        paymentProvider: 'stripe_paypal',
+        stripePaymentId: session.payment_intent,
+        amount: session.amount_total,
+        email: meta.userEmail,
+        status: 'succeeded',
+      });
+      await payment.save();
+    } catch (err) {
+      if (err.code === 11000) {
+        // Duplicate — webhook already created this booking
+        const dupPayment = await Payment.findOne({ stripePaymentId: session.payment_intent });
+        const dupBooking = dupPayment ? await Booking.findById(dupPayment.booking) : null;
+        return res.json({
+          success: true,
+          bookingId: dupBooking?._id || dupPayment?.booking,
+          paymentId: session.payment_intent,
+          booking: dupBooking,
+        });
+      }
+      throw err;
+    }
 
     // Send emails (non-blocking)
     sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
@@ -915,46 +931,54 @@ router.post('/webhook', async (req, res) => {
               const checkOut = new Date(meta.checkOut);
               const calculatedPrice = parseFloat(meta.calculatedPrice);
 
-              const booking = new Booking({
-                apartment: apartment._id,
-                user: {
+              try {
+                const booking = new Booking({
+                  apartment: apartment._id,
+                  user: {
+                    email: meta.userEmail,
+                    name: meta.userName,
+                    phone: meta.userPhone || '',
+                  },
+                  checkInDate: checkIn,
+                  checkOutDate: checkOut,
+                  numberOfGuests: parseInt(meta.guests) || 1,
+                  numberOfNights: parseInt(meta.nights),
+                  totalPrice: calculatedPrice,
+                  status: 'confirmed',
+                  paymentId: session.payment_intent,
+                  paymentStatus: 'completed',
+                });
+                await booking.save();
+
+                const payment = new Payment({
+                  booking: booking._id,
+                  paymentProvider: 'stripe_paypal',
+                  stripePaymentId: session.payment_intent,
+                  amount: session.amount_total,
                   email: meta.userEmail,
-                  name: meta.userName,
-                  phone: meta.userPhone || '',
-                },
-                checkInDate: checkIn,
-                checkOutDate: checkOut,
-                numberOfGuests: parseInt(meta.guests) || 1,
-                numberOfNights: parseInt(meta.nights),
-                totalPrice: calculatedPrice,
-                status: 'confirmed',
-                paymentId: session.payment_intent,
-                paymentStatus: 'completed',
-              });
-              await booking.save();
+                  status: 'succeeded',
+                });
+                await payment.save();
 
-              const payment = new Payment({
-                booking: booking._id,
-                paymentProvider: 'stripe_paypal',
-                stripePaymentId: session.payment_intent,
-                amount: session.amount_total,
-                email: meta.userEmail,
-                status: 'succeeded',
-              });
-              await payment.save();
+                sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
+                sendAdminNotification(booking, 'new').catch(err => console.error('Admin email error:', err));
 
-              sendBookingConfirmation(booking).catch(err => console.error('Email error:', err));
-              sendAdminNotification(booking, 'new').catch(err => console.error('Admin email error:', err));
-
-              syncBookingToSmoobu({
-                checkIn: meta.checkIn,
-                checkOut: meta.checkOut,
-                user: { name: meta.userName, email: meta.userEmail, phone: meta.userPhone },
-                guests: parseInt(meta.guests) || 1,
-              }, booking, meta.userEmail, calculatedPrice)
+                syncBookingToSmoobu({
+                  checkIn: meta.checkIn,
+                  checkOut: meta.checkOut,
+                  user: { name: meta.userName, email: meta.userEmail, phone: meta.userPhone },
+                  guests: parseInt(meta.guests) || 1,
+                }, booking, meta.userEmail, calculatedPrice)
                 .catch(err => console.error('Smoobu sync error:', err));
 
-              console.log('Webhook: Checkout session booking created:', booking._id);
+                console.log('Webhook: Checkout session booking created:', booking._id);
+              } catch (dupErr) {
+                if (dupErr.code === 11000) {
+                  console.log('Webhook: Duplicate prevented — booking already created for:', session.payment_intent);
+                } else {
+                  throw dupErr;
+                }
+              }
             }
           } else {
             console.log('Webhook: Checkout session booking already exists for:', session.payment_intent);

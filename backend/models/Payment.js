@@ -47,4 +47,7 @@ const paymentSchema = new mongoose.Schema({
   }
 });
 
+// Prevent duplicate bookings from race between webhook and verification endpoint
+paymentSchema.index({ stripePaymentId: 1 }, { unique: true, sparse: true });
+
 export default mongoose.model('Payment', paymentSchema);

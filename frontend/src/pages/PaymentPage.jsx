@@ -75,7 +75,7 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
           </div>
         )}
 
-        {configLoaded && hasStripe && (
+        {configLoaded && (hasStripe || paypalViaStripe) && (
           <div className="payment-grid">
             <div className="payment-form-section">
               {/* PayPal via Stripe section FIRST */}
@@ -99,17 +99,19 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
               )}
 
               {/* Divider between PayPal and credit card */}
-              {paypalViaStripe && (
+              {hasStripe && paypalViaStripe && (
                 <div className="payment-divider"><span>{t('payment.or', 'or')}</span></div>
               )}
 
               {/* Credit card form BELOW PayPal */}
-              <Elements stripe={stripe}>
-                <PaymentForm 
-                  bookingData={bookingData} 
-                  onSuccess={onPaymentSuccess}
-                />
-              </Elements>
+              {hasStripe && (
+                <Elements stripe={stripe}>
+                  <PaymentForm 
+                    bookingData={bookingData} 
+                    onSuccess={onPaymentSuccess}
+                  />
+                </Elements>
+              )}
             </div>
 
             <div className="booking-summary-section">
