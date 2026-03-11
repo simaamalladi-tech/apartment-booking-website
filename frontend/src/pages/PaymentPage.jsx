@@ -267,6 +267,8 @@ function PaymentPage({ bookingData, onPaymentSuccess, onCancel }) {
     intent: 'capture',
     components: 'buttons',
     disableFunding: 'card,credit',
+    locale: 'de_DE',
+    ...(paypalMode !== 'live' ? { 'buyer-country': 'DE' } : {}),
   }), [paypalClientId]);
 
   // Wrap in PayPalScriptProvider once clientId is available — never unmounts
