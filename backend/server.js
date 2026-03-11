@@ -32,7 +32,17 @@ const __dirname = path.dirname(__filename);
 
 // Security headers
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable CSP for SPA compatibility
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://js.stripe.com", "https://www.paypal.com"],
+      frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com", "https://www.paypal.com", "https://www.google.com"],
+      connectSrc: ["'self'", "https://api.stripe.com", "https://www.paypal.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      fontSrc: ["'self'", "https:", "data:"],
+    },
+  },
   crossOriginEmbedderPolicy: false
 }));
 
@@ -98,11 +108,11 @@ const authLimiter = rateLimit({
   legacyHeaders: false
 });
 
-// Apply general limiter to all API routes
-app.use('/api/', apiLimiter);
+// Apply general limiter to all API routes (exclude webhook — Stripe must reach it freely)
+app.use(/\/api\/(?!payments\/webhook)/, apiLimiter);
 
-// Apply stricter limiter to payment endpoints (prevent abuse)
-app.use('/api/payments/', authLimiter);
+// Apply stricter limiter to payment endpoints (exclude webhook)
+app.use(/\/api\/payments\/(?!webhook)/, authLimiter);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/apartment-booking')
@@ -168,8 +178,6 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
 app.get('/api/config', (req, res) => {
   res.json({
     stripePublishableKey: process.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
-    paypalClientId: process.env.PAYPAL_CLIENT_ID || '',
-    paypalMode: process.env.PAYPAL_MODE || 'sandbox',
     paypalViaStripe: process.env.PAYPAL_VIA_STRIPE === 'true',
   });
 });
@@ -180,20 +188,6 @@ app.get('/api/health', (req, res) => {
     status: 'Server is running', 
     timestamp: new Date().toISOString(),
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-  });
-});
-
-// Root API endpoint
-app.get('/api', (req, res) => {
-  res.json({
-    name: 'Apartment Booking API',
-    version: '1.0.0',
-    endpoints: {
-      health: '/api/health',
-      apartments: '/api/apartments',
-      bookings: '/api/bookings',
-      payments: '/api/payments'
-    }
   });
 });
 

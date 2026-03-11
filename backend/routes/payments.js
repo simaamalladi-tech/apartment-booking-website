@@ -31,6 +31,67 @@ if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET) {
   console.warn('PayPal credentials not configured, PayPal payments disabled');
 }
 
+// ─── Shared Smoobu availability + pricing check ───
+// Returns { calculatedPrice, unavailableDates, minStayViolation } or throws
+async function checkSmoobuAvailabilityAndPrice(apartment, checkIn, checkOut, nights) {
+  const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
+  const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+  let calculatedPrice = nights * apartment.price; // fallback
+
+  if (!SMOOBU_API_KEY) {
+    return { calculatedPrice, unavailableDates: [], minStayViolation: null };
+  }
+
+  try {
+    const startStr = checkIn.toISOString().split('T')[0];
+    const endStr = checkOut.toISOString().split('T')[0];
+    const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${startStr}&end_date=${endStr}`;
+    const ratesRes = await fetch(ratesUrl, {
+      headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+    });
+
+    if (!ratesRes.ok) {
+      return { calculatedPrice, unavailableDates: [], minStayViolation: null };
+    }
+
+    const ratesData = await ratesRes.json();
+    const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
+
+    const unavailableDates = [];
+    let smoobuTotal = 0;
+    let daysWithRate = 0;
+    let minStayViolation = null;
+
+    for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      const rate = apartmentRates[dateStr];
+
+      if (rate && !rate.available) {
+        unavailableDates.push(dateStr);
+      }
+      if (rate && rate.price) {
+        smoobuTotal += rate.price;
+        daysWithRate++;
+      } else {
+        smoobuTotal += apartment.price;
+      }
+      // Check minimum stay on the check-in date
+      if (dateStr === startStr && rate && rate.min_length_of_stay && nights < rate.min_length_of_stay) {
+        minStayViolation = rate.min_length_of_stay;
+      }
+    }
+
+    if (daysWithRate > 0) {
+      calculatedPrice = smoobuTotal;
+    }
+
+    return { calculatedPrice, unavailableDates, minStayViolation };
+  } catch (err) {
+    console.error('Smoobu availability/price check failed:', err.message);
+    return { calculatedPrice, unavailableDates: [], minStayViolation: null };
+  }
+}
+
 // Helper: Sync booking to Smoobu after successful payment (with retry)
 async function syncBookingToSmoobu(bookingData, savedBooking, email, totalPrice, maxRetries = 3) {
   const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
@@ -192,61 +253,24 @@ router.post('/create-payment-intent', async (req, res) => {
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
 
     // ─── SERVER-SIDE AVAILABILITY CHECK + PRICE CALCULATION via Smoobu ───
-    // Single API call for both availability and pricing
-    const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
-    const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
-    let calculatedPrice = nights * apartment.price; // fallback
+    const { calculatedPrice: smoobuPrice, unavailableDates, minStayViolation } = 
+      await checkSmoobuAvailabilityAndPrice(apartment, checkIn, checkOut, nights);
+    let calculatedPrice = smoobuPrice;
 
-    if (SMOOBU_API_KEY) {
-      try {
-        const startStr = checkIn.toISOString().split('T')[0];
-        const endStr = checkOut.toISOString().split('T')[0];
-        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${startStr}&end_date=${endStr}`;
-        const ratesRes = await fetch(ratesUrl, {
-          headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
-        });
-        if (ratesRes.ok) {
-          const ratesData = await ratesRes.json();
-          const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
+    if (unavailableDates.length > 0) {
+      console.warn('Booking rejected: dates unavailable on Smoobu:', unavailableDates);
+      return res.status(409).json({
+        success: false,
+        message: `Selected dates are no longer available: ${unavailableDates.join(', ')}`,
+        unavailableDates,
+      });
+    }
 
-          // Check availability AND calculate price in one pass
-          const unavailableDates = [];
-          let smoobuTotal = 0;
-          let daysWithRate = 0;
-          for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
-            const dateStr = d.toISOString().split('T')[0];
-            const rate = apartmentRates[dateStr];
-            if (rate && !rate.available) {
-              unavailableDates.push(dateStr);
-            }
-            if (rate && rate.price) {
-              smoobuTotal += rate.price;
-              daysWithRate++;
-            } else {
-              smoobuTotal += apartment.price;
-            }
-          }
-
-          // Reject if dates are unavailable
-          if (unavailableDates.length > 0) {
-            console.warn('Booking rejected: dates unavailable on Smoobu:', unavailableDates);
-            return res.status(409).json({
-              success: false,
-              message: `Selected dates are no longer available: ${unavailableDates.join(', ')}`,
-              unavailableDates,
-            });
-          }
-
-          // Use Smoobu price if available
-          if (daysWithRate > 0) {
-            calculatedPrice = smoobuTotal;
-            console.log(`Smoobu pricing: ${daysWithRate}/${nights} days with rate, total: €${calculatedPrice}`);
-          }
-        }
-      } catch (err) {
-        console.error('Smoobu availability/price check failed:', err.message);
-        // Continue with fallback price — check is best-effort
-      }
+    if (minStayViolation) {
+      return res.status(400).json({
+        success: false,
+        message: `Minimum stay for these dates is ${minStayViolation} nights`,
+      });
     }
 
     const amountInCents = Math.round(calculatedPrice * 100);
@@ -460,39 +484,16 @@ router.post('/paypal/create-order', async (req, res) => {
     }
 
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-    let calculatedPrice = nights * apartment.price;
 
     // Smoobu availability check + pricing
-    const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
-    const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+    const { calculatedPrice, unavailableDates, minStayViolation } = 
+      await checkSmoobuAvailabilityAndPrice(apartment, checkIn, checkOut, nights);
 
-    if (SMOOBU_API_KEY) {
-      try {
-        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${checkIn.toISOString().split('T')[0]}&end_date=${checkOut.toISOString().split('T')[0]}`;
-        const ratesRes = await fetch(ratesUrl, {
-          headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
-        });
-        if (ratesRes.ok) {
-          const ratesData = await ratesRes.json();
-          const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
-          const unavailableDates = [];
-          let smoobuTotal = 0;
-          let daysWithRate = 0;
-          for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
-            const dateStr = d.toISOString().split('T')[0];
-            const rate = apartmentRates[dateStr];
-            if (rate && !rate.available) unavailableDates.push(dateStr);
-            if (rate && rate.price) { smoobuTotal += rate.price; daysWithRate++; }
-            else { smoobuTotal += apartment.price; }
-          }
-          if (unavailableDates.length > 0) {
-            return res.status(409).json({ success: false, message: `Selected dates are no longer available: ${unavailableDates.join(', ')}`, unavailableDates });
-          }
-          if (daysWithRate > 0) calculatedPrice = smoobuTotal;
-        }
-      } catch (err) {
-        console.error('Smoobu check failed (PayPal):', err.message);
-      }
+    if (unavailableDates.length > 0) {
+      return res.status(409).json({ success: false, message: `Selected dates are no longer available: ${unavailableDates.join(', ')}`, unavailableDates });
+    }
+    if (minStayViolation) {
+      return res.status(400).json({ success: false, message: `Minimum stay for these dates is ${minStayViolation} nights` });
     }
 
     // Derive the site origin for PayPal return/cancel URLs.
@@ -596,32 +597,8 @@ router.post('/paypal/capture-order', async (req, res) => {
       const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
 
       // Verify captured amount matches expected (within €1 tolerance for rounding)
-      const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
-      const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
-      let expectedPrice = nights * apartment.price;
-      if (SMOOBU_API_KEY) {
-        try {
-          const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${checkIn.toISOString().split('T')[0]}&end_date=${checkOut.toISOString().split('T')[0]}`;
-          const ratesRes = await fetch(ratesUrl, {
-            headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json' },
-          });
-          if (ratesRes.ok) {
-            const ratesData = await ratesRes.json();
-            const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
-            let smoobuTotal = 0;
-            let daysWithRate = 0;
-            for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
-              const dateStr = d.toISOString().split('T')[0];
-              const rate = apartmentRates[dateStr];
-              if (rate && rate.price) { smoobuTotal += rate.price; daysWithRate++; }
-              else { smoobuTotal += apartment.price; }
-            }
-            if (daysWithRate > 0) expectedPrice = smoobuTotal;
-          }
-        } catch (err) {
-          console.warn('Price verification check failed:', err.message);
-        }
-      }
+      const { calculatedPrice: expectedPrice } = 
+        await checkSmoobuAvailabilityAndPrice(apartment, checkIn, checkOut, nights);
       if (Math.abs(capturedAmount - expectedPrice) > 1) {
         console.error(`PayPal price mismatch: captured €${capturedAmount}, expected €${expectedPrice}`);
         // Still save the booking since money was captured, but flag it
@@ -709,39 +686,16 @@ router.post('/create-checkout-session', async (req, res) => {
     }
 
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-    let calculatedPrice = nights * apartment.price;
 
     // Smoobu availability check + pricing
-    const SMOOBU_API_KEY = process.env.SMOOBU_API_KEY;
-    const SMOOBU_APARTMENT_ID = process.env.SMOOBU_APARTMENT_ID || '1896269';
+    const { calculatedPrice, unavailableDates, minStayViolation } = 
+      await checkSmoobuAvailabilityAndPrice(apartment, checkIn, checkOut, nights);
 
-    if (SMOOBU_API_KEY) {
-      try {
-        const ratesUrl = `https://login.smoobu.com/api/rates?apartments[]=${SMOOBU_APARTMENT_ID}&start_date=${checkIn.toISOString().split('T')[0]}&end_date=${checkOut.toISOString().split('T')[0]}`;
-        const ratesRes = await fetch(ratesUrl, {
-          headers: { 'Api-Key': SMOOBU_API_KEY, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
-        });
-        if (ratesRes.ok) {
-          const ratesData = await ratesRes.json();
-          const apartmentRates = ratesData.data?.[SMOOBU_APARTMENT_ID] || {};
-          const unavailableDates = [];
-          let smoobuTotal = 0;
-          let daysWithRate = 0;
-          for (let d = new Date(checkIn); d < checkOut; d.setUTCDate(d.getUTCDate() + 1)) {
-            const dateStr = d.toISOString().split('T')[0];
-            const rate = apartmentRates[dateStr];
-            if (rate && !rate.available) unavailableDates.push(dateStr);
-            if (rate && rate.price) { smoobuTotal += rate.price; daysWithRate++; }
-            else { smoobuTotal += apartment.price; }
-          }
-          if (unavailableDates.length > 0) {
-            return res.status(409).json({ success: false, message: `Selected dates are no longer available: ${unavailableDates.join(', ')}`, unavailableDates });
-          }
-          if (daysWithRate > 0) calculatedPrice = smoobuTotal;
-        }
-      } catch (err) {
-        console.error('Smoobu check failed (Checkout):', err.message);
-      }
+    if (unavailableDates.length > 0) {
+      return res.status(409).json({ success: false, message: `Selected dates are no longer available: ${unavailableDates.join(', ')}`, unavailableDates });
+    }
+    if (minStayViolation) {
+      return res.status(400).json({ success: false, message: `Minimum stay for these dates is ${minStayViolation} nights` });
     }
 
     const amountInCents = Math.round(calculatedPrice * 100);
@@ -904,6 +858,11 @@ router.get('/checkout-session/:sessionId', async (req, res) => {
 // Webhook endpoint for Stripe events
 // Note: express.raw() is applied at the server level for this path (before express.json)
 router.post('/webhook', async (req, res) => {
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    console.error('STRIPE_WEBHOOK_SECRET not set — webhook cannot verify signatures');
+    return res.status(503).json({ received: false, message: 'Webhook not configured' });
+  }
+
   const sig = req.headers['stripe-signature'];
 
   try {

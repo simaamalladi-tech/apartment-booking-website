@@ -77,10 +77,15 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
 
         {configLoaded && (hasStripe || paypalViaStripe) && (
           <div className="payment-grid">
-            <div className="payment-form-section">
-              {/* PayPal via Stripe section FIRST */}
+            <div className="payment-methods-column">
+              {/* PayPal via Stripe card */}
               {paypalViaStripe && (
-                <div className="paypal-section">
+                <div className="payment-method-card">
+                  <div className="payment-method-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#0070ba"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c2.377-.56 3.794-2.27 4.244-5.266C26.164-1.254 23.598 0 20.534 0h-1.82l.526-3.076-.018.103z"/></svg>
+                    <h3>{t('payment.payWithPaypal', 'Pay with PayPal')}</h3>
+                  </div>
+                  <p className="payment-method-desc">{t('payment.paypalDesc', 'You will be redirected to PayPal to complete your payment securely.')}</p>
                   <button
                     className="paypal-stripe-btn"
                     onClick={handlePaypalViaStripe}
@@ -89,10 +94,7 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
                     {paypalLoading ? (
                       <span>{t('payment.processing')}</span>
                     ) : (
-                      <>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c2.377-.56 3.794-2.27 4.244-5.266C26.164-1.254 23.598 0 20.534 0h-1.82l.526-3.076-.018.103z"/></svg>
-                        <span>PayPal</span>
-                      </>
+                      <span>PayPal</span>
                     )}
                   </button>
                 </div>
@@ -103,14 +105,20 @@ function PaymentPageContent({ bookingData, onPaymentSuccess, onCancel, stripe, p
                 <div className="payment-divider"><span>{t('payment.or', 'or')}</span></div>
               )}
 
-              {/* Credit card form BELOW PayPal */}
+              {/* Credit card card */}
               {hasStripe && (
-                <Elements stripe={stripe}>
-                  <PaymentForm 
-                    bookingData={bookingData} 
-                    onSuccess={onPaymentSuccess}
-                  />
-                </Elements>
+                <div className="payment-method-card">
+                  <div className="payment-method-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#667eea"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                    <h3>{t('payment.payWithCard', 'Pay with Credit Card')}</h3>
+                  </div>
+                  <Elements stripe={stripe}>
+                    <PaymentForm 
+                      bookingData={bookingData} 
+                      onSuccess={onPaymentSuccess}
+                    />
+                  </Elements>
+                </div>
               )}
             </div>
 

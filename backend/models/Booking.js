@@ -61,4 +61,7 @@ const bookingSchema = new mongoose.Schema({
   }
 });
 
+// Index for webhook/payment lookups
+bookingSchema.index({ paymentId: 1 }, { sparse: true });
+
 export default mongoose.model('Booking', bookingSchema);

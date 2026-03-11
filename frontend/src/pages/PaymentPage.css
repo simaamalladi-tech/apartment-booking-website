@@ -52,11 +52,35 @@
   gap: 2rem;
 }
 
-.payment-form-section {
+.payment-methods-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-method-card {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.payment-method-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.75rem;
+}
+
+.payment-method-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.payment-method-desc {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
 }
 
 .booking-summary-section {
@@ -152,10 +176,6 @@
 }
 
 /* PayPal section */
-.paypal-section {
-  padding-top: 0.5rem;
-}
-
 .paypal-stripe-btn {
   width: 100%;
   padding: 14px 24px;
@@ -250,7 +270,7 @@
     padding: 1rem;
   }
 
-  .payment-form-section {
+  .payment-method-card {
     padding: 1rem;
   }
 }
@@ -264,7 +284,7 @@
     font-size: 1.3rem;
   }
 
-  .payment-form-section,
+  .payment-method-card,
   .summary-card {
     padding: 0.75rem;
     border-radius: 10px;
