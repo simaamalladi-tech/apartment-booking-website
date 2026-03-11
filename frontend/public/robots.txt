@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://alt-berliner-eckkneipe.de/sitemap.xml

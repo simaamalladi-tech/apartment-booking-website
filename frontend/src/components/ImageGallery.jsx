@@ -34,9 +34,10 @@ function ImageGallery({ images = [] }) {
         <img 
           key={currentImageIndex}
           src={galleryImages[currentImageIndex]}
-          alt={t('gallery.imageAlt', { number: currentImageIndex + 1 })}
+          alt={`Alt-Berliner Eckkneipe apartment – ${t('gallery.imageAlt', { number: currentImageIndex + 1 })}`}
           className="main-image"
-          loading="lazy"
+          loading={currentImageIndex === 0 ? 'eager' : 'lazy'}
+          fetchPriority={currentImageIndex === 0 ? 'high' : undefined}
         />
         
         {/* Navigation Arrows */}

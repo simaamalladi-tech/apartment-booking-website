@@ -97,15 +97,20 @@ function PropertyHero({ apartment, onBookNow }) {
   const displayPrice = startingPrice || apartment.price;
 
   return (
-    <div className="property-hero">
+    <article className="property-hero" itemScope itemType="https://schema.org/LodgingBusiness">
+      <meta itemProp="name" content="Alt-Berliner Eckkneipe" />
+      <meta itemProp="address" content="Gustav-Adolf-Straße 146A, 13086 Berlin" />
+
       {/* Hero Image Gallery */}
       <ImageGallery images={apartment.images} />
 
       {/* Property Info Section */}
-      <div className="property-info-section">
+      <section className="property-info-section">
         <div className="property-info-container">
           {/* Left: Details */}
           <div className="property-details">
+            <h1 className="sr-only">{t('property.title')} – {t('property.seoSubtitle', 'Holiday Apartment in Berlin')}</h1>
+
             {/* Rating & Address Bar */}
             <div className="property-header-bar fade-in-up">
               <div className="rating-badge">
@@ -337,13 +342,13 @@ function PropertyHero({ apartment, onBookNow }) {
             <ReviewsCarousel t={t} />
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Floating Book Now Button */}
       <button className="floating-book-btn" onClick={onBookNow} aria-label={t('cta.bookNow')}>
         {t('cta.bookNow')} →
       </button>
-    </div>
+    </article>
   );
 }
 

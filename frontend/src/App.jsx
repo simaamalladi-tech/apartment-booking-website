@@ -24,6 +24,26 @@ function App() {
   const [headerHidden, setHeaderHidden] = useState(false);
   const lastScrollY = useRef(0);
 
+  // Update <html lang> when language changes
+  useEffect(() => {
+    document.documentElement.lang = i18n.language || 'en';
+  }, [i18n.language]);
+
+  // Update <title> per page for SEO
+  useEffect(() => {
+    const titles = {
+      home: 'Alt-Berliner Eckkneipe – Holiday Apartment in Berlin | Book Direct',
+      booking: `${t('booking.title', 'Book Your Stay')} – Alt-Berliner Eckkneipe`,
+      payment: `${t('payment.title', 'Payment')} – Alt-Berliner Eckkneipe`,
+      confirmation: `${t('confirmation.title', 'Booking Confirmed')} – Alt-Berliner Eckkneipe`,
+      contact: `${t('nav.contact', 'Contact')} – Alt-Berliner Eckkneipe`,
+      impressum: `${t('footer.impressum', 'Impressum')} – Alt-Berliner Eckkneipe`,
+      privacy: `${t('footer.privacy', 'Privacy Policy')} – Alt-Berliner Eckkneipe`,
+      terms: `${t('footer.terms', 'Terms')} – Alt-Berliner Eckkneipe`,
+    };
+    document.title = titles[currentPage] || titles.home;
+  }, [currentPage, i18n.language, t]);
+
   // Fetch the single property on mount
   useEffect(() => {
     const fetchProperty = async () => {
